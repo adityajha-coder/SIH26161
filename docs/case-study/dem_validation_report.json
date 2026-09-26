@@ -1,0 +1,40 @@
+{
+  "dataset": "Copernicus GLO-30 DEM (Tehri - Haridwar Reach)",
+  "crs": "EPSG:32644",
+  "pixel_size_m": [
+    30.0,
+    30.0
+  ],
+  "grid_dimensions": [
+    2146,
+    2635
+  ],
+  "bounds_utm": {
+    "min_x": 219808.20399526763,
+    "min_y": 3304278.6493456936,
+    "max_x": 284188.2039952676,
+    "max_y": 3383328.6493456936
+  },
+  "elevation_metrics_m": {
+    "min": 256.0,
+    "max": 2763.07,
+    "mean": 1152.92,
+    "std": 522.32,
+    "dam_crest": 839.5
+  },
+  "pixel_integrity": {
+    "total_pixels": 5654710,
+    "valid_pixels": 5400597,
+    "void_pixels": 254113,
+    "void_percent": 4.4938
+  },
+  "quality_gates": {
+    "crs_is_metric_utm": true,
+    "resolution_is_30m": true,
+    "void_percentage_acceptable": true,
+    "dam_crest_within_range": true,
+    "elevations_physically_sound": true
+  },
+  "status": "PASS",
+  "timestamp": "2026-09-26T14:48:33Z"
+}

@@ -1,4 +1,4 @@
-.PHONY: all infra-up infra-down infra-logs run test migrate migrate-down seed upload-dem
+.PHONY: all infra-up infra-down infra-logs run test migrate migrate-down seed upload-dem preprocess-dem
 
 all: infra-up
 
@@ -28,3 +28,6 @@ seed:
 
 upload-dem:
 	cd server && go run ./cmd/upload_dem
+
+preprocess-dem:
+	python scripts/gis/preprocess_dem.py
