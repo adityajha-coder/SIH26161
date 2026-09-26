@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"github.com/sih26161/backend/internal/config"
+	"github.com/sih26161/backend/config"
 )
 
 func main() {
@@ -158,22 +158,34 @@ func runDown(db *sql.DB, dir string) {
 }
 
 func runStatus(db *sql.DB, dir string) {
+	files, err := filepath.Glob(filepath.Join(dir, "*.up.sql"))
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to read migration files")
+	}
+	sort.Strings(files)
+
+	applied := make(map[string]string)
 	rows, err := db.Query("SELECT version, applied_at FROM schema_migrations ORDER BY applied_at ASC")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to query schema_migrations")
 	}
 	defer rows.Close()
 
-	fmt.Println("\n--- Applied Migrations ---")
-	count := 0
 	for rows.Next() {
 		var ver, appliedAt string
 		_ = rows.Scan(&ver, &appliedAt)
-		fmt.Printf(" [X] %s (applied: %s)\n", ver, appliedAt)
-		count++
+		applied[ver] = appliedAt
 	}
-	if count == 0 {
-		fmt.Println(" (None)")
+
+	fmt.Println("\n--- Database Migration Status ---")
+	for _, file := range files {
+		base := filepath.Base(file)
+		ver := strings.TrimSuffix(base, ".up.sql")
+		if appliedAt, ok := applied[ver]; ok {
+			fmt.Printf(" [X] %s (applied: %s)\n", ver, appliedAt)
+		} else {
+			fmt.Printf(" [ ] %s (pending)\n", ver)
+		}
 	}
 	fmt.Println()
 }

@@ -18,6 +18,7 @@ build/
 
 data/raw/
 data/processed/
+data/storage/
 *.tif
 *.tiff
 *.geotiff

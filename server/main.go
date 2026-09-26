@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,11 +14,12 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/rs/zerolog/log"
 
-	"github.com/sih26161/backend/internal/config"
-	"github.com/sih26161/backend/internal/db"
-	"github.com/sih26161/backend/internal/handlers"
-	"github.com/sih26161/backend/internal/logger"
-	"github.com/sih26161/backend/internal/ws"
+	"github.com/sih26161/backend/config"
+	"github.com/sih26161/backend/db"
+	"github.com/sih26161/backend/handlers"
+	"github.com/sih26161/backend/logger"
+	"github.com/sih26161/backend/storage"
+	"github.com/sih26161/backend/ws"
 )
 
 func main() {
@@ -35,10 +37,20 @@ func main() {
 		defer database.Close()
 	}
 
+	store, err := storage.NewClient(cfg)
+	if err != nil {
+		log.Warn().Err(err).Msg("Storage client initialization warning")
+	}
+
 	hub := ws.NewHub()
 	go hub.Run()
 
 	healthH := handlers.NewHealthHandler(database)
+	var sqlDB *sql.DB
+	if database != nil {
+		sqlDB = database.Conn
+	}
+	datasetH := handlers.NewDatasetHandler(sqlDB, store)
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -61,6 +73,13 @@ func main() {
 			w.Header().Set("Content-Type", "application/json")
 			w.Write([]byte(`{"service":"sih26161-backend","version":"1.0.0"}`))
 		})
+	})
+
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Get("/datasets", datasetH.ListDatasets)
+		r.Get("/datasets/{id}", datasetH.GetDataset)
+		r.Get("/datasets/{id}/download", datasetH.DownloadDataset)
+		r.Get("/storage/download", datasetH.LocalDownload)
 	})
 
 	srv := &http.Server{

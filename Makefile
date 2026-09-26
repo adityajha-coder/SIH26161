@@ -1,4 +1,4 @@
-.PHONY: all infra-up infra-down infra-logs run test migrate migrate-down
+.PHONY: all infra-up infra-down infra-logs run test migrate migrate-down seed upload-dem
 
 all: infra-up
 
@@ -22,3 +22,9 @@ migrate:
 
 migrate-down:
 	cd server && go run ./cmd/migrate down
+
+seed:
+	cd server && go run ./cmd/seed
+
+upload-dem:
+	cd server && go run ./cmd/upload_dem

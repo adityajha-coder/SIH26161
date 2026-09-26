@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sih26161/backend/internal/db"
+	"github.com/sih26161/backend/db"
 )
 
 type HealthResponse struct {
