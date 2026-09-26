@@ -1,0 +1,56 @@
+{
+  "primary_case": {
+    "id": "tehri-dam",
+    "name": "Tehri Dam (Bhagirathi River)",
+    "description": "Highest earth and rock-fill dam in India, set in a steep Himalayan gorge extending to Rishikesh/Haridwar floodplains.",
+    "state": "Uttarakhand",
+    "basin": "Ganga / Bhagirathi",
+    "bbox": {
+      "min_lon": 78.10,
+      "min_lat": 29.85,
+      "max_lon": 78.75,
+      "max_lat": 30.55
+    },
+    "dam": {
+      "id": "dam-tehri",
+      "name": "Tehri Dam",
+      "type": "Earth and Rock-fill",
+      "height_m": 260.5,
+      "crest_length_m": 575.0,
+      "gross_storage_mcm": 3540.0,
+      "effective_storage_mcm": 2615.0,
+      "full_reservoir_level_m": 830.0,
+      "max_water_level_m": 835.0,
+      "crest_elevation_m": 839.5,
+      "spillway_capacity_cumec": 15300.0,
+      "year_completed": 2006,
+      "coordinates": {
+        "lon": 78.4803,
+        "lat": 30.3781
+      }
+    },
+    "river": {
+      "id": "river-bhagirathi",
+      "name": "Bhagirathi - Ganga",
+      "reach_length_km": 105.0
+    }
+  },
+  "secondary_case": {
+    "id": "rishiganga-chamoli",
+    "name": "Rishiganga River Blockage (Chamoli 2021)",
+    "description": "Documented 2021 rock-ice avalanche and river blockage breach in Chamoli district used for empirical model validation.",
+    "state": "Uttarakhand",
+    "basin": "Alaknanda",
+    "bbox": {
+      "min_lon": 79.55,
+      "min_lat": 30.40,
+      "max_lon": 79.85,
+      "max_lat": 30.60
+    },
+    "coordinates": {
+      "lon": 79.7310,
+      "lat": 30.4850
+    },
+    "reach_length_km": 25.0
+  }
+}

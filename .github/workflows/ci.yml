@@ -22,10 +22,10 @@ jobs:
 
       - name: Run Backend Tests
         run: |
-          cd Server
+          cd server
           go test -v ./...
 
       - name: Build Backend Server
         run: |
-          cd Server
+          cd server
           go build -v ./...

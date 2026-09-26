@@ -1,0 +1,24 @@
+{
+  "id": "population-tehri-corridor",
+  "case_id": "tehri-dam",
+  "primary_source": {
+    "provider": "WorldPop / Census of India (Projected 2020/2024)",
+    "dataset": "IND_ppp_2020_UNadj_constrained",
+    "resolution_m": 100.0,
+    "horizontal_crs": "EPSG:4326",
+    "source_url": "https://data.worldpop.org/GIS/Population/Global_2000_2020_Constrained/2020/maxar_v1/IND/ind_ppp_2020_UNadj_constrained.tif",
+    "checksum_sha256": "4b9e2f1a6c8d7e0b5a3f2c1d8e9a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a"
+  },
+  "storage": {
+    "bucket": "sih26161",
+    "object_path": "population/tehri_reach_pop100m.tif",
+    "uri": "s3://sih26161/population/tehri_reach_pop100m.tif"
+  },
+  "exposure_estimates": {
+    "upper_gorge_reach_pop": 18500,
+    "devprayag_confluence_pop": 24000,
+    "rishikesh_urban_pop": 115000,
+    "haridwar_plain_pop": 230000,
+    "total_estimated_corridor_population": 387500
+  }
+}

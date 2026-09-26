@@ -1,0 +1,39 @@
+{
+  "id": "manifest-dem-tehri",
+  "case_id": "tehri-dam",
+  "dataset_name": "Copernicus GLO-30 / CartoDEM Digital Elevation Model",
+  "primary_source": {
+    "provider": "Copernicus / OpenTopography / ISRO Bhuvan",
+    "dataset": "COP30_GLO",
+    "resolution_m": 30.0,
+    "spatial_resolution_arcsec": 1.0,
+    "horizontal_crs": "EPSG:4326",
+    "vertical_crs": "EGM2008",
+    "acquisition_date": "2021-01-01",
+    "format": "Cloud-Optimized GeoTIFF (COG)",
+    "source_url": "https://portal.opentopography.org/raster?opentopoHash=6d507fc36d9333da7e4922ca52199b5a",
+    "checksum_sha256": "c1cb80f45573de3b823b4c06b8a8c147b45f9ddbd3284d3588a3773b7741dd04"
+  },
+  "storage": {
+    "local_raw_path": "data/raw/tehri_cop30.tif",
+    "file_size_bytes": 24626691,
+    "bucket": "sih26161",
+    "object_path": "dems/tehri_reach_cop30.tif",
+    "uri": "s3://sih26161/dems/tehri_reach_cop30.tif"
+  },
+  "spatial_coverage": {
+    "bbox": {
+      "min_lon": 78.10,
+      "min_lat": 29.85,
+      "max_lon": 78.75,
+      "max_lat": 30.55
+    },
+    "projected_crs": "EPSG:32644",
+    "utm_zone": "44N"
+  },
+  "elevation_bounds": {
+    "min_elevation_m": 250.0,
+    "max_elevation_m": 2650.0,
+    "dam_crest_elevation_m": 839.5
+  }
+}

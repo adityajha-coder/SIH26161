@@ -1,0 +1,55 @@
+{
+  "id": "dam-tehri",
+  "case_id": "tehri-dam",
+  "national_id": "UT09HH0001",
+  "name": "Tehri Dam",
+  "official_source": {
+    "agency": "Central Water Commission (CWC) / India-WRIS",
+    "registry": "National Register of Large Dams (NRLD)",
+    "verification_status": "official"
+  },
+  "location": {
+    "state": "Uttarakhand",
+    "district": "Tehri Garhwal",
+    "river": "Bhagirathi",
+    "basin": "Ganga",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [78.4803, 30.3781]
+    }
+  },
+  "structural_parameters": {
+    "dam_type": "Earth and Rock-fill",
+    "structural_height_m": 260.5,
+    "hydraulic_height_m": 239.5,
+    "crest_length_m": 575.0,
+    "crest_width_m": 20.0,
+    "base_width_m": 1125.0,
+    "top_elevation_m": 839.5,
+    "year_completed": 2006
+  },
+  "reservoir_parameters": {
+    "gross_storage_mcm": 3540.0,
+    "effective_storage_mcm": 2615.0,
+    "dead_storage_mcm": 925.0,
+    "reservoir_area_sqkm": 42.0,
+    "full_reservoir_level_m": 830.0,
+    "max_water_level_m": 835.0,
+    "min_drawdown_level_m": 740.0
+  },
+  "spillway_parameters": {
+    "type": "Chute Spillway + 4 Shaft Spillways",
+    "crest_elevation_m": 815.0,
+    "chute_capacity_cumec": 5500.0,
+    "shaft_capacity_cumec": 9800.0,
+    "total_discharge_capacity_cumec": 15300.0
+  },
+  "crest_geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [78.4785, 30.3792],
+      [78.4803, 30.3781],
+      [78.4821, 30.3770]
+    ]
+  }
+}

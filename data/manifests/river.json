@@ -1,0 +1,80 @@
+{
+  "id": "river-bhagirathi-ganga",
+  "case_id": "tehri-dam",
+  "name": "Bhagirathi - Upper Ganga River System",
+  "sources": [
+    "OpenStreetMap (OSM) Waterways via Overpass API",
+    "HydroSHEDS 15s Global River Network"
+  ],
+  "reach_summary": {
+    "total_length_km": 105.0,
+    "origin": "Tehri Dam (Outlet)",
+    "terminus": "Haridwar Barrage",
+    "average_bed_slope": 0.0055,
+    "manning_roughness": {
+      "gorge_bed": 0.045,
+      "gravel_cobble": 0.038,
+      "floodplain_vegetated": 0.055
+    }
+  },
+  "key_monitoring_cross_sections": [
+    {
+      "id": "xs-01-dam-toe",
+      "distance_km": 0.5,
+      "name": "Tehri Dam Toe",
+      "lon": 78.4815,
+      "lat": 30.3765,
+      "bed_elevation_m": 598.0
+    },
+    {
+      "id": "xs-02-koteshwar",
+      "distance_km": 22.0,
+      "name": "Koteshwar Dam Reservoir",
+      "lon": 78.5020,
+      "lat": 30.2780,
+      "bed_elevation_m": 515.0
+    },
+    {
+      "id": "xs-03-devprayag",
+      "distance_km": 42.0,
+      "name": "Devprayag Confluence (Bhagirathi + Alaknanda)",
+      "lon": 78.5990,
+      "lat": 30.1460,
+      "bed_elevation_m": 460.0
+    },
+    {
+      "id": "xs-04-rishikesh",
+      "distance_km": 85.0,
+      "name": "Rishikesh Town / Triveni Ghat",
+      "lon": 78.2930,
+      "lat": 30.0860,
+      "bed_elevation_m": 335.0
+    },
+    {
+      "id": "xs-05-haridwar",
+      "distance_km": 105.0,
+      "name": "Haridwar (Har Ki Pauri)",
+      "lon": 78.1640,
+      "lat": 29.9560,
+      "bed_elevation_m": 292.0
+    }
+  ],
+  "centerline": {
+    "type": "LineString",
+    "coordinates": [
+      [78.4803, 30.3781],
+      [78.4880, 30.3520],
+      [78.5020, 30.2780],
+      [78.5340, 30.2210],
+      [78.5710, 30.1740],
+      [78.5990, 30.1460],
+      [78.5420, 30.1120],
+      [78.4650, 30.0780],
+      [78.3710, 30.0620],
+      [78.2930, 30.0860],
+      [78.2540, 30.0350],
+      [78.1920, 29.9820],
+      [78.1640, 29.9560]
+    ]
+  }
+}

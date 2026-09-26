@@ -1,0 +1,82 @@
+{
+  "id": "exposure-tehri-reach",
+  "case_id": "tehri-dam",
+  "source": "OpenStreetMap Overpass API (OSM Buildings, Highways, Amenities)",
+  "settlements": [
+    {
+      "name": "Old Tehri (Submerged) / New Tehri",
+      "type": "Town",
+      "distance_km": 2.0,
+      "coordinates": [78.4800, 30.3800]
+    },
+    {
+      "name": "Devprayag",
+      "type": "Town / Confluence",
+      "distance_km": 42.0,
+      "coordinates": [78.5990, 30.1460]
+    },
+    {
+      "name": "Kaudiyala / Shivpuri",
+      "type": "Settlement",
+      "distance_km": 68.0,
+      "coordinates": [78.4120, 30.1380]
+    },
+    {
+      "name": "Rishikesh",
+      "type": "City",
+      "distance_km": 85.0,
+      "coordinates": [78.2930, 30.0860]
+    },
+    {
+      "name": "Haridwar",
+      "type": "City",
+      "distance_km": 105.0,
+      "coordinates": [78.1640, 29.9560]
+    }
+  ],
+  "critical_infrastructure": [
+    {
+      "name": "Koteshwar Hydroelectric Dam",
+      "category": "Energy / Dam",
+      "distance_km": 22.0,
+      "coordinates": [78.5020, 30.2780]
+    },
+    {
+      "name": "Devprayag Suspension Bridges",
+      "category": "Transportation",
+      "distance_km": 42.0,
+      "coordinates": [78.5985, 30.1455]
+    },
+    {
+      "name": "Laxman Jhula & Ram Jhula",
+      "category": "Heritage / Pedestrian Bridge",
+      "distance_km": 84.0,
+      "coordinates": [78.3280, 30.1260]
+    },
+    {
+      "name": "Bhimawala Barrage / Haridwar Barrage",
+      "category": "Water Management",
+      "distance_km": 105.0,
+      "coordinates": [78.1650, 29.9530]
+    },
+    {
+      "name": "National Highway 58 (Rishikesh - Badrinath Corridor)",
+      "category": "Critical Highway",
+      "length_in_flood_zone_km": 65.0
+    }
+  ],
+  "facilities": [
+    {
+      "name": "AIIMS Rishikesh",
+      "category": "Hospital",
+      "coordinates": [78.2840, 30.0760],
+      "elevation_m": 352.0
+    },
+    {
+      "name": "Haridwar District Hospital",
+      "category": "Hospital",
+      "coordinates": [78.1560, 29.9480],
+      "elevation_m": 298.0
+    }
+  ]
+}
