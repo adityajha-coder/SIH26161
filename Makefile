@@ -1,14 +1,23 @@
-.PHONY: all infra-up infra-down infra-logs run test migrate migrate-down seed upload-dem preprocess-dem generate-tiles upload-tiles
+.PHONY: all infra-up infra-down infra-logs docker-up docker-down docker-logs run test migrate migrate-down seed upload-dem preprocess-dem generate-tiles upload-tiles frontend-dev frontend-build
 
 all: infra-up
 
 infra-up:
-	docker compose up -d
+	docker compose up -d postgres redis minio minio-init
 
 infra-down:
 	docker compose down
 
 infra-logs:
+	docker compose logs -f postgres redis minio
+
+docker-up:
+	docker compose up -d --build
+
+docker-down:
+	docker compose down
+
+docker-logs:
 	docker compose logs -f
 
 run:
@@ -39,8 +48,8 @@ upload-tiles:
 	cd server && go run ./cmd/upload_tiles
 
 frontend-dev:
-	cd frontend && npm run dev
+	cd frontend && pnpm dev
 
 frontend-build:
-	cd frontend && npm run build
+	cd frontend && pnpm build
 

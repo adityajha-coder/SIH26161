@@ -77,6 +77,8 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	r.Get("/ws", hub.HandleWebSocket)
+
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/health", healthH.Health)
 		r.Get("/health/db", healthH.HealthDB)

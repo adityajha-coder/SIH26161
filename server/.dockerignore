@@ -1,0 +1,17 @@
+# Git
+.git
+.gitignore
+
+# Environment & Credentials
+.env*
+gee-credentials.json
+
+# Development & Cache
+vendor/
+tmp/
+temp/
+*.log
+logs/
+*.test
+*.out
+data/

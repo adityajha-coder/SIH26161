@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import type { FeatureCollection, Geometry, Position } from 'geojson'
 import { Plus, Minus, Compass, Maximize2, X } from 'lucide-react'
 import { TEHRI } from '@/lib/case-study'
-import { ATTRIBUTION, TILES } from '@/lib/config'
+import { ATTRIBUTION, TILES, CESIUM_ION_TOKEN } from '@/lib/config'
 import type { FloodBands } from '@/lib/flood-model'
 import { formatClock, formatNumber } from '@/lib/format'
 import { useGeoData } from '@/lib/geo'
@@ -31,6 +31,9 @@ function loadCesium(): Promise<CesiumType> {
     cesiumPromise = (async () => {
       ;(window as unknown as { CESIUM_BASE_URL: string }).CESIUM_BASE_URL = '/cesium'
       const Cesium = await import('cesium')
+      if (CESIUM_ION_TOKEN) {
+        Cesium.Ion.defaultAccessToken = CESIUM_ION_TOKEN
+      }
       return Cesium
     })()
   }

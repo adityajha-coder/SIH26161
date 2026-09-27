@@ -1,0 +1,62 @@
+# Version Control
+.git
+.github
+.gitignore
+
+# Environment & Secrets
+.env*
+!*.env.example
+gee-credentials.json
+
+# Node & Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/public/cesium/
+
+# Go & Backend
+server/vendor/
+server/gee-credentials.json
+*.test
+*.out
+
+# Data & GIS Blobs
+data/raw/
+data/processed/
+data/storage/
+*.tif
+*.tiff
+*.geotiff
+*.nc
+*.nc4
+*.hdf
+*.hdf5
+*.vtk
+*.vtu
+*.vtp
+*.grib
+*.grib2
+*.dat
+*.his
+*.map
+*.rst
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs & Temp
+*.log
+logs/
+tmp/
+temp/
+
+# Documentation & Scratch
+Plan/
+TODO.md
+Done.md
+cmd.txt
