@@ -43,7 +43,7 @@ export function ArrivalTable({ result }: { result: FloodResult | null }) {
               <td className="py-2 text-white font-medium">{r.town}</td>
               <td className="py-2 text-right font-mono tabular-nums text-[#949ba4]">{formatNumber(r.chainageKm, 1)} km</td>
               <td className="py-2 text-right font-mono tabular-nums text-[#dbdee1]">{r.station ? formatClock(r.station.arrivalS) : 'outside domain'}</td>
-              <td className="py-2 text-right font-mono tabular-nums font-semibold text-[#7983f5]">{r.station ? `${formatNumber(r.station.peakDepthM, 1)} m` : '—'}</td>
+              <td className="py-2 text-right font-mono tabular-nums font-semibold text-white">{r.station ? `${formatNumber(r.station.peakDepthM, 1)} m` : '—'}</td>
               <td className="py-2 text-right font-mono tabular-nums text-white">{r.station ? `${formatNumber(r.station.velocityMs, 1)} m/s` : '—'}</td>
             </tr>
           ))}

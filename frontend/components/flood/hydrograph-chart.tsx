@@ -35,8 +35,8 @@ export function HydrographChart({
       <AreaChart data={data} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
         <defs>
           <linearGradient id="hydroFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#5865f2" stopOpacity={0.45} />
-            <stop offset="95%" stopColor="#5865f2" stopOpacity={0.02} />
+            <stop offset="5%" stopColor="#ffffff" stopOpacity={0.35} />
+            <stop offset="95%" stopColor="#ffffff" stopOpacity={0.02} />
           </linearGradient>
         </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
@@ -55,8 +55,8 @@ export function HydrographChart({
             />
           }
         />
-        <Area dataKey="base" type="monotone" stroke="#5865f2" fill="url(#hydroFill)" strokeWidth={2.5} />
-        {low && <Line dataKey="low" type="monotone" stroke="#7983f5" strokeDasharray="4 3" dot={false} strokeWidth={1.5} />}
+        <Area dataKey="base" type="monotone" stroke="#ffffff" fill="url(#hydroFill)" strokeWidth={2.5} />
+        {low && <Line dataKey="low" type="monotone" stroke="#a1a1aa" strokeDasharray="4 3" dot={false} strokeWidth={1.5} />}
         {high && <Line dataKey="high" type="monotone" stroke="#f0b232" strokeDasharray="4 3" dot={false} strokeWidth={1.5} />}
       </AreaChart>
     </ChartContainer>

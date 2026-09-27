@@ -1,33 +1,96 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-export const PLAYBACK_SPEEDS = [0.5, 1, 2, 4]
+export const PLAYBACK_SPEEDS = [0.5, 1, 2, 4, 8]
 
-export function useSimulationPlayer(maxS: number, initialS?: number) {
-  const [timeS, setTimeS] = useState(initialS ?? 0)
+// Base simulation rate: 1 real second = 120 simulation seconds (2 min/sec at 1x)
+const BASE_RATE = 120
+
+export function useSimulationPlayer(maxS: number, initialS = 0) {
+  const [timeS, setTimeS] = useState(initialS)
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(1)
 
+  const timeRef = useRef(initialS)
+  const maxRef = useRef(maxS)
+  maxRef.current = maxS
+
+  const speedRef = useRef(speed)
+  speedRef.current = speed
+
+  // Keep timeS bounded when maxS changes
+  useEffect(() => {
+    if (maxS > 0 && timeRef.current > maxS) {
+      timeRef.current = maxS
+      setTimeS(maxS)
+    }
+  }, [maxS])
+
   useEffect(() => {
     if (!playing || maxS <= 0) return
-    const id = setInterval(() => {
-      setTimeS((t) => {
-        const next = t + 60 * speed
-        if (next >= maxS) {
-          setPlaying(false)
-          return maxS
+
+    let lastTimestamp = performance.now()
+    let animId: number
+
+    const tick = (now: number) => {
+      const elapsedSec = Math.min((now - lastTimestamp) / 1000, 0.25)
+      lastTimestamp = now
+
+      const current = timeRef.current
+      const next = current + elapsedSec * BASE_RATE * speedRef.current
+      const limit = maxRef.current
+
+      if (limit > 0 && next >= limit) {
+        timeRef.current = limit
+        setTimeS(limit)
+        setPlaying(false)
+        return
+      }
+
+      timeRef.current = next
+      setTimeS(next)
+      animId = requestAnimationFrame(tick)
+    }
+
+    animId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(animId)
+  }, [playing, maxS])
+
+  const toggle = useCallback(() => {
+    setPlaying((prev) => {
+      if (!prev) {
+        // If starting while at or near the end, restart from 0
+        if (maxRef.current > 0 && timeRef.current >= maxRef.current - 5) {
+          timeRef.current = 0
+          setTimeS(0)
         }
-        return next
-      })
-    }, 100)
-    return () => clearInterval(id)
-  }, [playing, speed, maxS])
+        return true
+      }
+      return false
+    })
+  }, [])
 
-  const toggle = () => {
-    if (!playing && timeS >= maxS) setTimeS(0)
-    setPlaying((p) => !p)
+  const seek = useCallback((targetTime: number) => {
+    const limit = maxRef.current
+    const clamped = Math.max(0, limit > 0 ? Math.min(targetTime, limit) : targetTime)
+    timeRef.current = clamped
+    setTimeS(clamped)
+  }, [])
+
+  const reset = useCallback(() => {
+    setPlaying(false)
+    timeRef.current = 0
+    setTimeS(0)
+  }, [])
+
+  return {
+    timeS: Math.round(timeS),
+    setTimeS: seek,
+    playing,
+    toggle,
+    speed,
+    setSpeed,
+    reset,
   }
-
-  return { timeS: Math.min(timeS, maxS || timeS), setTimeS, playing, toggle, speed, setSpeed, reset: () => setTimeS(0) }
 }

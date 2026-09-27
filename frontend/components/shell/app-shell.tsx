@@ -1,32 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { PlatformProvider } from '@/lib/platform-store'
 import { SidebarNav } from './sidebar-nav'
-import { TopBar } from './top-bar'
+import { cn } from '@/lib/utils'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const pathname = usePathname()
+  const isMap = pathname === '/map'
 
   return (
     <PlatformProvider>
-      <div className="fixed inset-0 flex h-full w-full overflow-hidden bg-background">
-        <aside
-          className={`shrink-0 border-r border-sidebar-border bg-sidebar transition-[width] duration-300 ease-in-out h-full ${
-            sidebarOpen ? 'w-60' : 'w-0 border-r-0'
-          } hidden lg:flex lg:flex-col overflow-hidden`}
+      <div className="fixed inset-0 h-full w-full overflow-hidden bg-[#0C0C0C] text-white">
+        {/* Floating Side Navbar matching user reference image */}
+        <SidebarNav />
+
+        {/* Main Content Area */}
+        <main
+          className={cn(
+            'h-full w-full',
+            isMap
+              ? 'p-0 overflow-hidden'
+              : 'pl-20 pr-4 py-4 lg:py-6 overflow-y-auto'
+          )}
         >
-          <div className="w-60 h-full flex flex-col">
-            <SidebarNav onCollapse={() => setSidebarOpen(false)} />
-          </div>
-        </aside>
-        <div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
-          <TopBar
-            sidebarOpen={sidebarOpen}
-            onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
-          />
-          <main className="min-h-0 flex-1 h-full overflow-y-auto flex flex-col">{children}</main>
-        </div>
+          {children}
+        </main>
       </div>
     </PlatformProvider>
   )

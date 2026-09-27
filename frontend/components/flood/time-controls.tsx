@@ -30,31 +30,51 @@ export function TimeControls({
 }) {
   return (
     <div className={cn('glass-panel-subtle flex items-center gap-3 px-3 py-2 rounded-xl', className)}>
+      {/* Play/Pause Button */}
       <Button
         size="icon"
         onClick={onToggle}
         aria-label={playing ? 'Pause simulation' : 'Play simulation'}
-        className="size-8 shrink-0 rounded-full bg-[#5865f2] hover:bg-[#4752c4] text-white shadow-[0_0_12px_rgba(88,101,242,0.35)]"
+        className="size-8 shrink-0 rounded-full bg-white hover:bg-white/90 text-black cursor-pointer transition-transform active:scale-95"
       >
         {playing ? <Pause className="size-4" /> : <Play className="size-4 translate-x-px" />}
       </Button>
+
+      {/* Reset / Rewind Button */}
       {onReset && (
-        <Button variant="ghost" size="icon" onClick={onReset} aria-label="Reset to breach time" className="size-8 shrink-0 text-[#949ba4] hover:text-white">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onReset}
+          title="Rewind to breach start (00:00:00)"
+          aria-label="Reset to breach time"
+          className="size-8 shrink-0 text-white/80 hover:bg-white/[0.08] hover:text-white cursor-pointer"
+        >
           <RotateCcw className="size-3.5" />
         </Button>
       )}
+
+      {/* Interactive Time Slider */}
       <Slider
-        aria-label="Simulation time"
+        aria-label="Simulation time scrubber"
         min={0}
         max={Math.max(1, maxS)}
-        step={30}
+        step={1}
         value={[timeS]}
         onValueChange={(v) => onSeek(Array.isArray(v) ? v[0] : v)}
         className="flex-1"
       />
-      <span className="w-16 shrink-0 text-right font-mono text-xs tabular-nums text-white font-semibold">{formatClock(timeS)}</span>
+
+      {/* Timestamp Display */}
+      <div className="flex items-center gap-1.5 font-mono text-xs tabular-nums text-white shrink-0">
+        <span className="font-semibold text-white">{formatClock(timeS)}</span>
+        <span className="text-white/40">/</span>
+        <span className="text-white/70">{formatClock(maxS)}</span>
+      </div>
+
+      {/* Playback Speed Selector */}
       {onSpeedChange && speed !== undefined && (
-        <div className="hidden shrink-0 items-center rounded-lg border border-white/[0.08] bg-white/[0.02] p-0.5 sm:flex" role="group" aria-label="Playback speed">
+        <div className="hidden shrink-0 items-center rounded-lg border border-white/[0.08] bg-white/[0.03] p-0.5 sm:flex" role="group" aria-label="Playback speed">
           {PLAYBACK_SPEEDS.map((s) => (
             <button
               key={s}
@@ -63,7 +83,7 @@ export function TimeControls({
               aria-pressed={speed === s}
               className={cn(
                 'rounded-md px-2 py-0.5 font-mono text-xs font-semibold transition-all cursor-pointer',
-                speed === s ? 'bg-[#5865f2] text-white shadow-sm' : 'text-[#949ba4] hover:text-white',
+                speed === s ? 'bg-white text-black shadow-sm' : 'text-white/70 hover:text-white',
               )}
             >
               {s}x

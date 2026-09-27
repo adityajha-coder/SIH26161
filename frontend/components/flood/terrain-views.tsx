@@ -28,7 +28,7 @@ export function TerrainViews({ value, onChange }: { value: BaseMode; onChange: (
             className={cn(
               'relative min-h-28 overflow-hidden rounded-lg border transition-all duration-200 cursor-pointer',
               active
-                ? 'border-[#5865f2] ring-1 ring-[#5865f2] shadow-[0_0_16px_rgba(88,101,242,0.35)]'
+                ? 'border-white ring-1 ring-white/60'
                 : 'border-white/[0.08] hover:border-white/[0.2]',
             )}
           >

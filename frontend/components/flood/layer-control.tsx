@@ -45,7 +45,7 @@ export function LayerControl({
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col" suppressHydrationWarning>
       <ul className="space-y-1">
         {ITEMS.map((item) => {
           const disabled = item.key === 'observedFlood' ? !observedAvailable : item.disabled

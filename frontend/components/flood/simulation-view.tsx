@@ -17,6 +17,7 @@ export function SimulationView({
   className,
   compact = false,
   title = 'Flood propagation after dam break',
+  hideOverlays = false,
 }: {
   base: BaseMode
   layers: LayerVisibility
@@ -27,6 +28,7 @@ export function SimulationView({
   className?: string
   compact?: boolean
   title?: string
+  hideOverlays?: boolean
 }) {
   const is3d = layers.terrain3d || base === 'terrain'
   const legend = layers.arrivalTime ? 'arrival' : layers.floodVelocity ? 'velocity' : layers.floodDepth ? 'depth' : null
@@ -46,11 +48,17 @@ export function SimulationView({
         className="absolute inset-0"
         ariaLabel="Flood simulation map"
       />
-      <div className="pointer-events-none absolute top-2 right-12 rounded-md bg-background/85 px-2.5 py-1.5 text-right">
-        <p className="font-mono text-xs font-semibold tabular-nums text-foreground">Time: {formatClock(timeS)}</p>
-        <p className="text-[10px] text-muted-foreground">{title}</p>
-      </div>
-      {legend && <RampLegend kind={legend} className="pointer-events-none absolute bottom-8 left-2" />}
+      {!hideOverlays && (
+        <>
+          <div className="pointer-events-none absolute top-2 right-12 map-hud-panel rounded-xl px-3 py-2 text-right">
+            <p className="font-mono text-xs font-semibold tabular-nums text-white">
+              Time: {formatClock(timeS)}
+            </p>
+            <p className="text-[10px] text-white/50">{title}</p>
+          </div>
+          {legend && <RampLegend kind={legend} className="pointer-events-none absolute bottom-8 left-2 w-48 !bg-black/70 !backdrop-blur-xl" />}
+        </>
+      )}
     </div>
   )
 }
