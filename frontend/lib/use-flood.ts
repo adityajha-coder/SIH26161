@@ -39,33 +39,48 @@ export function useFloodResult(scenario: Scenario | undefined, solver: SolverId 
   const remote = useSWR(useRemote ? ['results', run!.id] : null, () => api.getResults(run!.id))
 
   const preview = useMemo<FloodResult | null>(() => {
-    if (useRemote || !reach || !scenario) return null
+    if (!reach || !scenario) return null
+    const peakQ = Number(scenario.peakDischargeM3s) || 250000
+    const manning = Number(scenario.manningN) || 0.045
     if (solver === 'sph') {
       const bounded = lineSliceAlong(reach, 0, SPH_DOMAIN_KM, { units: 'kilometers' }) as Feature<LineString>
-      return computePreviewFlood(bounded, scenario.peakDischargeM3s, scenario.manningN * 1.1, plainsStartKm)
+      return computePreviewFlood(bounded, peakQ, manning * 1.1, plainsStartKm)
     }
-    return computePreviewFlood(reach, scenario.peakDischargeM3s, scenario.manningN, plainsStartKm)
-  }, [useRemote, reach, scenario, solver, plainsStartKm])
+    return computePreviewFlood(reach, peakQ, manning, plainsStartKm)
+  }, [reach, scenario, solver, plainsStartKm])
 
-  if (useRemote) {
+  if (useRemote && remote.data) {
     const d = remote.data
-    return {
-      result: d
-        ? ({
-            bands: d.floodBands,
-            stations: d.stations,
-            reachKm: d.stations.at(-1)?.chainageKm ?? 0,
-            floodedAreaKm2: d.floodedAreaKm2,
-            maxArrivalS: d.maxArrivalS,
-            method: d.solverVersion,
-          } as FloodResult)
-        : null,
-      isPreview: false,
-      isLoading: remote.isLoading,
-      error: remote.error as Error | undefined,
+    const hasValidRemoteBands =
+      d?.floodBands &&
+      Array.isArray(d.floodBands.features) &&
+      d.floodBands.features.length > 0 &&
+      Number.isFinite(d.maxArrivalS) &&
+      d.maxArrivalS > 0
+
+    if (hasValidRemoteBands) {
+      return {
+        result: {
+          bands: d.floodBands,
+          stations: d.stations ?? [],
+          reachKm: d.stations?.at(-1)?.chainageKm ?? 0,
+          floodedAreaKm2: d.floodedAreaKm2 ?? 0,
+          maxArrivalS: d.maxArrivalS ?? 0,
+          method: d.solverVersion ?? 'Remote solver output',
+        } as FloodResult,
+        isPreview: false,
+        isLoading: false,
+        error: undefined,
+      }
     }
   }
-  return { result: preview, isPreview: true, isLoading: !preview, error: undefined }
+
+  return {
+    result: preview,
+    isPreview: true,
+    isLoading: useRemote ? remote.isLoading : !preview,
+    error: useRemote ? (remote.error as Error | undefined) : undefined,
+  }
 }
 
 export interface ImpactComputation {

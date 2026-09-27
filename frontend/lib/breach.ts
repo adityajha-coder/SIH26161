@@ -1,4 +1,4 @@
-export type FailureMode = 'overtopping' | 'piping'
+export type FailureMode = 'overtopping' | 'piping' | 'natural_blockage' | 'spillway_release'
 export type SensitivityCase = 'low' | 'base' | 'high'
 
 export interface BreachInput {
@@ -47,6 +47,37 @@ export const BREACH_BOUNDS = {
 
 export function froehlichParameters(input: BreachInput): BreachParameters {
   const { reservoirVolumeM3: V, breachHeightM: hb, waterDepthM: hw, failureMode } = input
+
+  if (failureMode === 'natural_blockage') {
+    // Landslide damming & GLOF breach empirical formulation (Costa & Schuster 1988, Walder & O'Connor 1997)
+    const avgWidth = input.breachWidthOverrideM ?? 0.38 * Math.pow(V, 0.31) * Math.pow(hb, 0.08)
+    const tf = input.formationTimeOverrideS ?? Math.max(900, 28.5 * Math.sqrt(V / (G * hb * hb)))
+    const qp = 0.812 * Math.pow(V, 0.285) * Math.pow(hw, 1.30)
+    return {
+      equation: "Costa & Schuster (1988) / Walder-O'Connor Landslide Dam Breach",
+      avgWidthM: avgWidth,
+      formationTimeS: tf,
+      peakDischargeM3s: qp,
+      sideSlope: 1.2,
+    }
+  }
+
+  if (failureMode === 'spillway_release') {
+    // Controlled emergency spillway gate release surge at Full Reservoir Level (CWC rating curve)
+    const spillwayWidth = input.breachWidthOverrideM ?? 120.0
+    const tf = input.formationTimeOverrideS ?? 1800.0 // 30 min surge ramp-up
+    // Standard broad-crested weir / chute equation Q = C * L * H^1.5 with C = 2.15
+    const head = Math.max(1.0, hw - Math.max(0, hw - 15.0))
+    const qp = Math.min(15300.0, 2.15 * spillwayWidth * Math.pow(head, 1.5))
+    return {
+      equation: 'CWC Surcharge Spillway Hydrograph (Controlled Gate Surge)',
+      avgWidthM: spillwayWidth,
+      formationTimeS: tf,
+      peakDischargeM3s: qp,
+      sideSlope: 0.0,
+    }
+  }
+
   const k0 = failureMode === 'overtopping' ? 1.3 : 1.0
   const avgWidth = input.breachWidthOverrideM ?? 0.27 * k0 * Math.pow(V, 0.32) * Math.pow(hb, 0.04)
   const tf = input.formationTimeOverrideS ?? 63.2 * Math.sqrt(V / (G * hb * hb))

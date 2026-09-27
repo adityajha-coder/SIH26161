@@ -45,6 +45,10 @@ export function computePreviewFlood(
   plainsStartKm: number,
   stepKm = 0.5,
 ): FloodResult {
+  const safePeakQ = Number(peakDischargeM3s) > 0 ? Number(peakDischargeM3s) : 250000
+  const safeManning = Number(manningN) > 0 ? Number(manningN) : 0.045
+  const safePlainsStart = Number(plainsStartKm) > 0 ? Number(plainsStartKm) : 100
+
   const reachKm = length(river, { units: 'kilometers' })
   const stations: FloodStation[] = []
   const features: FloodBands['features'] = []
@@ -54,12 +58,12 @@ export function computePreviewFlood(
   for (let x = 0; x < reachKm; x += stepKm) {
     const x2 = Math.min(x + stepKm, reachKm)
     const mid = (x + x2) / 2
-    const plainsBlend = 1 / (1 + Math.exp(-(mid - plainsStartKm) / 2.5))
+    const plainsBlend = 1 / (1 + Math.exp(-(mid - safePlainsStart) / 2.5))
     const B = 250 + plainsBlend * 1550
     const S = 0.0025 - plainsBlend * 0.0017
-    const n = manningN * (1 - plainsBlend * 0.22)
+    const n = safeManning * (1 - plainsBlend * 0.22)
     const z = 1.5 + plainsBlend * 6.5
-    const Q = peakDischargeM3s * (0.35 + 0.65 * Math.exp(-mid / 45))
+    const Q = safePeakQ * (0.35 + 0.65 * Math.exp(-mid / 45))
     const h = Math.pow((Q * n) / (B * Math.sqrt(S)), 0.6)
     const v = Q / (B * h)
     const c = Math.min((5 / 3) * v, 25)

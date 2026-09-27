@@ -41,11 +41,30 @@ export const api = {
     apiFetch<Scenario>('/api/v1/scenarios', { method: 'POST', body: JSON.stringify(s) }),
   listRuns: () => apiFetch<SimulationRun[]>('/api/v1/simulations'),
   getRun: (id: string) => apiFetch<SimulationRun>(`/api/v1/simulations/${id}`),
-  createRuns: (scenarioId: string, solvers: SolverId[]) =>
-    apiFetch<SimulationRun[]>('/api/v1/simulations', {
-      method: 'POST',
-      body: JSON.stringify({ scenarioId, solvers }),
-    }),
+  createRuns: async (scenarioId: string, solvers: SolverId[]) => {
+    const targetSolvers = solvers && solvers.length > 0 ? solvers : (['delft3d'] as SolverId[])
+    const results: SimulationRun[] = []
+    for (const solver of targetSolvers) {
+      try {
+        const res = await apiFetch<any>('/api/v1/simulations', {
+          method: 'POST',
+          body: JSON.stringify({
+            scenario_id: scenarioId,
+            scenarioId: scenarioId,
+            solver: solver,
+            solvers: [solver],
+          }),
+        })
+        if (res) {
+          if (Array.isArray(res)) results.push(...res)
+          else results.push(res)
+        }
+      } catch (err) {
+        console.warn(`Failed to dispatch run for solver ${solver}:`, err)
+      }
+    }
+    return results
+  },
   cancelRun: (id: string) => apiFetch<SimulationRun>(`/api/v1/simulations/${id}/cancel`, { method: 'POST' }),
   getResults: (id: string) => apiFetch<RunResults>(`/api/v1/simulations/${id}/results`),
   getImpact: (id: string) => apiFetch<ImpactSummary>(`/api/v1/simulations/${id}/impact`),

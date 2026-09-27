@@ -15,9 +15,9 @@ export default function CaseStudyPage() {
       <div className="glass-panel flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl p-5">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="size-2 rounded-full bg-[#5865f2] shadow-[0_0_8px_rgba(88,101,242,0.8)]" />
+            <span className="size-2 rounded-full bg-white" />
             <h1 className="text-xl font-bold text-white tracking-tight">Case Study Dossier</h1>
-            <span className="font-mono text-xs font-semibold text-[#7983f5] ml-2">
+            <span className="font-mono text-xs font-semibold text-white/90 ml-2">
               {activeCase.role === 'primary' ? 'Primary Benchmark' : 'Sanity Benchmark'}
             </span>
           </div>
@@ -34,7 +34,7 @@ export default function CaseStudyPage() {
               onClick={() => setSelectedCaseId(cs.id)}
               className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                 cs.id === selectedCaseId
-                  ? 'bg-[#5865f2] text-white shadow-[0_0_12px_rgba(88,101,242,0.35)]'
+                  ? 'bg-white text-black'
                   : 'text-[#949ba4] hover:text-white hover:bg-white/[0.04]'
               }`}
             >
@@ -50,7 +50,7 @@ export default function CaseStudyPage() {
           <Panel
             title="Structural Dam Specifications"
             actions={
-              <span className="font-mono text-xs text-[#7983f5]">
+              <span className="font-mono text-xs text-white/80">
                 {activeCase.dam.source}
               </span>
             }
@@ -60,7 +60,7 @@ export default function CaseStudyPage() {
                 <span className="text-xs font-medium text-[#949ba4] block">
                   Structural height
                 </span>
-                <span className="text-2xl font-bold font-mono text-[#7983f5] block mt-1">
+                <span className="text-2xl font-bold font-mono text-white block mt-1">
                   {activeCase.dam.heightM > 0 ? `${activeCase.dam.heightM} m` : 'River Blockage'}
                 </span>
                 <span className="text-[11px] text-[#949ba4] mt-1 block">
@@ -114,7 +114,7 @@ export default function CaseStudyPage() {
               </div>
               <div className="glass-panel-subtle rounded-xl p-3.5">
                 <span className="text-xs font-medium text-[#949ba4] block">Simulated reach length</span>
-                <span className="text-sm font-semibold font-mono text-[#7983f5] block mt-1">{activeCase.reachKm} km</span>
+                <span className="text-sm font-semibold font-mono text-white block mt-1">{activeCase.reachKm} km</span>
               </div>
               <div className="col-span-2 glass-panel-subtle rounded-xl p-3.5">
                 <span className="text-xs font-medium text-[#949ba4] block">Geographic bounding box</span>
@@ -131,7 +131,7 @@ export default function CaseStudyPage() {
           <Panel
             title="Downstream Chainage Stations"
             actions={
-              <span className="font-mono text-xs font-semibold text-[#7983f5]">
+              <span className="font-mono text-xs font-semibold text-white/90">
                 {activeCase.downstreamTowns.length} monitoring stations
               </span>
             }
@@ -142,7 +142,7 @@ export default function CaseStudyPage() {
                   key={town.name}
                   className="glass-panel-subtle flex items-center gap-3.5 rounded-lg px-3.5 py-3 hover:border-white/[0.16] transition-colors"
                 >
-                  <div className="flex size-7 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] text-xs font-mono font-semibold text-[#7983f5]">
+                  <div className="flex size-7 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] text-xs font-mono font-semibold text-white">
                     {idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -151,7 +151,7 @@ export default function CaseStudyPage() {
                       Chainage: {town.chainageKm} km · [{town.lngLat[0].toFixed(4)}, {town.lngLat[1].toFixed(4)}]
                     </p>
                   </div>
-                  <MapPin className="size-4 text-[#7983f5] shrink-0" />
+                  <MapPin className="size-4 text-white shrink-0" />
                 </div>
               ))}
             </div>
@@ -160,7 +160,7 @@ export default function CaseStudyPage() {
           <Panel
             title="Dataset Manifest"
             actions={
-              <span className="font-mono text-xs font-semibold text-[#7983f5]">
+              <span className="font-mono text-xs font-semibold text-white/90">
                 {activeCase.datasets.length} layers
               </span>
             }
@@ -186,12 +186,12 @@ export default function CaseStudyPage() {
                       <td className="py-2 text-right">
                         {ds.status === 'ready' ? (
                           <span className="inline-flex items-center gap-1.5 text-[#23a55a] font-semibold font-mono text-[11px]">
-                            <span className="size-1.5 rounded-full bg-[#23a55a] shadow-[0_0_6px_rgba(35,165,90,0.6)]" />
+                            <span className="size-1.5 rounded-full bg-[#23a55a]" />
                             Ready
                           </span>
                         ) : ds.status === 'processing' ? (
                           <span className="inline-flex items-center gap-1.5 text-[#f0b232] font-semibold font-mono text-[11px]">
-                            <span className="size-1.5 rounded-full bg-[#f0b232] shadow-[0_0_6px_rgba(240,178,50,0.6)]" />
+                            <span className="size-1.5 rounded-full bg-[#f0b232]" />
                             Processing
                           </span>
                         ) : (

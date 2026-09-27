@@ -64,3 +64,9 @@ Plan/
 TODO.md
 Done.md
 cmd.txt
+*.tsbuildinfo
+server/data/
+cesium/
+frontend/public/cesium/
+frontend/public/cesium/**
+frontend/public/maplibre/

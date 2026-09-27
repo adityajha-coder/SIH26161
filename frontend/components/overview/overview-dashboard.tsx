@@ -31,8 +31,11 @@ export function OverviewDashboard() {
   const [layers, setLayers] = useState<LayerVisibility>({ ...DEFAULT_LAYERS, terrain3d: true, settlements: true })
   const [exaggeration, setExaggeration] = useState(1.5)
   const { result, isPreview } = useFloodResult(activeScenario, activeRun?.solver ?? 'delft3d', activeRun)
-  const maxS = result ? Math.ceil(result.maxArrivalS / 300) * 300 : 0
-  const player = useSimulationPlayer(maxS, 2.5 * 3600)
+  const maxS =
+    result && Number.isFinite(result.maxArrivalS) && result.maxArrivalS > 0
+      ? Math.ceil(result.maxArrivalS / 300) * 300
+      : 12300
+  const player = useSimulationPlayer(maxS, 0)
   const impact = useImpact(result)
   const hydro = useScenarioHydrographs(activeScenario)
 
@@ -91,7 +94,7 @@ export function OverviewDashboard() {
                   onClick={() => handleBase(tm.mode)}
                   className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
                     base === tm.mode
-                      ? 'bg-[#5865f2] text-white shadow-[0_0_10px_rgba(88,101,242,0.35)]'
+                      ? 'bg-white text-black'
                       : 'text-white/80 hover:bg-white/[0.1] hover:text-white'
                   }`}
                 >
@@ -116,6 +119,7 @@ export function OverviewDashboard() {
               playing={player.playing}
               onToggle={player.toggle}
               onSeek={player.setTimeS}
+              onReset={player.reset}
               speed={player.speed}
               onSpeedChange={player.setSpeed}
             />
@@ -155,7 +159,7 @@ export function OverviewDashboard() {
           bodyClassName="p-4 flex flex-col justify-between"
           actions={
             hydro && (
-              <span className="font-mono text-xs font-semibold text-[#7983f5]">
+              <span className="font-mono text-xs font-semibold text-white/90">
                 Peak {formatDischarge(hydro.base.peakDischargeM3s)}
               </span>
             )
@@ -188,7 +192,7 @@ export function OverviewDashboard() {
         actions={
           <Link
             href="/scenario"
-            className="flex items-center gap-1.5 text-xs font-semibold text-[#7983f5] hover:text-[#5865f2] transition-colors"
+            className="flex items-center gap-1.5 text-xs font-semibold text-white/80 hover:text-white transition-colors"
           >
             Configure Scenario <ArrowRight className="size-3" />
           </Link>

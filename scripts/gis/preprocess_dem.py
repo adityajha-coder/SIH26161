@@ -345,7 +345,7 @@ def step6_solver_formats(domain_dem_path: Path):
 
         print(f"Delft3D FM .xyz samples saved: {xyz_path} ({len(zs)} points)")
 
-        # 2. DualSPHysics / LISFLOOD-FP ESRI ASCII Grid (.asc)
+        # 2. DualSPHysics ESRI ASCII Grid (.asc)
         asc_path = PROCESSED_DIR / "tehri_domain.asc"
         with open(asc_path, "w", encoding="ascii") as f:
             f.write(f"ncols         {src.width}\n")
