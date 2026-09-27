@@ -1,13 +1,14 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
+import { Poppins, JetBrains_Mono } from 'next/font/google'
 import { AppShell } from '@/components/shell/app-shell'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
-const jakarta = Plus_Jakarta_Sans({
+const poppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-sans',
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-poppins',
   display: 'swap',
 })
 const jetbrains = JetBrains_Mono({
@@ -37,8 +38,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`dark ${jakarta.variable} ${jetbrains.variable}`} suppressHydrationWarning>
-      <body className="antialiased font-sans bg-background text-foreground" suppressHydrationWarning>
+    <html lang="en" className={`dark ${poppins.variable} ${jetbrains.variable}`} suppressHydrationWarning>
+      <body className={`antialiased font-sans bg-background text-foreground ${poppins.className}`} suppressHydrationWarning>
         <AppShell>{children}</AppShell>
         <Toaster theme="dark" position="bottom-right" />
         {process.env.NODE_ENV === 'production' && <Analytics />}
