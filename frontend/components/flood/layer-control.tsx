@@ -54,7 +54,7 @@ export function LayerControl({
             <li key={item.key}>
               <label
                 htmlFor={id}
-                className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs text-[#dbdee1] hover:bg-white/[0.04] transition-colors has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-40"
+                className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs text-white hover:bg-white/[0.06] transition-colors has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-40"
               >
                 <Checkbox
                   id={id}
@@ -62,9 +62,9 @@ export function LayerControl({
                   disabled={disabled}
                   onCheckedChange={(v) => toggle(item.key, Boolean(v))}
                 />
-                <span className="flex-1 font-medium">
+                <span className="flex-1 font-medium text-white">
                   {item.label}
-                  {disabled && item.hint && <span className="block text-[10px] text-[#949ba4] font-normal">{item.hint}</span>}
+                  {disabled && item.hint && <span className="block text-[10px] text-white/70 font-normal">{item.hint}</span>}
                 </span>
               </label>
             </li>
@@ -72,10 +72,10 @@ export function LayerControl({
         })}
       </ul>
 
-      <div className="mt-auto space-y-4 border-t border-white/[0.06] pt-3.5">
+      <div className="mt-auto space-y-4 border-t border-white/[0.08] pt-3.5">
         <div>
           <div className="mb-2 flex items-center justify-between text-xs">
-            <span className="text-[#949ba4]">Terrain Exaggeration</span>
+            <span className="text-white font-medium">Terrain Exaggeration</span>
             <span className="font-mono text-white font-semibold">{exaggeration.toFixed(1)}x</span>
           </div>
           <Slider
@@ -90,7 +90,7 @@ export function LayerControl({
         {onFloodOpacityChange && floodOpacity !== undefined && (
           <div>
             <div className="mb-2 flex items-center justify-between text-xs">
-              <span className="text-[#949ba4]">Flood Layer Opacity</span>
+              <span className="text-white font-medium">Flood Layer Opacity</span>
               <span className="font-mono text-white font-semibold">{Math.round(floodOpacity * 100)}%</span>
             </div>
             <Slider

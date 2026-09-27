@@ -22,7 +22,7 @@ export function Panel({
           {title && (
             <div className="flex items-center gap-2">
               <span className="size-1.5 rounded-full bg-[#5865f2]" aria-hidden="true" />
-              <h2 className="text-sm font-semibold tracking-tight text-foreground">{title}</h2>
+              <h2 className="text-sm font-semibold tracking-tight text-white">{title}</h2>
             </div>
           )}
           {actions && <div className="flex items-center gap-2">{actions}</div>}
@@ -47,22 +47,22 @@ export function StatTile({
   hint?: string
 }) {
   return (
-    <div className="glass-panel-subtle rounded-lg p-3 transition-colors hover:border-white/[0.12]">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+    <div className="glass-panel-subtle rounded-xl p-3.5 transition-colors hover:border-white/[0.12]">
+      <p className="text-xs font-semibold text-white/90">{label}</p>
       <p
         className={cn(
-          'mt-1 font-mono text-xl font-bold tracking-tight tabular-nums',
+          'mt-1.5 font-mono text-xl font-bold tracking-tight tabular-nums',
           tone === 'danger' && 'text-[#f23f43]',
           tone === 'warning' && 'text-[#f0b232]',
           tone === 'success' && 'text-[#23a55a]',
           tone === 'discord' && 'text-[#7983f5]',
-          tone === 'default' && 'text-foreground',
+          tone === 'default' && 'text-white',
         )}
       >
         {value}
-        {unit && <span className="ml-1 text-xs font-normal text-muted-foreground">{unit}</span>}
+        {unit && <span className="ml-1 text-xs font-normal text-white/80">{unit}</span>}
       </p>
-      {hint && <p className="mt-1 text-[11px] text-muted-foreground">{hint}</p>}
+      {hint && <p className="mt-1 text-[11px] text-white/70">{hint}</p>}
     </div>
   )
 }
@@ -79,11 +79,11 @@ export function PageHeader({
   return (
     <div className="flex flex-col gap-3 pb-2 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-xl font-bold tracking-tight text-foreground text-balance flex items-center gap-2.5">
+        <h1 className="text-xl font-bold tracking-tight text-white text-balance flex items-center gap-2.5">
           <span className="size-2 rounded-full bg-[#5865f2] shadow-[0_0_8px_rgba(88,101,242,0.8)]" aria-hidden="true" />
           {title}
         </h1>
-        {description && <p className="mt-1 max-w-3xl text-xs sm:text-sm text-muted-foreground text-pretty leading-relaxed">{description}</p>}
+        {description && <p className="mt-1 max-w-3xl text-xs sm:text-sm text-white/80 text-pretty leading-relaxed">{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </div>

@@ -92,7 +92,7 @@ export function OverviewDashboard() {
                   className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
                     base === tm.mode
                       ? 'bg-[#5865f2] text-white shadow-[0_0_10px_rgba(88,101,242,0.35)]'
-                      : 'text-[#949ba4] hover:bg-white/[0.05] hover:text-white'
+                      : 'text-white/80 hover:bg-white/[0.1] hover:text-white'
                   }`}
                 >
                   {tm.label}
@@ -162,8 +162,8 @@ export function OverviewDashboard() {
           }
         >
           {hydro && <HydrographChart base={hydro.base} low={hydro.low} high={hydro.high} className="h-64 w-full" />}
-          <div className="mt-4 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 text-xs text-[#949ba4]">
-            <p className="font-medium text-[#dbdee1]">Froehlich (2008) Breach Envelope</p>
+          <div className="mt-4 rounded-lg border border-white/[0.08] bg-white/[0.02] p-3 text-xs text-white/80">
+            <p className="font-medium text-white">Froehlich (2008) Breach Envelope</p>
             <p className="mt-1">
               Mass balance error:{' '}
               <span className={hydro?.base.massBalancePass ? 'text-[#23a55a] font-semibold font-mono' : 'text-[#f23f43] font-semibold font-mono'}>
@@ -197,7 +197,7 @@ export function OverviewDashboard() {
         {activeScenario ? (
           <ScenarioSummary scenario={activeScenario} />
         ) : (
-          <p className="text-xs text-muted-foreground">No active scenario configured</p>
+          <p className="text-xs text-white/70">No active scenario configured</p>
         )}
       </Panel>
     </div>
