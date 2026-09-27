@@ -7,17 +7,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "postinstall": "node -e \"const fs=require('fs'); fs.mkdirSync('public/maplibre', {recursive:true}); try { fs.copyFileSync('node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs', 'public/maplibre/maplibre-gl-worker.mjs'); fs.copyFileSync('node_modules/maplibre-gl/dist/maplibre-gl-shared.mjs', 'public/maplibre/maplibre-gl-shared.mjs'); } catch(e){}\""
+    "postinstall": "node -e \"const fs=require('fs'),path=require('path'),s='node_modules/cesium/Build/Cesium',d='public/cesium'; if(fs.existsSync(s)){fs.mkdirSync(d,{recursive:true}); ['Assets','Widgets','Workers','ThirdParty'].forEach(f=>{const sp=path.join(s,f),dp=path.join(d,f); if(fs.existsSync(sp)) fs.cpSync(sp,dp,{recursive:true,force:true});});}\""
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
     "@turf/turf": "^7.4.0",
     "@vercel/analytics": "1.6.1",
+    "cesium": "^1.145.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",
-    "maplibre-contour": "^0.1.1",
-    "maplibre-gl": "^6.11.2",
     "next": "16.3.3",
     "next-themes": "^0.4.6",
     "react": "^19",

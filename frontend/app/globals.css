@@ -2,7 +2,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
-@import 'maplibre-gl/dist/maplibre-gl.css';
+@import 'cesium/Build/Cesium/Widgets/widgets.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -53,40 +53,40 @@
 
 :root {
   color-scheme: dark;
-  --background: #0c0f17;
+  --background: #0C0C0C;
   --foreground: #ffffff;
-  --card: #131724;
+  --card: #141414;
   --card-foreground: #ffffff;
-  --popover: #131724;
+  --popover: #141414;
   --popover-foreground: #ffffff;
-  --primary: #5865f2;
-  --primary-foreground: #ffffff;
-  --secondary: #1b2030;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
   --secondary-foreground: #ffffff;
-  --muted: #171c29;
+  --muted: #161616;
   --muted-foreground: #e2e8f0;
-  --accent: #1e2436;
+  --accent: #1e1e1e;
   --accent-foreground: #ffffff;
   --destructive: #f23f43;
   --warning: #f0b232;
   --success: #23a55a;
   --border: rgba(255, 255, 255, 0.08);
   --input: rgba(255, 255, 255, 0.08);
-  --ring: #5865f2;
-  --chart-1: #5865f2;
-  --chart-2: #7983f5;
+  --ring: rgba(255, 255, 255, 0.4);
+  --chart-1: #ffffff;
+  --chart-2: #a1a1aa;
   --chart-3: #f0b232;
   --chart-4: #f23f43;
   --chart-5: #23a55a;
   --radius: 0.625rem;
-  --sidebar: #090c13;
+  --sidebar: #080808;
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #5865f2;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(88, 101, 242, 0.15);
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: rgba(255, 255, 255, 0.08);
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-ring: #5865f2;
+  --sidebar-ring: rgba(255, 255, 255, 0.4);
 }
 
 @layer base {
@@ -110,7 +110,7 @@
     inset: 0;
     @apply bg-background text-foreground font-sans;
     font-family: var(--font-poppins), 'Poppins', sans-serif;
-    background-color: #0c0f17;
+    background-color: #0C0C0C;
   }
   /* Sleek modern scrollbars */
   ::-webkit-scrollbar {
@@ -125,28 +125,28 @@
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(88, 101, 242, 0.45);
+    background: rgba(255, 255, 255, 0.25);
   }
 }
 
 /* Glassmorphism system */
 .glass-panel {
-  background: rgba(19, 23, 36, 0.75);
+  background: rgba(20, 20, 20, 0.78);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
 }
 
 .glass-panel-subtle {
-  background: rgba(19, 23, 36, 0.45);
+  background: rgba(22, 22, 22, 0.50);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .glass-card-interactive {
-  background: rgba(19, 23, 36, 0.65);
+  background: rgba(20, 20, 20, 0.68);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -154,49 +154,78 @@
 }
 
 .glass-card-interactive:hover {
-  background: rgba(26, 31, 48, 0.85);
-  border-color: rgba(88, 101, 242, 0.4);
-  box-shadow: 0 12px 32px -6px rgba(88, 101, 242, 0.15);
+  background: rgba(28, 28, 28, 0.88);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.6);
 }
 
-.maplibregl-ctrl-attrib {
-  font-size: 10px;
-  background: rgba(12, 15, 23, 0.8) !important;
-  backdrop-filter: blur(8px);
-  color: #949ba4;
-}
-.maplibregl-ctrl-attrib a {
-  color: #7983f5;
-}
-.maplibregl-ctrl-group {
-  background: rgba(19, 23, 36, 0.85) !important;
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
-  border-radius: 8px !important;
+/* ─── Cesium 3D Globe & Map Container ────────────────────────────── */
+.cesium-viewer {
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+  position: absolute;
+  inset: 0;
+  background: #0C0C0C;
 }
-.maplibregl-ctrl-group button + button {
-  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+.cesium-viewer-cesiumWidgetContainer,
+.cesium-widget,
+.cesium-widget canvas {
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;
 }
-.maplibregl-ctrl-group button .maplibregl-ctrl-icon {
-  filter: invert(1) brightness(1.2);
+.cesium-viewer-bottom,
+.cesium-widget-credits {
+  display: none !important;
 }
-.maplibregl-popup-content {
-  background: rgba(19, 23, 36, 0.95);
+
+/* Cesium HUD Popup Tooltip */
+.cesium-hud-popup {
+  background: rgba(18, 18, 18, 0.95);
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: #f2f4f8;
-  border: 1px solid rgba(88, 101, 242, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
   padding: 10px 14px;
   font-size: 12px;
+  pointer-events: auto;
+  z-index: 50;
 }
-.maplibregl-popup-tip {
-  border-top-color: rgba(19, 23, 36, 0.95) !important;
-  border-bottom-color: rgba(19, 23, 36, 0.95) !important;
+
+/* ─── Map HUD floating panels ─────────────────────────────────────── */
+.map-hud-panel {
+  background: rgba(12, 12, 12, 0.65);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    0 8px 32px -4px rgba(0, 0, 0, 0.6),
+    0 0 0 0.5px rgba(255, 255, 255, 0.04) inset;
 }
-.maplibregl-popup-close-button {
-  color: #949ba4;
+
+.map-hud-panel-solid {
+  background: rgba(14, 14, 14, 0.88);
+  backdrop-filter: blur(32px) saturate(1.5);
+  -webkit-backdrop-filter: blur(32px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 20px 60px -12px rgba(0, 0, 0, 0.7),
+    0 0 0 0.5px rgba(255, 255, 255, 0.03) inset;
+}
+
+.map-time-bar {
+  background: rgba(8, 8, 8, 0.88);
+  backdrop-filter: blur(32px) saturate(1.6);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Pulse animation for live indicator */
+@keyframes map-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 

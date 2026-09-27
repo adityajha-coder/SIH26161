@@ -1,7 +1,7 @@
 """
 scripts/gis/generate_display_tiles.py
 
-Generates web map display assets for MapLibre GL JS:
+Generates web map display assets for CesiumJS & 3D WebGL:
 1. Mapbox Terrain-RGB raster tiles (zooms 8-12) for 3D digital elevation rendering.
 2. Hillshade raster tiles (zooms 8-12) for terrain visualization.
 3. 100m interval elevation contours as GeoJSON for vector contour overlay.
