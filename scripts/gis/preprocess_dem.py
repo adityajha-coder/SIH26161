@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 SIH26161 - Terrain Preprocessing Pipeline
 Preprocesses raw Copernicus 30m DEM for hydrodynamic solvers (Delft3D FM, DualSPHysics)

@@ -1,4 +1,4 @@
-.PHONY: all infra-up infra-down infra-logs run test migrate migrate-down seed upload-dem preprocess-dem
+.PHONY: all infra-up infra-down infra-logs run test migrate migrate-down seed upload-dem preprocess-dem generate-tiles upload-tiles
 
 all: infra-up
 
@@ -31,3 +31,16 @@ upload-dem:
 
 preprocess-dem:
 	python scripts/gis/preprocess_dem.py
+
+generate-tiles:
+	python scripts/gis/generate_display_tiles.py
+
+upload-tiles:
+	cd server && go run ./cmd/upload_tiles
+
+frontend-dev:
+	cd frontend && npm run dev
+
+frontend-build:
+	cd frontend && npm run build
+
