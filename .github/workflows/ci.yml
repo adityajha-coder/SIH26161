@@ -2,16 +2,24 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, dev]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  backend-test:
-    name: Backend Tests (Go)
+  backend-ci:
+    name: Backend Tests & Build (Go)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Go
@@ -19,13 +27,70 @@ jobs:
         with:
           go-version: '1.23'
           cache: true
+          cache-dependency-path: server/go.sum
 
-      - name: Run Backend Tests
-        run: |
-          cd server
-          go test -v ./...
+      - name: Verify Go module dependencies
+        run: go mod verify
 
-      - name: Build Backend Server
+      - name: Run Go vet
+        run: go vet ./...
+
+      - name: Run Backend Unit Tests
+        run: go test -v ./...
+
+      - name: Build Backend Binaries
+        run: go build -v ./...
+
+  frontend-ci:
+    name: Frontend Typecheck & Build (Next.js / Cesium)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies (with Cesium asset copying)
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Build Next.js application
+        run: pnpm build
+
+  scripts-and-schemas:
+    name: Validate Schemas & Python Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check Python Script Syntax
         run: |
-          cd server
-          go build -v ./...
+          python -m py_compile engines/delft3d/runner.py
+          python -m py_compile engines/gee/gee_monitor.py
+          python -m py_compile scripts/gis/generate_display_tiles.py
+          python -m py_compile scripts/gis/preprocess_dem.py
+
+      - name: Validate Contract JSON Schemas
+        run: |
+          python -c "import json; json.load(open('packages/contracts/schemas/scenario.json'))"
