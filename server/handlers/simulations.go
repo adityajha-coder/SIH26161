@@ -59,7 +59,7 @@ func (h *SimulationHandler) ListSimulations(w http.ResponseWriter, r *http.Reque
 	}
 	defer rows.Close()
 
-	var runs []SimulationRunDTO
+	runs := make([]SimulationRunDTO, 0)
 	for rows.Next() {
 		var run SimulationRunDTO
 		var started, completed sql.NullTime
@@ -88,8 +88,10 @@ func (h *SimulationHandler) LaunchSimulation(w http.ResponseWriter, r *http.Requ
 	}
 
 	var req struct {
-		ScenarioID string `json:"scenario_id"`
-		Solver     string `json:"solver"`
+		ScenarioID  string   `json:"scenario_id"`
+		ScenarioId2 string   `json:"scenarioId"`
+		Solver      string   `json:"solver"`
+		Solvers     []string `json:"solvers"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -97,11 +99,23 @@ func (h *SimulationHandler) LaunchSimulation(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	if req.ScenarioID == "" && req.ScenarioId2 != "" {
+		req.ScenarioID = req.ScenarioId2
+	}
+	if req.Solver == "" && len(req.Solvers) > 0 {
+		req.Solver = req.Solvers[0]
+	}
 	if req.Solver == "" {
 		req.Solver = "delft3d"
 	}
 	if req.ScenarioID == "" {
-		req.ScenarioID = "scen-baseline-pmf"
+		var firstID string
+		_ = h.db.QueryRow("SELECT id FROM scenarios ORDER BY created_at DESC LIMIT 1").Scan(&firstID)
+		if firstID != "" {
+			req.ScenarioID = firstID
+		} else {
+			req.ScenarioID = "tehri-pmf-overtopping"
+		}
 	}
 
 	runID := fmt.Sprintf("run-%s-%d", req.Solver, time.Now().Unix())

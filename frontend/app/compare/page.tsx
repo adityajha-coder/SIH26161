@@ -47,7 +47,7 @@ export default function ComparePage() {
 
   const metrics = useMemo(() => computeComparison(leftResult, rightResult), [leftResult, rightResult])
 
-  const solverPairs: SolverId[] = ['delft3d', 'sph', 'lisflood']
+  const solverPairs: SolverId[] = ['delft3d', 'sph']
 
   return (
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
@@ -60,7 +60,7 @@ export default function ComparePage() {
       <div className="glass-panel flex flex-col sm:flex-row items-center gap-4 rounded-xl p-4">
         <SolverPicker label="Reference" value={leftSolver} options={solverPairs} onChange={setLeftSolver} />
         <div className="size-8 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center shrink-0">
-          <ArrowLeftRight className="size-4 text-[#7983f5]" />
+          <ArrowLeftRight className="size-4 text-white" />
         </div>
         <SolverPicker label="Comparative" value={rightSolver} options={solverPairs} onChange={setRightSolver} />
       </div>
@@ -126,7 +126,7 @@ export default function ComparePage() {
               </div>
               <div className="glass-panel-subtle p-3 rounded-lg">
                 <dt className="text-[#949ba4]">Comparative Engine</dt>
-                <dd className="mt-1 font-mono text-[#7983f5] font-semibold">{SOLVERS[rightSolver].name} {SOLVERS[rightSolver].version}</dd>
+                <dd className="mt-1 font-mono text-white font-semibold">{SOLVERS[rightSolver].name} {SOLVERS[rightSolver].version}</dd>
               </div>
               <div className="glass-panel-subtle p-3 rounded-lg">
                 <dt className="text-[#949ba4]">Discretization A</dt>
@@ -172,7 +172,7 @@ function SolverPicker({
             className={cn(
               'flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-all cursor-pointer',
               value === s
-                ? 'border-[#5865f2] bg-[#5865f2]/15 text-[#7983f5] shadow-[0_0_12px_rgba(88,101,242,0.2)]'
+                ? 'border-white bg-white/10 text-white'
                 : 'border-white/[0.08] bg-white/[0.02] text-[#949ba4] hover:bg-white/[0.05] hover:text-white',
             )}
           >
@@ -201,7 +201,7 @@ function StationTable({ stations }: { stations: { chainageKm: number; peakDepthM
           {sampled.map((s, i) => (
             <tr key={i} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
               <td className="py-2 font-mono text-white">{s.chainageKm.toFixed(1)} km</td>
-              <td className="py-2 text-right font-mono text-[#7983f5]">{s.peakDepthM.toFixed(2)} m</td>
+              <td className="py-2 text-right font-mono text-white">{s.peakDepthM.toFixed(2)} m</td>
               <td className="py-2 text-right font-mono text-white">{s.velocityMs.toFixed(2)} m/s</td>
               <td className="py-2 text-right font-mono text-[#949ba4]">{formatDuration(s.arrivalS)}</td>
             </tr>

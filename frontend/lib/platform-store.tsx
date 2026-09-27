@@ -58,6 +58,99 @@ export function buildBaselineScenario(): Scenario {
   }
 }
 
+export function normalizeScenario(raw: any): Scenario {
+  const fallback = buildBaselineScenario()
+  if (!raw) return fallback
+
+  const peakDischargeM3s =
+    Number(raw.peakDischargeM3s ?? raw.peak_discharge_cumec ?? fallback.peakDischargeM3s) || fallback.peakDischargeM3s
+  const breachWidthM =
+    Number(raw.breachWidthM ?? raw.final_breach_width_m ?? fallback.breachWidthM) || fallback.breachWidthM
+  const breachHeightM =
+    Number(raw.breachHeightM ?? raw.final_breach_depth_m ?? fallback.breachHeightM) || fallback.breachHeightM
+  const formationTimeS =
+    Number(
+      raw.formationTimeS ??
+        (raw.breach_formation_time_hr ? raw.breach_formation_time_hr * 3600 : null) ??
+        fallback.formationTimeS,
+    ) || fallback.formationTimeS
+  const reservoirVolumeM3 =
+    Number(
+      raw.reservoirVolumeM3 ??
+        (raw.released_volume_mcm ? raw.released_volume_mcm * 1e6 : null) ??
+        fallback.reservoirVolumeM3,
+    ) || fallback.reservoirVolumeM3
+  const initialWaterLevelM =
+    Number(raw.initialWaterLevelM ?? raw.reservoir_level_at_failure_m ?? fallback.initialWaterLevelM) ||
+    fallback.initialWaterLevelM
+  const rawMode = raw.failureMode ?? raw.trigger_type
+  const failureMode =
+    rawMode === 'piping' || rawMode === 'natural_blockage' || rawMode === 'spillway_release'
+      ? rawMode
+      : 'overtopping'
+
+  return {
+    id: String(raw.id || fallback.id),
+    caseId: String(raw.caseId || raw.case_id || fallback.caseId),
+    name: String(raw.name || fallback.name),
+    type: raw.type || fallback.type,
+    demVersion: raw.demVersion || fallback.demVersion,
+    initialWaterLevelM,
+    reservoirVolumeM3,
+    breachHeightM,
+    failureMode,
+    breachWidthM,
+    formationTimeS,
+    peakDischargeM3s,
+    manningN: Number(raw.manningN) || fallback.manningN,
+    downstreamBoundary: raw.downstreamBoundary || fallback.downstreamBoundary,
+    simulationHorizonS: Number(raw.simulationHorizonS) || fallback.simulationHorizonS,
+    solvers: Array.isArray(raw.solvers) && raw.solvers.length > 0 ? raw.solvers : fallback.solvers,
+    sensitivity: raw.sensitivity || fallback.sensitivity,
+    breachEquation: raw.breachEquation || fallback.breachEquation,
+    massBalanceErrorPct: Number(raw.massBalanceErrorPct) || fallback.massBalanceErrorPct,
+    createdAt: String(raw.createdAt || raw.created_at || fallback.createdAt),
+  }
+}
+
+export function normalizeSimulationRun(raw: any): SimulationRun {
+  const solver: SolverId = raw?.solver === 'sph' ? 'sph' : 'delft3d'
+  const progress = Number(raw?.progress ?? raw?.progress_percent ?? 0)
+  const status: RunStatus = RUN_PIPELINE.includes(raw?.status) ? raw.status : 'queued'
+  const createdAt = raw?.createdAt ?? raw?.created_at ?? raw?.started_at ?? new Date().toISOString()
+  const startedAt = raw?.startedAt ?? raw?.started_at ?? undefined
+  const finishedAt = raw?.finishedAt ?? raw?.completed_at ?? undefined
+
+  const logs: RunLogEntry[] =
+    Array.isArray(raw?.logs) && raw.logs.length > 0
+      ? raw.logs
+      : [
+          {
+            at: startedAt ?? createdAt,
+            level: raw?.error_message ? 'error' : 'info',
+            message: raw?.error_message || `Simulation ${status} with ${SOLVERS[solver]?.name ?? solver}`,
+          },
+        ]
+
+  return {
+    id: String(raw?.id || `run-${solver}-${Date.now().toString(36)}`),
+    scenarioId: String(raw?.scenarioId || raw?.scenario_id || ''),
+    solver,
+    status,
+    progress,
+    createdAt,
+    startedAt,
+    finishedAt,
+    runtimeS:
+      finishedAt && startedAt
+        ? (new Date(finishedAt).getTime() - new Date(startedAt).getTime()) / 1000
+        : undefined,
+    logs,
+    error: raw?.error ?? raw?.error_message ?? undefined,
+    preview: Boolean(raw?.preview),
+  }
+}
+
 const now = () => new Date().toISOString()
 const log = (message: string, level: RunLogEntry['level'] = 'info'): RunLogEntry => ({ at: now(), level, message })
 
@@ -134,8 +227,19 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     return () => map.forEach((t) => clearInterval(t))
   }, [])
 
-  const scenarios = mode === 'api' ? (remoteScenarios.data ?? []) : localScenarios
-  const runs = mode === 'api' ? (remoteRuns.data ?? []) : localRuns
+  const scenarios = useMemo(() => {
+    if (mode === 'api' && remoteScenarios.data && Array.isArray(remoteScenarios.data) && remoteScenarios.data.length > 0) {
+      return remoteScenarios.data.map(normalizeScenario)
+    }
+    return localScenarios
+  }, [mode, remoteScenarios.data, localScenarios])
+
+  const runs = useMemo(() => {
+    if (mode === 'api' && remoteRuns.data && Array.isArray(remoteRuns.data) && remoteRuns.data.length > 0) {
+      return remoteRuns.data.map(normalizeSimulationRun)
+    }
+    return localRuns
+  }, [mode, remoteRuns.data, localRuns])
 
   const advancePreviewRun = useCallback((id: string) => {
     let stageTicks = 0
@@ -193,13 +297,20 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
 
   const submitRuns = useCallback(
     async (scenarioId: string, solvers: SolverId[]) => {
+      const targetSolvers = solvers && solvers.length > 0 ? solvers : (['delft3d', 'sph'] as SolverId[])
       if (mode === 'api') {
-        const created = await api.createRuns(scenarioId, solvers)
-        await remoteRuns.mutate()
-        if (created[0]) setActiveRunId(created[0].id)
-        return created
+        try {
+          const created = await api.createRuns(scenarioId, targetSolvers)
+          await remoteRuns.mutate()
+          if (created && created[0]) {
+            setActiveRunId(created[0].id)
+            return created
+          }
+        } catch (err) {
+          console.warn('Backend createRuns failed, falling back to preview runner:', err)
+        }
       }
-      const created: SimulationRun[] = solvers.map((solver) => ({
+      const created: SimulationRun[] = targetSolvers.map((solver) => ({
         id: `run-${solver}-${Date.now().toString(36)}`,
         scenarioId,
         solver,

@@ -31,7 +31,6 @@ graph TD
         SimWorker["Go Simulation Worker (Job State Machine)"]
         DelftRunner["Delft3D FM Runner (SWE)"]
         SPHRunner["DualSPHysics Runner (SPH)"]
-        LisfloodRunner["LISFLOOD-FP Fallback (Inertial)"]
     end
 
     subgraph DataStore ["Persistence & Object Storage"]
@@ -43,7 +42,7 @@ graph TD
     UI <-->|WebSocket Events| WSHub
     Router --> CaseH & ScenH & SimH & TileH & CompH & ImpactH & ObsH & ExportH
     SimH -->|Async Dispatch| SimWorker
-    SimWorker --> DelftRunner & SPHRunner & LisfloodRunner
+    SimWorker --> DelftRunner & SPHRunner
     CaseH & ScenH & SimH & CompH & ImpactH --> Postgres
     TileH & SimWorker & ExportH --> S3Storage
 ```

@@ -14,9 +14,9 @@ const STATUS_ICON: Record<string, React.ReactNode> = {
   queued: <Clock className="size-3.5 text-[#949ba4]" />,
   validating: <Loader2 className="size-3.5 text-[#f0b232] animate-spin" />,
   preparing: <Loader2 className="size-3.5 text-[#f0b232] animate-spin" />,
-  running: <Loader2 className="size-3.5 text-[#5865f2] animate-spin" />,
-  postprocessing: <Loader2 className="size-3.5 text-[#5865f2] animate-spin" />,
-  validating_output: <Loader2 className="size-3.5 text-[#5865f2] animate-spin" />,
+  running: <Loader2 className="size-3.5 text-white animate-spin" />,
+  postprocessing: <Loader2 className="size-3.5 text-zinc-300 animate-spin" />,
+  validating_output: <Loader2 className="size-3.5 text-zinc-300 animate-spin" />,
   done: <CheckCircle2 className="size-3.5 text-[#23a55a]" />,
   failed: <XCircle className="size-3.5 text-[#f23f43]" />,
   cancelled: <Square className="size-3.5 text-[#949ba4]" />,
@@ -38,9 +38,9 @@ const STATUS_COLOR: Record<RunStatus, string> = {
   queued: 'text-[#949ba4]',
   validating: 'text-[#f0b232]',
   preparing: 'text-[#f0b232]',
-  running: 'text-[#5865f2]',
-  postprocessing: 'text-[#7983f5]',
-  validating_output: 'text-[#7983f5]',
+  running: 'text-white',
+  postprocessing: 'text-zinc-300',
+  validating_output: 'text-zinc-300',
   done: 'text-[#23a55a]',
   failed: 'text-[#f23f43]',
   cancelled: 'text-[#949ba4]',
@@ -91,7 +91,7 @@ export default function RunsPage() {
                 className={cn(
                   'w-full text-left rounded-xl border p-4 transition-all duration-150 cursor-pointer',
                   run.id === activeRun?.id
-                    ? 'border-[#5865f2] bg-[#5865f2]/10 ring-1 ring-[#5865f2]/40 shadow-[0_0_16px_rgba(88,101,242,0.18)]'
+                    ? 'border-white/40 bg-white/10 ring-1 ring-white/20'
                     : 'glass-panel hover:border-white/[0.16] hover:bg-white/[0.04]',
                 )}
               >
@@ -134,21 +134,21 @@ export default function RunsPage() {
                           className={cn(
                             'flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-xs transition-colors',
                             isPast && 'text-[#23a55a] bg-[#23a55a]/5',
-                            isCurrent && 'bg-[#5865f2]/15 text-white font-semibold border-l-2 border-[#5865f2] shadow-[0_0_12px_rgba(88,101,242,0.1)]',
+                            isCurrent && 'bg-white/15 text-white font-semibold border-l-2 border-white',
                             !isPast && !isCurrent && 'text-[#949ba4] bg-white/[0.02]',
                           )}
                         >
                           <span className={cn(
                             'flex size-5 items-center justify-center rounded-full border text-[10px] font-mono',
                             isPast && 'border-[#23a55a] bg-[#23a55a]/20 text-[#23a55a]',
-                            isCurrent && 'border-[#5865f2] bg-[#5865f2] text-white',
+                            isCurrent && 'border-white bg-white text-black',
                             !isPast && !isCurrent && 'border-white/[0.1] text-[#949ba4]',
                           )}>
                             {isPast ? '✓' : i + 1}
                           </span>
                           <span className="flex-1">{STATUS_LABEL[stage]}</span>
                           {isCurrent && (
-                            <span className="font-mono text-[11px] text-[#7983f5]">Active Stage</span>
+                            <span className="font-mono text-[11px] text-white">Active Stage</span>
                           )}
                         </div>
                       )
@@ -164,7 +164,7 @@ export default function RunsPage() {
                     </div>
                     <div className="glass-panel-subtle p-2.5 rounded-lg">
                       <dt className="text-[#949ba4]">Solver</dt>
-                      <dd className="font-mono text-[#7983f5] mt-1 font-semibold truncate">{SOLVERS[activeRun.solver].name}</dd>
+                      <dd className="font-mono text-white mt-1 font-semibold truncate">{SOLVERS[activeRun.solver].name}</dd>
                     </div>
                     <div className="glass-panel-subtle p-2.5 rounded-lg">
                       <dt className="text-[#949ba4]">Started</dt>
@@ -186,7 +186,7 @@ export default function RunsPage() {
                 </Panel>
 
                 <Panel title="Execution Log" className="h-[260px]" bodyClassName="p-0">
-                  <div className="h-full overflow-y-auto bg-[#090c13] p-3.5 font-mono text-[11px] leading-relaxed">
+                  <div className="h-full overflow-y-auto bg-[#080808] p-3.5 font-mono text-[11px] leading-relaxed">
                     {activeRun.logs.length === 0 ? (
                       <p className="text-[#949ba4]">No log entries recorded yet.</p>
                     ) : (
@@ -195,7 +195,7 @@ export default function RunsPage() {
                           <span className="shrink-0 text-[#949ba4]">{new Date(entry.at).toLocaleTimeString('en-IN', { hour12: false })}</span>
                           <span className={cn(
                             'shrink-0 font-semibold w-12',
-                            entry.level === 'info' && 'text-[#7983f5]',
+                            entry.level === 'info' && 'text-zinc-300',
                             entry.level === 'warn' && 'text-[#f0b232]',
                             entry.level === 'error' && 'text-[#f23f43]',
                           )}>

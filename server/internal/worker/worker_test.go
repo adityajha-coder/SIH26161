@@ -78,21 +78,3 @@ func TestDualSPHysicsExecution(t *testing.T) {
 	}
 }
 
-func TestLISFLOODExecution(t *testing.T) {
-	tmpDir := t.TempDir()
-	w := NewSimulationWorker(nil, nil, nil, tmpDir)
-
-	runID := "test-run-lisflood-001"
-	scenarioID := "scen-baseline-pmf"
-
-	err := w.ExecuteRun(runID, scenarioID, "lisflood-fp")
-	if err != nil {
-		t.Fatalf("LISFLOOD-FP worker execution failed: %v", err)
-	}
-
-	summaryFile := filepath.Join(tmpDir, runID, "output", "simulation_summary.json")
-	if _, err := os.Stat(summaryFile); os.IsNotExist(err) {
-		t.Fatalf("expected simulation_summary.json for LISFLOOD-FP to exist at %s", summaryFile)
-	}
-}
-

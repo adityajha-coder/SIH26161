@@ -125,9 +125,6 @@ func (w *SimulationWorker) ExecuteRun(runID string, scenarioID string, solver st
 	case "dualsphysics", "sph":
 		sphRunner := filepath.Join(root, "engines", "sph", "runner.py")
 		cmd = exec.Command("python", sphRunner, "--case", mduPath, "--output", outputDir)
-	case "lisflood", "lisflood-fp":
-		lfRunner := filepath.Join(root, "engines", "lisflood", "runner.py")
-		cmd = exec.Command("python", lfRunner, "--par", mduPath, "--output", outputDir)
 	default:
 		d3dRunner := filepath.Join(root, "engines", "delft3d", "runner.py")
 		cmd = exec.Command("python", d3dRunner, "--mdu", mduPath, "--output", outputDir)

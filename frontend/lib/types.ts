@@ -1,12 +1,11 @@
 import type { FailureMode, SensitivityCase } from './breach'
 
 export type ScenarioType = 'dam_break' | 'natural_blockage' | 'release'
-export type SolverId = 'delft3d' | 'sph' | 'lisflood'
+export type SolverId = 'delft3d' | 'sph'
 
 export const SOLVERS: Record<SolverId, { name: string; version: string; kind: string }> = {
-  delft3d: { name: 'Delft3D FM', version: 'D-Flow FM 2024.03', kind: 'Eulerian' },
-  sph: { name: 'DualSPHysics', version: 'v5.2', kind: 'SPH' },
-  lisflood: { name: 'LISFLOOD-FP', version: 'v8.1', kind: 'Eulerian (fallback)' },
+  delft3d: { name: 'Delft3D FM', version: 'D-Flow FM 2024.03', kind: 'Eulerian SWE' },
+  sph: { name: 'DualSPHysics', version: 'v5.2-CUDA', kind: 'Lagrangian SPH' },
 }
 
 export interface Scenario {
