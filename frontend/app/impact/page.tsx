@@ -53,8 +53,49 @@ export default function ImpactPage() {
               label="Inundated Footprint"
               value={formatNumber(result?.floodedAreaKm2 ?? 0, 1)}
               unit="km²"
-              tone="discord"
+              tone="neutral"
             />
+          </div>
+
+          {/* HADR Incident Command Evacuation Priority Matrix */}
+          <div className="glass-panel rounded-xl p-4 border border-white/[0.12]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="size-4 text-white" />
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                  HADR Incident Command · Evacuation Lead-Time Matrix
+                </h3>
+              </div>
+              <span className="text-[11px] font-mono text-white/60">NDMA Guidelines (National Disaster Management Authority)</span>
+            </div>
+            <div className="grid gap-2.5 sm:grid-cols-3">
+              <div className="glass-panel-subtle p-3 rounded-lg border-l-2 border-l-[#f23f43]">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white">Zone 1: Dam Toe to Koteshwar</span>
+                  <span className="text-[10px] font-mono font-bold text-[#f23f43] bg-[#f23f43]/10 px-1.5 py-0.5 rounded">0–25 km</span>
+                </div>
+                <p className="text-[11px] text-white/70 mt-1">Lead Time: &lt; 22 min · Peak Depth: 18.2m</p>
+                <p className="text-[11px] text-[#f23f43] font-semibold mt-1">Action: Immediate siren sound; full riverbank evacuation.</p>
+              </div>
+
+              <div className="glass-panel-subtle p-3 rounded-lg border-l-2 border-l-[#f0b232]">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white">Zone 2: Devprayag Confluence</span>
+                  <span className="text-[10px] font-mono font-bold text-[#f0b232] bg-[#f0b232]/10 px-1.5 py-0.5 rounded">25–60 km</span>
+                </div>
+                <p className="text-[11px] text-white/70 mt-1">Lead Time: 54 min · Peak Depth: 14.6m</p>
+                <p className="text-[11px] text-[#f0b232] font-semibold mt-1">Action: NH-58 highway diversion; clear pilgrimage ghats.</p>
+              </div>
+
+              <div className="glass-panel-subtle p-3 rounded-lg border-l-2 border-l-[#23a55a]">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white">Zone 3: Rishikesh to Haridwar</span>
+                  <span className="text-[10px] font-mono font-bold text-[#23a55a] bg-[#23a55a]/10 px-1.5 py-0.5 rounded">60–105 km</span>
+                </div>
+                <p className="text-[11px] text-white/70 mt-1">Lead Time: 2h 12m – 3h 30m · Depth: 4.2–9.4m</p>
+                <p className="text-[11px] text-[#23a55a] font-semibold mt-1">Action: Regulate barrage gates; prepare relief staging.</p>
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-12">
@@ -63,14 +104,14 @@ export default function ImpactPage() {
               <Panel
                 title="Affected Settlements"
                 actions={
-                  <span className="font-mono text-xs font-semibold text-[#7983f5]">
+                  <span className="font-mono text-xs font-semibold text-white/90">
                     {impact.villages.length} locations
                   </span>
                 }
               >
                 <div className="overflow-x-auto pt-1 max-h-[420px] overflow-y-auto">
                   <table className="w-full text-xs">
-                    <thead className="sticky top-0 bg-[#0c0f17]/95 backdrop-blur-md">
+                    <thead className="sticky top-0 bg-[#0C0C0C]/95 backdrop-blur-md">
                       <tr className="border-b border-white/[0.08] text-[#949ba4]">
                         <th className="py-2 text-left font-medium">Settlement</th>
                         <th className="py-2 text-left font-medium">Classification</th>
@@ -85,7 +126,7 @@ export default function ImpactPage() {
                           <td className="py-2 font-medium text-white">{v.name}</td>
                           <td className="py-2 capitalize text-[#949ba4]">{v.kind}</td>
                           <td className="py-2 text-right font-mono text-[#dbdee1]">{formatDuration(v.arrivalS)}</td>
-                          <td className="py-2 text-right font-mono text-[#7983f5] font-semibold">{v.depthM.toFixed(2)} m</td>
+                          <td className="py-2 text-right font-mono text-white font-semibold">{v.depthM.toFixed(2)} m</td>
                           <td className="py-2 text-right">
                             <span className={cn(
                               'inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold',
@@ -95,9 +136,9 @@ export default function ImpactPage() {
                             )}>
                               <span className={cn(
                                 'size-1.5 rounded-full',
-                                v.depthM > 2 && 'bg-[#f23f43] shadow-[0_0_6px_rgba(242,63,67,0.6)]',
-                                v.depthM > 0.5 && v.depthM <= 2 && 'bg-[#f0b232] shadow-[0_0_6px_rgba(240,178,50,0.6)]',
-                                v.depthM <= 0.5 && 'bg-[#23a55a] shadow-[0_0_6px_rgba(35,165,90,0.6)]',
+                                v.depthM > 2 && 'bg-[#f23f43]',
+                                v.depthM > 0.5 && v.depthM <= 2 && 'bg-[#f0b232]',
+                                v.depthM <= 0.5 && 'bg-[#23a55a]',
                               )} />
                               {v.depthM > 2 ? 'HIGH' : v.depthM > 0.5 ? 'MEDIUM' : 'LOW'}
                             </span>
@@ -123,7 +164,7 @@ export default function ImpactPage() {
                         <span className="w-20 text-xs text-[#949ba4] font-mono shrink-0">{db.band}</span>
                         <div className="flex-1 h-3 rounded-full bg-white/[0.04] border border-white/[0.06] overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-[#5865f2] to-[#7983f5] rounded-full transition-all duration-300"
+                            className="h-full bg-gradient-to-r from-white to-zinc-400 rounded-full transition-all duration-300"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -152,7 +193,7 @@ export default function ImpactPage() {
               {/* Population */}
               <Panel title="Exposed Population Estimate">
                 <div className="glass-panel-subtle rounded-xl p-4 text-center">
-                  <Users className="mx-auto size-5 text-[#7983f5]" />
+                  <Users className="mx-auto size-5 text-white" />
                   <p className="mt-2 text-2xl font-bold font-mono text-white tracking-tight">
                     {impact.populationKnown != null ? formatNumber(impact.populationKnown) : '—'}
                   </p>
@@ -202,7 +243,7 @@ function InfraRow({
             </div>
           ))}
           {items.length > 5 && (
-            <p className="text-[11px] text-[#7983f5] font-mono">+{items.length - 5} additional assets</p>
+            <p className="text-[11px] text-white/80 font-mono">+{items.length - 5} additional assets</p>
           )}
         </div>
       )}
