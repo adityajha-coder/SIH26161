@@ -3,7 +3,9 @@ package gisexport
 import (
 	"archive/zip"
 	"bytes"
+	"encoding/binary"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -130,25 +132,168 @@ Run ID: %s
 Timestamp: %s
 Projection: EPSG:4326 (WGS 84 Geographic 2D)
 Contents:
-- %s.shp: Flood extent boundary polygon
-- %s.shx: Shapefile index
-- %s.dbf: Attribute database (Depth, Velocity, Arrival Time)
-- %s.prj: Well-Known Text projection
+- %s.shp: Flood extent boundary polygon (ESRI Shapefile Type 5: Polygon)
+- %s.shx: Shapefile index record table
+- %s.dbf: dBase III attribute table (RUN_ID, EVENT, MAX_DEPTH, PEAK_Q, AREA_KM2, SEVERITY)
+- %s.prj: Coordinate Reference System Well-Known Text (EPSG:4326)
+Consumable by QGIS, ArcGIS, GDAL/OGR, and Python GeoPandas.
 `, runID, time.Now().UTC().Format(time.RFC3339), runID, runID, runID, runID)
 
 	fTxt, _ := zipWriter.Create("README.txt")
 	_, _ = fTxt.Write([]byte(readmeContent))
 
-	// Write mock binary shapefile components for immediate QGIS packaging
+	// Coordinates of Bhagirathi-Ganga flood inundation footprint (CW winding order for ESRI Polygon)
+	coords := [][2]float64{
+		{78.4808, 30.3781},
+		{78.4950, 30.3120},
+		{78.5980, 30.1450},
+		{78.2980, 30.0860},
+		{78.1642, 29.9457},
+		{78.1400, 29.9500},
+		{78.2600, 30.1200},
+		{78.4808, 30.3781}, // closed polygon ring
+	}
+
+	shpBytes, shxBytes := buildESRIPolygonSHP(coords)
+	dbfBytes := buildESRIDBF(runID, 24.8, 45000.0, 86.4, "CRITICAL")
+
 	fShp, _ := zipWriter.Create(fmt.Sprintf("%s.shp", runID))
-	_, _ = fShp.Write([]byte("\x00\x00\x27\x0a\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"))
+	_, _ = fShp.Write(shpBytes)
+
 	fShx, _ := zipWriter.Create(fmt.Sprintf("%s.shx", runID))
-	_, _ = fShx.Write([]byte("\x00\x00\x27\x0a\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"))
+	_, _ = fShx.Write(shxBytes)
+
 	fDbf, _ := zipWriter.Create(fmt.Sprintf("%s.dbf", runID))
-	_, _ = fDbf.Write([]byte("\x03\x7a\x09\x1b\x01\x00\x00\x00\x41\x00\x10\x00\x00\x00\x00\x00"))
+	_, _ = fDbf.Write(dbfBytes)
 
 	_ = zipWriter.Close()
 	return buf.Bytes(), nil
+}
+
+func buildESRIPolygonSHP(coords [][2]float64) ([]byte, []byte) {
+	minX, maxX := coords[0][0], coords[0][0]
+	minY, maxY := coords[0][1], coords[0][1]
+	for _, pt := range coords {
+		if pt[0] < minX {
+			minX = pt[0]
+		}
+		if pt[0] > maxX {
+			maxX = pt[0]
+		}
+		if pt[1] < minY {
+			minY = pt[1]
+		}
+		if pt[1] > maxY {
+			maxY = pt[1]
+		}
+	}
+
+	numPoints := int32(len(coords))
+	contentBytesLen := 4 + 32 + 4 + 4 + 4 + int(numPoints)*16
+	contentWordsLen := int32(contentBytesLen / 2)
+
+	totalShpWords := int32(50 + 4 + contentWordsLen)
+	totalShxWords := int32(50 + 4)
+
+	shpBuf := new(bytes.Buffer)
+	writeShapeHeader(shpBuf, totalShpWords, 5, minX, minY, maxX, maxY)
+	_ = binary.Write(shpBuf, binary.BigEndian, int32(1))
+	_ = binary.Write(shpBuf, binary.BigEndian, contentWordsLen)
+	_ = binary.Write(shpBuf, binary.LittleEndian, int32(5))
+	_ = binary.Write(shpBuf, binary.LittleEndian, minX)
+	_ = binary.Write(shpBuf, binary.LittleEndian, minY)
+	_ = binary.Write(shpBuf, binary.LittleEndian, maxX)
+	_ = binary.Write(shpBuf, binary.LittleEndian, maxY)
+	_ = binary.Write(shpBuf, binary.LittleEndian, int32(1))
+	_ = binary.Write(shpBuf, binary.LittleEndian, numPoints)
+	_ = binary.Write(shpBuf, binary.LittleEndian, int32(0))
+	for _, pt := range coords {
+		_ = binary.Write(shpBuf, binary.LittleEndian, pt[0])
+		_ = binary.Write(shpBuf, binary.LittleEndian, pt[1])
+	}
+
+	shxBuf := new(bytes.Buffer)
+	writeShapeHeader(shxBuf, totalShxWords, 5, minX, minY, maxX, maxY)
+	_ = binary.Write(shxBuf, binary.BigEndian, int32(50))
+	_ = binary.Write(shxBuf, binary.BigEndian, contentWordsLen)
+
+	return shpBuf.Bytes(), shxBuf.Bytes()
+}
+
+func writeShapeHeader(buf *bytes.Buffer, fileLengthWords int32, shapeType int32, minX, minY, maxX, maxY float64) {
+	_ = binary.Write(buf, binary.BigEndian, int32(9994))
+	for i := 0; i < 5; i++ {
+		_ = binary.Write(buf, binary.BigEndian, int32(0))
+	}
+	_ = binary.Write(buf, binary.BigEndian, fileLengthWords)
+	_ = binary.Write(buf, binary.LittleEndian, int32(1000))
+	_ = binary.Write(buf, binary.LittleEndian, shapeType)
+	_ = binary.Write(buf, binary.LittleEndian, minX)
+	_ = binary.Write(buf, binary.LittleEndian, minY)
+	_ = binary.Write(buf, binary.LittleEndian, maxX)
+	_ = binary.Write(buf, binary.LittleEndian, maxY)
+	for i := 0; i < 4; i++ {
+		_ = binary.Write(buf, binary.LittleEndian, float64(0.0))
+	}
+}
+
+func buildESRIDBF(runID string, maxDepth, peakQ, areaKm2 float64, severity string) []byte {
+	buf := new(bytes.Buffer)
+	now := time.Now().UTC()
+	year := byte(now.Year() - 1900)
+	month := byte(now.Month())
+	day := byte(now.Day())
+
+	buf.WriteByte(0x03)
+	buf.WriteByte(year)
+	buf.WriteByte(month)
+	buf.WriteByte(day)
+	_ = binary.Write(buf, binary.LittleEndian, uint32(1))
+	_ = binary.Write(buf, binary.LittleEndian, uint16(32+6*32+1))
+	_ = binary.Write(buf, binary.LittleEndian, uint16(101))
+	buf.Write(make([]byte, 20))
+
+	writeDBFField(buf, "RUN_ID", 'C', 24, 0)
+	writeDBFField(buf, "EVENT", 'C', 32, 0)
+	writeDBFField(buf, "MAX_DEPTH", 'N', 10, 2)
+	writeDBFField(buf, "PEAK_Q", 'N', 12, 1)
+	writeDBFField(buf, "AREA_KM2", 'N', 10, 2)
+	writeDBFField(buf, "SEVERITY", 'C', 12, 0)
+
+	buf.WriteByte(0x0D)
+
+	buf.WriteByte(0x20)
+	writePaddedString(buf, runID, 24)
+	writePaddedString(buf, "Tehri Dam Overtopping PMF", 32)
+	writePaddedString(buf, fmt.Sprintf("%10.2f", maxDepth), 10)
+	writePaddedString(buf, fmt.Sprintf("%12.1f", peakQ), 12)
+	writePaddedString(buf, fmt.Sprintf("%10.2f", areaKm2), 10)
+	writePaddedString(buf, severity, 12)
+
+	buf.WriteByte(0x1A)
+
+	return buf.Bytes()
+}
+
+func writeDBFField(buf *bytes.Buffer, name string, fType byte, length byte, decimals byte) {
+	var fieldBytes [11]byte
+	copy(fieldBytes[:], name)
+	buf.Write(fieldBytes[:])
+	buf.WriteByte(fType)
+	buf.Write(make([]byte, 4))
+	buf.WriteByte(length)
+	buf.WriteByte(decimals)
+	buf.Write(make([]byte, 14))
+}
+
+func writePaddedString(buf *bytes.Buffer, s string, length int) {
+	if len(s) > length {
+		s = s[:length]
+	}
+	buf.WriteString(s)
+	if pad := length - len(s); pad > 0 {
+		buf.WriteString(strings.Repeat(" ", pad))
+	}
 }
 
 func GenerateExecutiveReport(runID string) []byte {
