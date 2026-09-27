@@ -18,9 +18,11 @@ type Config struct {
 	S3Bucket        string
 	S3Region        string
 	S3UseSSL        bool
-	LocalStorageDir string
-	LogLevel        string
-	LogFormat       string
+	LocalStorageDir        string
+	GEEServiceAccountEmail string
+	GEEPrivateKeyPath      string
+	LogLevel               string
+	LogFormat              string
 }
 
 func Load() *Config {
@@ -47,19 +49,21 @@ func Load() *Config {
 	}
 
 	return &Config{
-		Port:            getEnv("API_PORT", "8080"),
-		CorsOrigin:      getEnv("API_CORS_ORIGIN", "*"),
-		DatabaseURL:     getEnv("DATABASE_URL", "postgres://sih26161:password@localhost:5432/sih26161?sslmode=disable"),
-		RedisURL:        getEnv("REDIS_URL", "redis://localhost:6379"),
-		S3Endpoint:      endpoint,
-		S3AccessKey:     getFirstEnv("S3_ACCESS_KEY", "MINIO_ACCESS_KEY", "minioadmin"),
-		S3SecretKey:     getFirstEnv("S3_SECRET_KEY", "MINIO_SECRET_KEY", "minioadmin"),
-		S3Bucket:        getFirstEnv("S3_BUCKET", "MINIO_BUCKET", "sih26161"),
-		S3Region:        getEnv("S3_REGION", "auto"),
-		S3UseSSL:        useSSL,
-		LocalStorageDir: getEnv("LOCAL_STORAGE_DIR", "data/storage"),
-		LogLevel:        getEnv("LOG_LEVEL", "debug"),
-		LogFormat:       getEnv("LOG_FORMAT", "console"),
+		Port:                   getEnv("API_PORT", "8080"),
+		CorsOrigin:             getEnv("API_CORS_ORIGIN", "*"),
+		DatabaseURL:            getEnv("DATABASE_URL", "postgres://sih26161:password@localhost:5432/sih26161?sslmode=disable"),
+		RedisURL:               getEnv("REDIS_URL", "redis://localhost:6379"),
+		S3Endpoint:             endpoint,
+		S3AccessKey:            getFirstEnv("S3_ACCESS_KEY", "MINIO_ACCESS_KEY", "minioadmin"),
+		S3SecretKey:            getFirstEnv("S3_SECRET_KEY", "MINIO_SECRET_KEY", "minioadmin"),
+		S3Bucket:               getFirstEnv("S3_BUCKET", "MINIO_BUCKET", "sih26161"),
+		S3Region:               getEnv("S3_REGION", "auto"),
+		S3UseSSL:               useSSL,
+		LocalStorageDir:        getEnv("LOCAL_STORAGE_DIR", "data/storage"),
+		GEEServiceAccountEmail: getEnv("GEE_SERVICE_ACCOUNT_EMAIL", ""),
+		GEEPrivateKeyPath:      getEnv("GEE_PRIVATE_KEY_PATH", "./gee-credentials.json"),
+		LogLevel:               getEnv("LOG_LEVEL", "debug"),
+		LogFormat:              getEnv("LOG_FORMAT", "console"),
 	}
 }
 

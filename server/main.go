@@ -17,6 +17,8 @@ import (
 	"github.com/sih26161/backend/config"
 	"github.com/sih26161/backend/db"
 	"github.com/sih26161/backend/handlers"
+	"github.com/sih26161/backend/internal/observation"
+	"github.com/sih26161/backend/internal/worker"
 	"github.com/sih26161/backend/logger"
 	"github.com/sih26161/backend/storage"
 	"github.com/sih26161/backend/ws"
@@ -51,6 +53,16 @@ func main() {
 		sqlDB = database.Conn
 	}
 	datasetH := handlers.NewDatasetHandler(sqlDB, store)
+	tileH := handlers.NewTileHandler(store)
+	caseH := handlers.NewCaseHandler(sqlDB)
+	scenH := handlers.NewScenarioHandler(sqlDB)
+	simWorker := worker.NewSimulationWorker(sqlDB, store, hub, "")
+	simH := handlers.NewSimulationHandler(sqlDB, hub, simWorker)
+	compH := handlers.NewComparisonHandler(sqlDB)
+	impactH := handlers.NewImpactHandler(sqlDB)
+	obsWorker := observation.NewObservationWorker(sqlDB, hub)
+	obsH := handlers.NewObservationHandler(obsWorker)
+	exportH := handlers.NewExportHandler()
 
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
@@ -59,7 +71,7 @@ func main() {
 	r.Use(logger.RequestLogger)
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000", cfg.CorsOrigin},
+		AllowedOrigins:   []string{"http://localhost:3000", "http://localhost:3001", cfg.CorsOrigin},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-Request-ID"},
 		AllowCredentials: true,
@@ -76,10 +88,63 @@ func main() {
 	})
 
 	r.Route("/api/v1", func(r chi.Router) {
+		// Case studies & metadata
+		r.Get("/cases", caseH.ListCases)
+		r.Get("/cases/{id}", caseH.GetCase)
+
+		// Datasets & raw rasters
 		r.Get("/datasets", datasetH.ListDatasets)
 		r.Get("/datasets/{id}", datasetH.GetDataset)
 		r.Get("/datasets/{id}/download", datasetH.DownloadDataset)
 		r.Get("/storage/download", datasetH.LocalDownload)
+
+		// Scenarios
+		r.Get("/scenarios", scenH.ListScenarios)
+		r.Post("/scenarios", scenH.CreateScenario)
+		r.Get("/scenarios/{id}", scenH.GetScenario)
+
+		// Simulation runs & impact
+		r.Get("/simulations", simH.ListSimulations)
+		r.Post("/simulations", simH.LaunchSimulation)
+		r.Get("/simulations/{id}", simH.GetSimulation)
+		r.Get("/simulations/{id}/results", simH.GetSimulationResults)
+		r.Get("/simulations/{id}/impact", impactH.GetSimulationImpact)
+
+		// Solver comparison & historical validation
+		r.Get("/validation/compare", compH.GetCrossValidation)
+		r.Get("/validation/historical", compH.GetObservedValidation)
+
+		// Earth Observation telemetry
+		r.Get("/observations/latest", obsH.GetLatest)
+		r.Get("/observations/{id}", obsH.GetByID)
+		r.Post("/observations/refresh", obsH.Refresh)
+
+		// GIS Exports
+		r.Get("/exports/{runId}/kml", exportH.ExportKML)
+		r.Get("/exports/{runId}/geojson", exportH.ExportGeoJSON)
+		r.Get("/exports/{runId}/shp", exportH.ExportShapefile)
+		r.Get("/exports/{runId}/report", exportH.ExportReport)
+
+		// Display tile and vector endpoints for web map
+		r.Get("/tiles/terrain/{z}/{x}/{y}", tileH.ServeTerrainTile)
+		r.Get("/tiles/hillshade/{z}/{x}/{y}", tileH.ServeHillshadeTile)
+		r.Get("/tiles/contours.geojson", tileH.ServeContours)
+		r.Get("/tiles/manifest", tileH.ServeTileManifest)
+	})
+
+	r.Get("/preview", func(w http.ResponseWriter, r *http.Request) {
+		candidates := []string{
+			"public/map_preview.html",
+			"../public/map_preview.html",
+			"../../public/map_preview.html",
+		}
+		for _, cand := range candidates {
+			if fi, err := os.Stat(cand); err == nil && !fi.IsDir() {
+				http.ServeFile(w, r, cand)
+				return
+			}
+		}
+		http.Error(w, "Map preview template not found", http.StatusNotFound)
 	})
 
 	srv := &http.Server{
