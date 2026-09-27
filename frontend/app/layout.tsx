@@ -38,8 +38,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`dark ${poppins.variable} ${jetbrains.variable}`} suppressHydrationWarning>
-      <body className={`antialiased font-sans bg-background text-foreground ${poppins.className}`} suppressHydrationWarning>
+    <html lang="en" className={`dark ${poppins.variable} ${jetbrains.variable} h-full overflow-hidden`} suppressHydrationWarning>
+      <body className={`antialiased font-sans bg-background text-foreground h-full w-full overflow-hidden ${poppins.className}`} suppressHydrationWarning>
         <AppShell>{children}</AppShell>
         <Toaster theme="dark" position="bottom-right" />
         {process.env.NODE_ENV === 'production' && <Analytics />}

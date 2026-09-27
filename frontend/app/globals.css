@@ -93,16 +93,21 @@
   * {
     @apply border-border outline-ring/50;
   }
-  html,
+  html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
   body {
     height: 100%;
     width: 100%;
-    min-height: 100%;
     margin: 0;
     padding: 0;
-    font-family: var(--font-poppins), 'Poppins', sans-serif;
-  }
-  body {
+    overflow: hidden;
+    position: fixed;
+    inset: 0;
     @apply bg-background text-foreground font-sans;
     font-family: var(--font-poppins), 'Poppins', sans-serif;
     background-color: #0c0f17;

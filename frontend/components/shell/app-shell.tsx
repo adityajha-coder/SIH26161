@@ -10,7 +10,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <PlatformProvider>
-      <div className="flex h-screen min-h-screen w-full overflow-hidden bg-background">
+      <div className="fixed inset-0 flex h-full w-full overflow-hidden bg-background">
         <aside
           className={`shrink-0 border-r border-sidebar-border bg-sidebar transition-[width] duration-300 ease-in-out h-full ${
             sidebarOpen ? 'w-60' : 'w-0 border-r-0'
@@ -25,7 +25,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             sidebarOpen={sidebarOpen}
             onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
           />
-          <main className="min-h-0 flex-1 overflow-y-auto">{children}</main>
+          <main className="min-h-0 flex-1 h-full overflow-y-auto flex flex-col">{children}</main>
         </div>
       </div>
     </PlatformProvider>

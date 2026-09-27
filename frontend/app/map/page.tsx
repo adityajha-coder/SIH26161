@@ -60,7 +60,7 @@ export default function MapPage() {
 
       <div className="min-h-0 flex-1 px-4 pb-4 lg:px-6 lg:pb-6">
         <div className="grid h-full gap-4 lg:grid-cols-12">
-          <div className={`flex flex-col gap-3 ${showControls ? 'lg:col-span-9' : 'lg:col-span-12'}`}>
+          <div className={`flex flex-col gap-3 h-full min-h-0 ${showControls ? 'lg:col-span-9' : 'lg:col-span-12'}`}>
             <div className="min-h-0 flex-1 rounded-xl border border-white/[0.08] overflow-hidden glass-panel">
               <SimulationView
                 base={base}
@@ -84,7 +84,7 @@ export default function MapPage() {
           </div>
 
           {showControls && (
-            <div className="lg:col-span-3 space-y-3 overflow-y-auto">
+            <div className="lg:col-span-3 space-y-3 h-full overflow-y-auto">
               <Panel title="Base Map">
                 <div className="flex gap-1.5 pt-1">
                   {(['terrain', 'satellite', 'dark'] as BaseMode[]).map((m) => (
