@@ -5,15 +5,7 @@ import { Menu, PanelLeft } from 'lucide-react'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { usePlatform } from '@/lib/platform-store'
-import { cn } from '@/lib/utils'
 import { SidebarNav } from './sidebar-nav'
-
-const STATUS_COPY = {
-  connected: { label: 'Connected', dot: 'bg-[#23a55a]', shadow: 'shadow-[0_0_8px_rgba(35,165,90,0.6)]' },
-  checking: { label: 'Checking', dot: 'bg-[#f0b232]', shadow: 'shadow-[0_0_8px_rgba(240,178,50,0.6)]' },
-  unreachable: { label: 'Offline / Preview', dot: 'bg-[#f23f43]', shadow: 'shadow-[0_0_8px_rgba(242,63,67,0.6)]' },
-  not_configured: { label: 'Preview Mode', dot: 'bg-[#f0b232]', shadow: 'shadow-[0_0_8px_rgba(240,178,50,0.6)]' },
-} as const
 
 export function TopBar({
   sidebarOpen,
@@ -22,9 +14,8 @@ export function TopBar({
   sidebarOpen?: boolean
   onToggleSidebar?: () => void
 }) {
-  const { activeScenario, apiStatus } = usePlatform()
+  const { activeScenario } = usePlatform()
   const [open, setOpen] = useState(false)
-  const status = STATUS_COPY[apiStatus]
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#0c0f17]/85 backdrop-blur-md px-4 lg:px-6">
@@ -63,12 +54,6 @@ export function TopBar({
             )}
           </p>
         </div>
-      </div>
-
-      {/* Clean status indicator on the right */}
-      <div className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-3 py-1 text-xs text-white backdrop-blur-sm">
-        <span className={cn('size-2 rounded-full', status.dot, status.shadow)} aria-hidden="true" />
-        <span className="font-medium text-xs text-white">{status.label}</span>
       </div>
     </header>
   )
