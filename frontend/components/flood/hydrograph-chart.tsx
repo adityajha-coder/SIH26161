@@ -33,9 +33,15 @@ export function HydrographChart({
   return (
     <ChartContainer config={config} className={cn('aspect-auto h-48 w-full', className)}>
       <AreaChart data={data} margin={{ left: 4, right: 8, top: 8, bottom: 0 }}>
-        <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <XAxis dataKey="h" tickLine={false} axisLine={false} tickFormatter={(v) => `${v}h`} minTickGap={24} />
-        <YAxis tickLine={false} axisLine={false} width={44} tickFormatter={(v) => formatCompact(v)} />
+        <defs>
+          <linearGradient id="hydroFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#5865f2" stopOpacity={0.45} />
+            <stop offset="95%" stopColor="#5865f2" stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+        <XAxis dataKey="h" tickLine={false} axisLine={false} tickFormatter={(v) => `${v}h`} minTickGap={24} tick={{ fill: '#949ba4', fontSize: 11 }} />
+        <YAxis tickLine={false} axisLine={false} width={44} tickFormatter={(v) => formatCompact(v)} tick={{ fill: '#949ba4', fontSize: 11 }} />
         <ChartTooltip
           content={
             <ChartTooltipContent
@@ -43,15 +49,15 @@ export function HydrographChart({
               formatter={(value, name) => (
                 <div className="flex w-full justify-between gap-4">
                   <span className="text-muted-foreground">{config[name as keyof typeof config]?.label}</span>
-                  <span className="font-mono">{Number(value).toLocaleString('en-IN')} m³/s</span>
+                  <span className="font-mono text-white font-semibold">{Number(value).toLocaleString('en-IN')} m³/s</span>
                 </div>
               )}
             />
           }
         />
-        <Area dataKey="base" type="monotone" stroke="var(--color-base)" fill="var(--color-base)" fillOpacity={0.2} strokeWidth={2} />
-        {low && <Line dataKey="low" type="monotone" stroke="var(--color-low)" strokeDasharray="4 3" dot={false} strokeWidth={1.5} />}
-        {high && <Line dataKey="high" type="monotone" stroke="var(--color-high)" strokeDasharray="4 3" dot={false} strokeWidth={1.5} />}
+        <Area dataKey="base" type="monotone" stroke="#5865f2" fill="url(#hydroFill)" strokeWidth={2.5} />
+        {low && <Line dataKey="low" type="monotone" stroke="#7983f5" strokeDasharray="4 3" dot={false} strokeWidth={1.5} />}
+        {high && <Line dataKey="high" type="monotone" stroke="#f0b232" strokeDasharray="4 3" dot={false} strokeWidth={1.5} />}
       </AreaChart>
     </ChartContainer>
   )

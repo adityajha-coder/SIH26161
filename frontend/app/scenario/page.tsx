@@ -3,7 +3,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { SlidersHorizontal, AlertTriangle, CheckCircle2, Play } from 'lucide-react'
 import { Panel, PageHeader, StatTile, PreviewNotice } from '@/components/common/panel'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -100,13 +99,7 @@ export default function ScenarioPage() {
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
       <PageHeader
         title="Scenario Builder"
-        description="Configure breach parameters using Froehlich (2008) empirical relationships. The hydrograph updates in real time."
-        actions={
-          <Badge variant="outline" className="font-mono text-[10px]">
-            <SlidersHorizontal className="mr-1 size-3" />
-            Froehlich 2008
-          </Badge>
-        }
+        description="Configure breach parameters using Froehlich (2008) empirical relationships. Hydrographs, wave peak, and volume balance calculate dynamically."
       />
 
       <div className="grid gap-4 lg:grid-cols-12">
@@ -115,16 +108,16 @@ export default function ScenarioPage() {
           <Panel title="Breach Parameters">
             <div className="space-y-4 pt-1">
               <div>
-                <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">Failure Mode</Label>
-                <div className="mt-1.5 flex gap-1">
+                <Label className="text-xs font-medium text-[#dbdee1]">Failure mode</Label>
+                <div className="mt-1.5 flex gap-1.5">
                   {FAILURE_MODES.map((fm) => (
                     <button
                       key={fm.value}
                       onClick={() => setFailureMode(fm.value)}
-                      className={`flex-1 rounded-md border px-3 py-2 text-xs font-semibold transition-colors cursor-pointer ${
+                      className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-all cursor-pointer ${
                         failureMode === fm.value
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border text-muted-foreground hover:text-foreground'
+                          ? 'border-[#5865f2] bg-[#5865f2]/15 text-[#7983f5] shadow-[0_0_12px_rgba(88,101,242,0.2)]'
+                          : 'border-white/[0.08] text-[#949ba4] hover:bg-white/[0.04] hover:text-white'
                       }`}
                     >
                       {fm.label}
@@ -133,16 +126,15 @@ export default function ScenarioPage() {
                 </div>
               </div>
 
-              <FieldRow label="Reservoir Volume" unit="MCM" hint={`${BREACH_BOUNDS.reservoirVolumeM3.min / 1e6}–${BREACH_BOUNDS.reservoirVolumeM3.max / 1e6}`}>
+              <FieldRow label="Reservoir storage" unit="MCM" hint={`${BREACH_BOUNDS.reservoirVolumeM3.min / 1e6}–${BREACH_BOUNDS.reservoirVolumeM3.max / 1e6}`}>
                 <Input
                   type="number"
                   value={Math.round(reservoirVolumeM3 / 1e6)}
                   onChange={(e) => setReservoirVolumeM3(Number(e.target.value) * 1e6)}
-                  className="font-mono"
                 />
               </FieldRow>
 
-              <FieldRow label="Breach Height" unit="m" hint={`${BREACH_BOUNDS.breachHeightM.min}–${BREACH_BOUNDS.breachHeightM.max}`}>
+              <FieldRow label="Breach height" unit="m" hint={`${BREACH_BOUNDS.breachHeightM.min}–${BREACH_BOUNDS.breachHeightM.max}`}>
                 <Input
                   type="number"
                   value={breachHeightM}
@@ -183,24 +175,27 @@ export default function ScenarioPage() {
 
           <Panel title="Solver Selection">
             <div className="space-y-2 pt-1">
-              {SOLVER_OPTIONS.map((s) => (
-                <label
-                  key={s.id}
-                  className={`flex items-center gap-3 rounded-md border px-3 py-2.5 cursor-pointer transition-colors ${
-                    selectedSolvers.includes(s.id)
-                      ? 'border-primary bg-primary/5 text-foreground'
-                      : 'border-border text-muted-foreground hover:border-border hover:text-foreground'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedSolvers.includes(s.id)}
-                    onChange={() => toggleSolver(s.id)}
-                    className="accent-primary"
-                  />
-                  <span className="text-sm font-medium">{s.label}</span>
-                </label>
-              ))}
+              {SOLVER_OPTIONS.map((s) => {
+                const isSelected = selectedSolvers.includes(s.id)
+                return (
+                  <label
+                    key={s.id}
+                    className={`flex items-center gap-3 rounded-lg border px-3.5 py-2.5 cursor-pointer transition-all duration-150 ${
+                      isSelected
+                        ? 'border-[#5865f2] bg-[#5865f2]/10 text-white shadow-[0_0_12px_rgba(88,101,242,0.15)]'
+                        : 'border-white/[0.08] bg-white/[0.02] text-[#949ba4] hover:border-white/[0.16] hover:text-white'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSolver(s.id)}
+                      className="size-4 rounded accent-[#5865f2] cursor-pointer"
+                    />
+                    <span className="text-xs font-semibold">{s.label}</span>
+                  </label>
+                )
+              })}
             </div>
           </Panel>
         </div>
@@ -215,21 +210,21 @@ export default function ScenarioPage() {
               label="Mass Balance"
               value={`${hydrograph.massBalanceErrorPct.toFixed(3)}%`}
               tone={massBalanceOk ? 'success' : 'danger'}
-              hint={massBalanceOk ? 'Within tolerance' : `Exceeds ${MASS_BALANCE_TOLERANCE_PCT}%`}
+              hint={massBalanceOk ? 'Balanced' : `Exceeds ±${MASS_BALANCE_TOLERANCE_PCT}%`}
             />
           </div>
 
           <Panel
-            title="Breach Hydrograph Q(t)"
+            title="Breach Hydrograph"
             className="h-[340px]"
             actions={
-              <span className="font-mono text-[11px] text-muted-foreground">
+              <span className="font-mono text-xs font-medium text-[#7983f5]">
                 Peak {formatDischarge(hydrograph.peakDischargeM3s)}
               </span>
             }
           >
-            {hydro ? (
-              <HydrographChart {...hydro} className="h-full w-full" />
+            {hydrograph ? (
+              <HydrographChart base={hydrograph} className="h-full w-full" />
             ) : (
               <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
                 Calculating...
@@ -237,26 +232,26 @@ export default function ScenarioPage() {
             )}
           </Panel>
 
-          <Panel title="Validation">
+          <Panel title="Validation Checks">
             <div className="space-y-2 pt-1">
               <ValidationRow
                 ok={massBalanceOk}
-                label="Mass balance check"
-                detail={`∫Q(t)dt = ${formatVolumeMcm(hydrograph.releasedVolumeM3)} vs target ${formatVolumeMcm(hydrograph.targetVolumeM3)}`}
+                label="Mass balance convergence"
+                detail={`Released ${formatVolumeMcm(hydrograph.releasedVolumeM3)} vs target ${formatVolumeMcm(hydrograph.targetVolumeM3)}`}
               />
               <ValidationRow
                 ok={breachHeightM >= 1 && breachHeightM <= 300}
-                label="Breach height within bounds"
+                label="Breach height physical limits"
                 detail={`${breachHeightM} m ∈ [${BREACH_BOUNDS.breachHeightM.min}, ${BREACH_BOUNDS.breachHeightM.max}]`}
               />
               <ValidationRow
                 ok={reservoirVolumeM3 >= BREACH_BOUNDS.reservoirVolumeM3.min}
-                label="Reservoir volume plausible"
+                label="Reservoir volume plausibility"
                 detail={formatVolumeMcm(reservoirVolumeM3)}
               />
               <ValidationRow
                 ok={selectedSolvers.length > 0}
-                label="At least one solver selected"
+                label="Simulation solver configured"
                 detail={selectedSolvers.length > 0 ? selectedSolvers.join(', ') : 'None selected'}
               />
             </div>
@@ -265,7 +260,7 @@ export default function ScenarioPage() {
           <Button
             onClick={handleSubmit}
             disabled={submitting || !massBalanceOk || selectedSolvers.length === 0}
-            className="w-full"
+            className="w-full h-11 text-sm font-semibold rounded-xl"
             size="lg"
           >
             <Play className="mr-2 size-4" />
@@ -292,27 +287,27 @@ function FieldRow({
 }) {
   return (
     <div>
-      <div className="flex items-baseline justify-between">
-        <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</Label>
-        {unit && <span className="text-[10px] text-muted-foreground">{unit}</span>}
+      <div className="flex items-baseline justify-between mb-1.5">
+        <Label className="text-xs font-medium text-[#dbdee1]">{label}</Label>
+        {unit && <span className="text-xs text-[#949ba4] font-mono">{unit}</span>}
       </div>
-      <div className="mt-1">{children}</div>
-      {hint && <p className="mt-0.5 text-[10px] text-muted-foreground">Range: {hint}</p>}
+      <div>{children}</div>
+      {hint && <p className="mt-1 text-[11px] text-[#949ba4]">Bounds: {hint}</p>}
     </div>
   )
 }
 
 function ValidationRow({ ok, label, detail }: { ok: boolean; label: string; detail: string }) {
   return (
-    <div className="flex items-start gap-2.5 rounded-md border border-border bg-background/40 px-3 py-2">
+    <div className="glass-panel-subtle flex items-start gap-2.5 rounded-lg px-3.5 py-2.5 transition-colors">
       {ok ? (
-        <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-success" />
+        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-[#23a55a]" />
       ) : (
-        <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-destructive" />
+        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[#f23f43]" />
       )}
       <div className="min-w-0">
-        <p className="text-xs font-medium text-foreground">{label}</p>
-        <p className="text-[10px] text-muted-foreground font-mono">{detail}</p>
+        <p className="text-xs font-semibold text-white">{label}</p>
+        <p className="text-[11px] text-[#949ba4] font-mono mt-0.5">{detail}</p>
       </div>
     </div>
   )

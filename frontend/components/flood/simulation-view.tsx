@@ -31,7 +31,7 @@ export function SimulationView({
   const is3d = layers.terrain3d || base === 'terrain'
   const legend = layers.arrivalTime ? 'arrival' : layers.floodVelocity ? 'velocity' : layers.floodDepth ? 'depth' : null
   return (
-    <div className={cn('relative overflow-hidden rounded-md', className)}>
+    <div className={cn('relative overflow-hidden rounded-xl min-h-[380px] w-full', className)}>
       <MapView
         base={base}
         layers={layers}

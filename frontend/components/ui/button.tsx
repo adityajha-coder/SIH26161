@@ -8,16 +8,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground [a]:hover:bg-primary/80',
+        default: 'bg-[#5865f2] text-white hover:bg-[#4752c4] shadow-[0_4px_16px_rgba(88,101,242,0.25)] font-semibold transition-all duration-150',
         outline:
-          'border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
+          'border border-white/[0.08] bg-white/[0.03] text-[#dbdee1] hover:bg-white/[0.08] hover:text-white backdrop-blur-sm transition-all duration-150',
         secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
+          'bg-white/[0.06] text-white hover:bg-white/[0.1] border border-white/[0.06] transition-all duration-150',
         ghost:
-          'hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
+          'text-[#949ba4] hover:bg-white/[0.06] hover:text-white transition-all duration-150',
         destructive:
-          'bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40',
-        link: 'text-primary underline-offset-4 hover:underline',
+          'bg-[#f23f43]/15 text-[#f23f43] border border-[#f23f43]/30 hover:bg-[#f23f43]/25 transition-all duration-150',
+        link: 'text-[#7983f5] underline-offset-4 hover:underline hover:text-[#5865f2]',
       },
       size: {
         default:

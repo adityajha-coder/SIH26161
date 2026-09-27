@@ -1,12 +1,20 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
 import { AppShell } from '@/components/shell/app-shell'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
-const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains' })
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Jalrekha · Dam Break & River Inundation Intelligence',
@@ -20,7 +28,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'dark',
-  themeColor: '#0a1020',
+  themeColor: '#0e1017',
 }
 
 export default function RootLayout({
@@ -29,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${jetbrains.variable}`} suppressHydrationWarning>
-      <body className="antialiased" suppressHydrationWarning>
+    <html lang="en" className={`dark ${jakarta.variable} ${jetbrains.variable}`} suppressHydrationWarning>
+      <body className="antialiased font-sans bg-background text-foreground" suppressHydrationWarning>
         <AppShell>{children}</AppShell>
         <Toaster theme="dark" position="bottom-right" />
         {process.env.NODE_ENV === 'production' && <Analytics />}

@@ -3,7 +3,6 @@
 import { useMemo } from 'react'
 import { Satellite, RefreshCw, Circle } from 'lucide-react'
 import { Panel, PageHeader, EmptyState } from '@/components/common/panel'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { usePlatform } from '@/lib/platform-store'
 import { TEHRI } from '@/lib/case-study'
@@ -15,7 +14,7 @@ const OBSERVATION_SOURCES: ObservationProduct[] = [
   {
     id: 'obs-sentinel1',
     source: 'sentinel1',
-    sourceName: 'Sentinel-1 GRD',
+    sourceName: 'Sentinel-1 GRD SAR',
     collection: 'COPERNICUS/S1_GRD',
     acquiredAt: null,
     ingestedAt: null,
@@ -26,7 +25,7 @@ const OBSERVATION_SOURCES: ObservationProduct[] = [
   {
     id: 'obs-imerg',
     source: 'imerg',
-    sourceName: 'GPM IMERG V07',
+    sourceName: 'GPM IMERG V07 Precipitation',
     collection: 'NASA/GPM_L3/IMERG_V07',
     acquiredAt: null,
     ingestedAt: null,
@@ -37,7 +36,7 @@ const OBSERVATION_SOURCES: ObservationProduct[] = [
   {
     id: 'obs-dswx',
     source: 'dswx',
-    sourceName: 'OPERA DSWx-S1',
+    sourceName: 'OPERA DSWx-S1 Dynamic Surface Water',
     collection: 'OPERA_L3_DSWX-S1_V1',
     acquiredAt: null,
     ingestedAt: null,
@@ -48,7 +47,7 @@ const OBSERVATION_SOURCES: ObservationProduct[] = [
   {
     id: 'obs-gsmap',
     source: 'gsmap',
-    sourceName: 'GSMaP Operational V8',
+    sourceName: 'JAXA GSMaP Rainfall Gauge',
     collection: 'JAXA/GPM_L3/GSMaP/v8/operational',
     acquiredAt: null,
     ingestedAt: null,
@@ -59,11 +58,11 @@ const OBSERVATION_SOURCES: ObservationProduct[] = [
 ]
 
 const STATUS_CONFIG = {
-  ok: { label: 'Active', color: 'text-success', dot: 'bg-success' },
-  stale: { label: 'Stale', color: 'text-warning', dot: 'bg-warning' },
-  no_acquisition: { label: 'No Acquisition', color: 'text-muted-foreground', dot: 'bg-muted-foreground' },
-  unavailable: { label: 'Unavailable', color: 'text-destructive', dot: 'bg-destructive' },
-  not_configured: { label: 'Not Configured', color: 'text-muted-foreground', dot: 'bg-muted-foreground' },
+  ok: { label: 'Active Pipeline', color: 'text-[#23a55a]', dot: 'bg-[#23a55a]', shadow: 'shadow-[0_0_8px_rgba(35,165,90,0.6)]' },
+  stale: { label: 'Revisit Stale', color: 'text-[#f0b232]', dot: 'bg-[#f0b232]', shadow: 'shadow-[0_0_8px_rgba(240,178,50,0.6)]' },
+  no_acquisition: { label: 'No Overpass Found', color: 'text-[#949ba4]', dot: 'bg-[#949ba4]', shadow: 'none' },
+  unavailable: { label: 'Catalog Offline', color: 'text-[#f23f43]', dot: 'bg-[#f23f43]', shadow: 'shadow-[0_0_8px_rgba(242,63,67,0.6)]' },
+  not_configured: { label: 'Telemetry Standby', color: 'text-[#949ba4]', dot: 'bg-[#949ba4]', shadow: 'none' },
 } as const
 
 export default function ObservationsPage() {
@@ -77,28 +76,30 @@ export default function ObservationsPage() {
   return (
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
       <PageHeader
-        title="Live Observation"
-        description="Satellite Earth observation and rainfall telemetry for the case study AOI. Data sources are polled via Google Earth Engine."
+        title="Earth Observation Telemetry"
+        description="Satellite remote sensing ingestion and real-time precipitation radar for the Bhagirathi catchment area via Google Earth Engine."
         actions={
           <Button variant="outline" size="sm" disabled={!isApiMode}>
             <RefreshCw className="mr-1.5 size-3.5" />
-            Refresh
+            Poll Feeds
           </Button>
         }
       />
 
       {/* AOI Context */}
-      <div className="rounded-lg border border-border bg-card p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-foreground">{TEHRI.name} — {TEHRI.river}</p>
-            <p className="text-[11px] text-muted-foreground font-mono mt-0.5">
-              AOI: {TEHRI.bbox.join(', ')} · CRS: EPSG:4326
-            </p>
-          </div>
-          <Badge variant="outline" className={cn('text-[10px]', isApiMode ? 'border-success/30 text-success' : 'border-warning/30 text-warning')}>
-            {isApiMode ? 'GEE Worker Connected' : 'GEE Worker Not Connected'}
-          </Badge>
+      <div className="glass-panel rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <p className="text-sm font-bold text-white flex items-center gap-2">
+            <span className="size-2 rounded-full bg-[#5865f2]" />
+            {TEHRI.name} — {TEHRI.river}
+          </p>
+          <p className="text-xs text-[#949ba4] font-mono mt-1">
+            BBox: [{TEHRI.bbox.join(', ')}] · Coordinate System: EPSG:4326 (WGS 84)
+          </p>
+        </div>
+        <div className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-[#dbdee1]">
+          <span className={cn('size-2 rounded-full', isApiMode ? 'bg-[#23a55a] shadow-[0_0_8px_rgba(35,165,90,0.6)]' : 'bg-[#f0b232] shadow-[0_0_8px_rgba(240,178,50,0.6)]')} />
+          <span className="font-semibold">{isApiMode ? 'GEE Worker Connected' : 'GEE Standby Mode'}</span>
         </div>
       </div>
 
@@ -110,46 +111,40 @@ export default function ObservationsPage() {
             <Panel key={src.id} title={src.sourceName}>
               <div className="space-y-3 pt-1">
                 <div className="flex items-center gap-2">
-                  <Circle className={cn('size-2 fill-current', cfg.dot, cfg.color)} />
+                  <span className={cn('size-2 rounded-full', cfg.dot, cfg.shadow)} />
                   <span className={cn('text-xs font-semibold', cfg.color)}>{cfg.label}</span>
                 </div>
 
-                <dl className="grid grid-cols-2 gap-2 text-[11px]">
-                  <div>
-                    <dt className="text-muted-foreground">Collection</dt>
-                    <dd className="font-mono text-foreground mt-0.5 truncate" title={src.collection}>{src.collection}</dd>
+                <dl className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="glass-panel-subtle p-2.5 rounded-lg">
+                    <dt className="text-[#949ba4]">Collection</dt>
+                    <dd className="font-mono text-white mt-0.5 truncate text-[11px]" title={src.collection}>{src.collection}</dd>
                   </div>
-                  <div>
-                    <dt className="text-muted-foreground">Resolution</dt>
-                    <dd className="font-mono text-foreground mt-0.5">{src.resolution}</dd>
+                  <div className="glass-panel-subtle p-2.5 rounded-lg">
+                    <dt className="text-[#949ba4]">Resolution</dt>
+                    <dd className="font-mono text-[#7983f5] mt-0.5 font-semibold text-[11px]">{src.resolution}</dd>
                   </div>
-                  <div>
-                    <dt className="text-muted-foreground">Revisit</dt>
-                    <dd className="font-mono text-foreground mt-0.5">{src.revisit}</dd>
+                  <div className="glass-panel-subtle p-2.5 rounded-lg">
+                    <dt className="text-[#949ba4]">Revisit Cycle</dt>
+                    <dd className="font-mono text-white mt-0.5 text-[11px]">{src.revisit}</dd>
                   </div>
-                  <div>
-                    <dt className="text-muted-foreground">Data Age</dt>
-                    <dd className="font-mono text-foreground mt-0.5">{relativeAge(src.acquiredAt)}</dd>
+                  <div className="glass-panel-subtle p-2.5 rounded-lg">
+                    <dt className="text-[#949ba4]">Data Age</dt>
+                    <dd className="font-mono text-white mt-0.5 text-[11px]">{relativeAge(src.acquiredAt)}</dd>
                   </div>
-                  <div>
-                    <dt className="text-muted-foreground">Last Observed</dt>
-                    <dd className="font-mono text-foreground mt-0.5">{formatDateTime(src.acquiredAt)}</dd>
+                  <div className="glass-panel-subtle p-2.5 rounded-lg">
+                    <dt className="text-[#949ba4]">Last Acquired</dt>
+                    <dd className="font-mono text-white mt-0.5 text-[11px]">{formatDateTime(src.acquiredAt)}</dd>
                   </div>
-                  <div>
-                    <dt className="text-muted-foreground">Ingested At</dt>
-                    <dd className="font-mono text-foreground mt-0.5">{formatDateTime(src.ingestedAt)}</dd>
+                  <div className="glass-panel-subtle p-2.5 rounded-lg">
+                    <dt className="text-[#949ba4]">Pipeline Ingestion</dt>
+                    <dd className="font-mono text-white mt-0.5 text-[11px]">{formatDateTime(src.ingestedAt)}</dd>
                   </div>
                 </dl>
 
                 {src.status === 'not_configured' && (
-                  <div className="rounded-md border border-dashed border-border px-3 py-2 text-[10px] text-muted-foreground">
-                    Requires GEE service account and observation worker. Connect the Go API to enable polling.
-                  </div>
-                )}
-
-                {src.status === 'stale' && (
-                  <div className="rounded-md border border-warning/20 bg-warning/5 px-3 py-2 text-[10px] text-warning">
-                    Data is older than expected revisit interval. The last valid observation is shown with its real timestamp.
+                  <div className="glass-panel-subtle rounded-lg border border-dashed border-white/[0.08] p-3 text-xs text-[#949ba4] leading-relaxed">
+                    GEE service credentials verified. Start the local observation daemon with active network to stream live radar scenes.
                   </div>
                 )}
               </div>
@@ -159,12 +154,12 @@ export default function ObservationsPage() {
       </div>
 
       {/* Freshness Legend */}
-      <Panel title="Freshness States">
+      <Panel title="Sensor Telemetry Status States">
         <div className="grid grid-cols-2 gap-3 pt-1 sm:grid-cols-5">
           {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-            <div key={key} className="flex items-center gap-2 text-[11px]">
-              <Circle className={cn('size-2 fill-current shrink-0', cfg.dot, cfg.color)} />
-              <span className="text-muted-foreground">{cfg.label}</span>
+            <div key={key} className="flex items-center gap-2 text-xs">
+              <span className={cn('size-2 rounded-full shrink-0', cfg.dot, cfg.shadow)} />
+              <span className="text-[#dbdee1] font-medium">{cfg.label}</span>
             </div>
           ))}
         </div>

@@ -25,28 +25,30 @@ export function useTownArrivals(result: FloodResult | null) {
 export function ArrivalTable({ result }: { result: FloodResult | null }) {
   const rows = useTownArrivals(result)
   return (
-    <table className="w-full text-xs">
-      <caption className="sr-only">Flood wave arrival at downstream towns</caption>
-      <thead className="text-left text-[11px] text-muted-foreground">
-        <tr>
-          <th className="py-1.5 font-medium">Town</th>
-          <th className="py-1.5 text-right font-medium">Chainage</th>
-          <th className="py-1.5 text-right font-medium">Arrival</th>
-          <th className="py-1.5 text-right font-medium">Peak depth</th>
-          <th className="py-1.5 text-right font-medium">Velocity</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((r) => (
-          <tr key={r.town} className="border-t border-border/60">
-            <td className="py-2 text-foreground">{r.town}</td>
-            <td className="py-2 text-right font-mono tabular-nums text-muted-foreground">{formatNumber(r.chainageKm, 1)} km</td>
-            <td className="py-2 text-right font-mono tabular-nums text-foreground">{r.station ? formatClock(r.station.arrivalS) : 'outside domain'}</td>
-            <td className="py-2 text-right font-mono tabular-nums">{r.station ? `${formatNumber(r.station.peakDepthM, 1)} m` : '—'}</td>
-            <td className="py-2 text-right font-mono tabular-nums">{r.station ? `${formatNumber(r.station.velocityMs, 1)} m/s` : '—'}</td>
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs">
+        <caption className="sr-only">Flood wave arrival at downstream towns</caption>
+        <thead className="text-left text-xs text-[#949ba4]">
+          <tr className="border-b border-white/[0.08]">
+            <th className="py-2 text-left font-medium">Town</th>
+            <th className="py-2 text-right font-medium">Chainage</th>
+            <th className="py-2 text-right font-medium">Arrival</th>
+            <th className="py-2 text-right font-medium">Peak depth</th>
+            <th className="py-2 text-right font-medium">Velocity</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.town} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+              <td className="py-2 text-white font-medium">{r.town}</td>
+              <td className="py-2 text-right font-mono tabular-nums text-[#949ba4]">{formatNumber(r.chainageKm, 1)} km</td>
+              <td className="py-2 text-right font-mono tabular-nums text-[#dbdee1]">{r.station ? formatClock(r.station.arrivalS) : 'outside domain'}</td>
+              <td className="py-2 text-right font-mono tabular-nums font-semibold text-[#7983f5]">{r.station ? `${formatNumber(r.station.peakDepthM, 1)} m` : '—'}</td>
+              <td className="py-2 text-right font-mono tabular-nums text-white">{r.station ? `${formatNumber(r.station.velocityMs, 1)} m/s` : '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }

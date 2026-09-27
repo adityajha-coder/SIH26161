@@ -46,7 +46,7 @@ export function LayerControl({
 
   return (
     <div className="flex h-full flex-col">
-      <ul className="space-y-0.5">
+      <ul className="space-y-1">
         {ITEMS.map((item) => {
           const disabled = item.key === 'observedFlood' ? !observedAvailable : item.disabled
           const id = `layer-${item.key}`
@@ -54,7 +54,7 @@ export function LayerControl({
             <li key={item.key}>
               <label
                 htmlFor={id}
-                className="flex cursor-pointer items-center gap-2.5 rounded-md px-1.5 py-1.5 text-[13px] text-foreground hover:bg-accent/60 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50"
+                className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs text-[#dbdee1] hover:bg-white/[0.04] transition-colors has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-40"
               >
                 <Checkbox
                   id={id}
@@ -62,9 +62,9 @@ export function LayerControl({
                   disabled={disabled}
                   onCheckedChange={(v) => toggle(item.key, Boolean(v))}
                 />
-                <span className="flex-1">
+                <span className="flex-1 font-medium">
                   {item.label}
-                  {disabled && item.hint && <span className="block text-[10px] text-muted-foreground">{item.hint}</span>}
+                  {disabled && item.hint && <span className="block text-[10px] text-[#949ba4] font-normal">{item.hint}</span>}
                 </span>
               </label>
             </li>
@@ -72,11 +72,11 @@ export function LayerControl({
         })}
       </ul>
 
-      <div className="mt-auto space-y-4 border-t border-border pt-3">
+      <div className="mt-auto space-y-4 border-t border-white/[0.06] pt-3.5">
         <div>
           <div className="mb-2 flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Terrain Exaggeration</span>
-            <span className="font-mono text-foreground">{exaggeration.toFixed(1)}x</span>
+            <span className="text-[#949ba4]">Terrain Exaggeration</span>
+            <span className="font-mono text-white font-semibold">{exaggeration.toFixed(1)}x</span>
           </div>
           <Slider
             aria-label="Terrain exaggeration"
@@ -90,8 +90,8 @@ export function LayerControl({
         {onFloodOpacityChange && floodOpacity !== undefined && (
           <div>
             <div className="mb-2 flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Flood Layer Opacity</span>
-              <span className="font-mono text-foreground">{Math.round(floodOpacity * 100)}%</span>
+              <span className="text-[#949ba4]">Flood Layer Opacity</span>
+              <span className="font-mono text-white font-semibold">{Math.round(floodOpacity * 100)}%</span>
             </div>
             <Slider
               aria-label="Flood layer opacity"

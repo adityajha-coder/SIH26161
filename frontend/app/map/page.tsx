@@ -44,15 +44,15 @@ export default function MapPage() {
     <div className="flex h-full flex-col">
       <div className="shrink-0 px-4 pt-4 lg:px-6 lg:pt-6">
         <PageHeader
-          title="Flood Map"
-          description="Full 3D terrain view with flood depth, extent, and arrival-time overlays."
+          title="Hydrodynamic Flood Map"
+          description="Interactive 3D terrain canvas with coupled Eulerian and SPH inundation depths, flow vectors, and arrival wavefronts."
           actions={
             <button
               onClick={() => setShowControls(!showControls)}
-              className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="glass-panel-subtle flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium text-[#dbdee1] hover:border-white/[0.16] hover:text-white transition-all cursor-pointer"
             >
-              <Layers className="size-3.5" />
-              {showControls ? 'Hide Controls' : 'Show Controls'}
+              <Layers className="size-3.5 text-[#7983f5]" />
+              {showControls ? 'Collapse HUD' : 'Expand HUD'}
             </button>
           }
         />
@@ -61,7 +61,7 @@ export default function MapPage() {
       <div className="min-h-0 flex-1 px-4 pb-4 lg:px-6 lg:pb-6">
         <div className="grid h-full gap-4 lg:grid-cols-12">
           <div className={`flex flex-col gap-3 ${showControls ? 'lg:col-span-9' : 'lg:col-span-12'}`}>
-            <div className="min-h-0 flex-1 rounded-lg border border-border overflow-hidden">
+            <div className="min-h-0 flex-1 rounded-xl border border-white/[0.08] overflow-hidden glass-panel">
               <SimulationView
                 base={base}
                 layers={layers}
@@ -86,15 +86,15 @@ export default function MapPage() {
           {showControls && (
             <div className="lg:col-span-3 space-y-3 overflow-y-auto">
               <Panel title="Base Map">
-                <div className="flex gap-1 pt-1">
+                <div className="flex gap-1.5 pt-1">
                   {(['terrain', 'satellite', 'dark'] as BaseMode[]).map((m) => (
                     <button
                       key={m}
                       onClick={() => handleBase(m)}
-                      className={`flex-1 rounded-md border px-2 py-1.5 text-[11px] font-semibold capitalize transition-colors cursor-pointer ${
+                      className={`flex-1 rounded-lg border px-2 py-1.5 text-xs font-semibold capitalize transition-all cursor-pointer ${
                         base === m
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border text-muted-foreground hover:text-foreground'
+                          ? 'border-[#5865f2] bg-[#5865f2]/15 text-[#7983f5] shadow-[0_0_12px_rgba(88,101,242,0.2)]'
+                          : 'border-white/[0.08] text-[#949ba4] hover:bg-white/[0.04] hover:text-white'
                       }`}
                     >
                       {m}
@@ -103,7 +103,7 @@ export default function MapPage() {
                 </div>
               </Panel>
 
-              <Panel title="Layers">
+              <Panel title="Layer Visibility">
                 <LayerControl
                   layers={layers}
                   onChange={handleLayers}

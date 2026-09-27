@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 import { GitCompare, ArrowLeftRight } from 'lucide-react'
 import { Panel, PageHeader, StatTile, PreviewNotice, EmptyState } from '@/components/common/panel'
-import { Badge } from '@/components/ui/badge'
 import { usePlatform } from '@/lib/platform-store'
 import { useFloodResult, SPH_DOMAIN_KM } from '@/lib/use-flood'
 import { SOLVERS, type SolverId } from '@/lib/types'
@@ -53,27 +52,23 @@ export default function ComparePage() {
   return (
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
       <PageHeader
-        title="Compare & Validate"
-        description="Cross-validate solver outputs. Compare Eulerian (Delft3D FM) vs Lagrangian (DualSPHysics) on common grids and metrics."
-        actions={
-          <Badge variant="outline" className="font-mono text-[10px]">
-            <GitCompare className="mr-1 size-3" />
-            Solver Comparison
-          </Badge>
-        }
+        title="Cross-Solver Validation"
+        description="Hydrodynamic benchmark comparing Eulerian finite-volume (Delft3D FM) against Lagrangian particle hydrodynamics (DualSPHysics)."
       />
 
       {/* Solver Selector */}
-      <div className="flex flex-col sm:flex-row items-center gap-3 rounded-lg border border-border bg-card p-4">
-        <SolverPicker label="Left" value={leftSolver} options={solverPairs} onChange={setLeftSolver} />
-        <ArrowLeftRight className="size-5 text-muted-foreground shrink-0" />
-        <SolverPicker label="Right" value={rightSolver} options={solverPairs} onChange={setRightSolver} />
+      <div className="glass-panel flex flex-col sm:flex-row items-center gap-4 rounded-xl p-4">
+        <SolverPicker label="Reference" value={leftSolver} options={solverPairs} onChange={setLeftSolver} />
+        <div className="size-8 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center shrink-0">
+          <ArrowLeftRight className="size-4 text-[#7983f5]" />
+        </div>
+        <SolverPicker label="Comparative" value={rightSolver} options={solverPairs} onChange={setRightSolver} />
       </div>
 
       {!metrics ? (
         <EmptyState
-          title="Awaiting results"
-          description="Both solvers need completed runs to generate comparison metrics. Currently using analytical preview data."
+          title="Awaiting solver execution"
+          description="Both solvers require simulation passes to calculate differential hydrodynamics. Analytical Manning data is active."
         />
       ) : (
         <>
@@ -98,48 +93,48 @@ export default function ComparePage() {
               hint={metrics.arrivalTimeDiffS > 0 ? 'SPH slower' : 'SPH faster'}
             />
             <StatTile
-              label="SPH Domain Coverage"
+              label="SPH Reach Extent"
               value={`${(metrics.reachCoverageRatio * 100).toFixed(0)}%`}
-              hint={`${SPH_DOMAIN_KM} km of 105 km reach`}
+              hint={`${SPH_DOMAIN_KM} km of 105 km total`}
             />
           </div>
 
           {/* Side-by-side station comparison */}
           <div className="grid gap-4 lg:grid-cols-2">
-            <Panel title={`${SOLVERS[leftSolver].name} — Stations`}>
+            <Panel title={`${SOLVERS[leftSolver].name} — Reach Stations`}>
               {leftResult ? (
                 <StationTable stations={leftResult.stations} />
               ) : (
-                <p className="text-xs text-muted-foreground">No data</p>
+                <p className="text-xs text-muted-foreground">No data available</p>
               )}
             </Panel>
-            <Panel title={`${SOLVERS[rightSolver].name} — Stations`}>
+            <Panel title={`${SOLVERS[rightSolver].name} — Reach Stations`}>
               {rightResult ? (
                 <StationTable stations={rightResult.stations} />
               ) : (
-                <p className="text-xs text-muted-foreground">No data</p>
+                <p className="text-xs text-muted-foreground">No data available</p>
               )}
             </Panel>
           </div>
 
           {/* Diagnostics */}
-          <Panel title="Diagnostics">
-            <dl className="grid grid-cols-2 gap-4 text-xs pt-1 sm:grid-cols-4">
-              <div>
-                <dt className="text-muted-foreground">Left Solver</dt>
-                <dd className="mt-0.5 font-mono text-foreground">{SOLVERS[leftSolver].name} {SOLVERS[leftSolver].version}</dd>
+          <Panel title="Solver Engine Configuration">
+            <dl className="grid grid-cols-2 gap-3 text-xs pt-1 sm:grid-cols-4">
+              <div className="glass-panel-subtle p-3 rounded-lg">
+                <dt className="text-[#949ba4]">Reference Engine</dt>
+                <dd className="mt-1 font-mono text-white font-semibold">{SOLVERS[leftSolver].name} {SOLVERS[leftSolver].version}</dd>
               </div>
-              <div>
-                <dt className="text-muted-foreground">Right Solver</dt>
-                <dd className="mt-0.5 font-mono text-foreground">{SOLVERS[rightSolver].name} {SOLVERS[rightSolver].version}</dd>
+              <div className="glass-panel-subtle p-3 rounded-lg">
+                <dt className="text-[#949ba4]">Comparative Engine</dt>
+                <dd className="mt-1 font-mono text-[#7983f5] font-semibold">{SOLVERS[rightSolver].name} {SOLVERS[rightSolver].version}</dd>
               </div>
-              <div>
-                <dt className="text-muted-foreground">Left Method</dt>
-                <dd className="mt-0.5 font-mono text-foreground">{leftResult?.method ?? '—'}</dd>
+              <div className="glass-panel-subtle p-3 rounded-lg">
+                <dt className="text-[#949ba4]">Discretization A</dt>
+                <dd className="mt-1 font-mono text-white font-semibold">{leftResult?.method ?? 'Eulerian Finite Volume'}</dd>
               </div>
-              <div>
-                <dt className="text-muted-foreground">Right Method</dt>
-                <dd className="mt-0.5 font-mono text-foreground">{rightResult?.method ?? '—'}</dd>
+              <div className="glass-panel-subtle p-3 rounded-lg">
+                <dt className="text-[#949ba4]">Discretization B</dt>
+                <dd className="mt-1 font-mono text-white font-semibold">{rightResult?.method ?? 'Lagrangian SPH Particles'}</dd>
               </div>
             </dl>
           </Panel>
@@ -168,17 +163,17 @@ function SolverPicker({
 }) {
   return (
     <div className="flex-1 w-full">
-      <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
-      <div className="flex gap-1">
+      <p className="mb-2 text-xs font-semibold text-[#dbdee1]">{label} solver</p>
+      <div className="flex gap-1.5">
         {options.map((s) => (
           <button
             key={s}
             onClick={() => onChange(s)}
             className={cn(
-              'flex-1 rounded-md border px-2 py-1.5 text-[11px] font-semibold transition-colors cursor-pointer',
+              'flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-all cursor-pointer',
               value === s
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border text-muted-foreground hover:text-foreground',
+                ? 'border-[#5865f2] bg-[#5865f2]/15 text-[#7983f5] shadow-[0_0_12px_rgba(88,101,242,0.2)]'
+                : 'border-white/[0.08] bg-white/[0.02] text-[#949ba4] hover:bg-white/[0.05] hover:text-white',
             )}
           >
             {SOLVERS[s].name}
@@ -193,22 +188,22 @@ function StationTable({ stations }: { stations: { chainageKm: number; peakDepthM
   const sampled = stations.filter((_, i) => i % Math.max(1, Math.floor(stations.length / 12)) === 0)
   return (
     <div className="overflow-x-auto pt-1">
-      <table className="w-full text-[11px]">
+      <table className="w-full text-xs">
         <thead>
-          <tr className="border-b border-border text-muted-foreground">
-            <th className="py-1.5 text-left font-medium">Chainage</th>
-            <th className="py-1.5 text-right font-medium">Depth</th>
-            <th className="py-1.5 text-right font-medium">Velocity</th>
-            <th className="py-1.5 text-right font-medium">Arrival</th>
+          <tr className="border-b border-white/[0.06] text-[#949ba4]">
+            <th className="py-2 text-left font-medium">Chainage</th>
+            <th className="py-2 text-right font-medium">Depth</th>
+            <th className="py-2 text-right font-medium">Velocity</th>
+            <th className="py-2 text-right font-medium">Arrival</th>
           </tr>
         </thead>
         <tbody>
           {sampled.map((s, i) => (
-            <tr key={i} className="border-b border-border/40">
-              <td className="py-1.5 font-mono">{s.chainageKm.toFixed(1)} km</td>
-              <td className="py-1.5 text-right font-mono">{s.peakDepthM.toFixed(2)} m</td>
-              <td className="py-1.5 text-right font-mono">{s.velocityMs.toFixed(2)} m/s</td>
-              <td className="py-1.5 text-right font-mono">{formatDuration(s.arrivalS)}</td>
+            <tr key={i} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+              <td className="py-2 font-mono text-white">{s.chainageKm.toFixed(1)} km</td>
+              <td className="py-2 text-right font-mono text-[#7983f5]">{s.peakDepthM.toFixed(2)} m</td>
+              <td className="py-2 text-right font-mono text-white">{s.velocityMs.toFixed(2)} m/s</td>
+              <td className="py-2 text-right font-mono text-[#949ba4]">{formatDuration(s.arrivalS)}</td>
             </tr>
           ))}
         </tbody>

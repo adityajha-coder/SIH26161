@@ -17,12 +17,12 @@ export function RampLegend({ kind, className }: { kind: keyof typeof RAMPS; clas
   const first = r.stops[0][0]
   const last = r.stops[r.stops.length - 1][0]
   return (
-    <div className={cn('w-44 rounded-md border border-border bg-background/90 px-2.5 py-2', className)}>
-      <p className="mb-1 text-[11px] font-medium text-foreground">
-        {r.title} <span className="font-normal text-muted-foreground">({r.unit})</span>
+    <div className={cn('glass-panel-subtle w-full rounded-xl border border-white/[0.08] px-3 py-2.5', className)}>
+      <p className="mb-1.5 text-xs font-semibold text-white">
+        {r.title} <span className="font-normal text-[#949ba4]">({r.unit})</span>
       </p>
-      <div className="h-2 rounded-sm" style={{ background: gradient(r.stops) }} aria-hidden="true" />
-      <div className="mt-0.5 flex justify-between font-mono text-[10px] text-muted-foreground">
+      <div className="h-2 rounded-full overflow-hidden" style={{ background: gradient(r.stops) }} aria-hidden="true" />
+      <div className="mt-1 flex justify-between font-mono text-[10px] text-[#949ba4]">
         <span>{r.fmt(first)}</span>
         <span>{r.fmt(Math.round((first + last) / 2))}</span>
         <span>{r.fmt(last)}+</span>
@@ -33,16 +33,16 @@ export function RampLegend({ kind, className }: { kind: keyof typeof RAMPS; clas
 
 export function SymbolLegend({ className }: { className?: string }) {
   const items = [
-    { label: 'Inundated area', swatch: <span className="size-3 rounded-sm bg-[#dc2626]/80" /> },
-    { label: 'Villages', swatch: <span className="size-3 rounded-full border-2 border-white bg-[#f59e0b]" /> },
-    { label: 'Hospitals', swatch: <span className="size-3 rounded-full border-2 border-white bg-[#ef4444]" /> },
-    { label: 'Schools', swatch: <span className="size-3 rounded-full border-2 border-white bg-[#3b82f6]" /> },
-    { label: 'Roads', swatch: <span className="h-0.5 w-3 bg-slate-200" /> },
+    { label: 'Inundated extent', swatch: <span className="size-2.5 rounded-sm bg-[#f23f43]/85" /> },
+    { label: 'Settlements', swatch: <span className="size-2.5 rounded-full border border-white bg-[#f0b232]" /> },
+    { label: 'Healthcare units', swatch: <span className="size-2.5 rounded-full border border-white bg-[#f23f43]" /> },
+    { label: 'Schools', swatch: <span className="size-2.5 rounded-full border border-white bg-[#5865f2]" /> },
+    { label: 'Primary roads', swatch: <span className="h-0.5 w-3 bg-slate-300" /> },
   ]
   return (
-    <ul className={cn('space-y-1 rounded-md border border-border bg-background/90 px-2.5 py-2', className)}>
+    <ul className={cn('glass-panel-subtle space-y-1.5 rounded-xl border border-white/[0.08] px-3 py-2.5', className)}>
       {items.map((i) => (
-        <li key={i.label} className="flex items-center gap-2 text-[11px] text-foreground">
+        <li key={i.label} className="flex items-center gap-2.5 text-xs text-[#dbdee1]">
           <span className="flex w-3 justify-center" aria-hidden="true">
             {i.swatch}
           </span>

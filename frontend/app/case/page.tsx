@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Mountain, MapPin, Compass, Database, CheckCircle2, Clock } from 'lucide-react'
 import { Panel } from '@/components/common/panel'
-import { Badge } from '@/components/ui/badge'
 import { CASES, type CaseStudy, type CaseDataset, type DatasetStatus } from '@/lib/case-study'
 
 export default function CaseStudyPage() {
@@ -13,30 +12,30 @@ export default function CaseStudyPage() {
   return (
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
       {/* Top Header Card */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-lg border border-border bg-card p-5">
+      <div className="glass-panel flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl p-5">
         <div>
-          <div className="flex items-center gap-2">
-            <Mountain className="size-5 text-primary" />
-            <h1 className="text-lg font-bold text-foreground tracking-tight">Case Study Dossier</h1>
-            <Badge variant="outline" className="font-mono text-[10px]">
-              {activeCase.role === 'primary' ? 'Primary Benchmark Case' : 'Regression Sanity Case'}
-            </Badge>
+          <div className="flex items-center gap-2.5">
+            <span className="size-2 rounded-full bg-[#5865f2] shadow-[0_0_8px_rgba(88,101,242,0.8)]" />
+            <h1 className="text-xl font-bold text-white tracking-tight">Case Study Dossier</h1>
+            <span className="font-mono text-xs font-semibold text-[#7983f5] ml-2">
+              {activeCase.role === 'primary' ? 'Primary Benchmark' : 'Sanity Benchmark'}
+            </span>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Authoritative river reach geometry, structural dam specifications, and downstream exposure inventory
+          <p className="mt-1 text-xs sm:text-sm text-[#949ba4] max-w-2xl leading-relaxed">
+            Hydrographic reach geometry, dam structural design parameters, and downstream vulnerability inventory for hydrodynamic modeling.
           </p>
         </div>
 
         {/* Case Switcher Tabs */}
-        <div className="flex items-center gap-1 rounded-md border border-border bg-background p-1">
+        <div className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] p-1 self-start sm:self-auto">
           {CASES.map((cs: CaseStudy) => (
             <button
               key={cs.id}
               onClick={() => setSelectedCaseId(cs.id)}
-              className={`px-3 py-1.5 rounded text-xs font-semibold transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                 cs.id === selectedCaseId
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-[#5865f2] text-white shadow-[0_0_12px_rgba(88,101,242,0.35)]'
+                  : 'text-[#949ba4] hover:text-white hover:bg-white/[0.04]'
               }`}
             >
               {cs.name} ({cs.state})
@@ -51,56 +50,56 @@ export default function CaseStudyPage() {
           <Panel
             title="Structural Dam Specifications"
             actions={
-              <span className="font-mono text-[11px] text-muted-foreground">
+              <span className="font-mono text-xs text-[#7983f5]">
                 {activeCase.dam.source}
               </span>
             }
           >
             <div className="grid grid-cols-2 gap-3 pt-1">
-              <div className="rounded-md border border-border bg-background/50 p-3.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
-                  Structural Height
+              <div className="glass-panel-subtle rounded-xl p-4">
+                <span className="text-xs font-medium text-[#949ba4] block">
+                  Structural height
                 </span>
-                <span className="text-lg font-bold font-mono text-primary block mt-0.5">
+                <span className="text-2xl font-bold font-mono text-[#7983f5] block mt-1">
                   {activeCase.dam.heightM > 0 ? `${activeCase.dam.heightM} m` : 'River Blockage'}
                 </span>
-                <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                <span className="text-[11px] text-[#949ba4] mt-1 block">
                   {activeCase.dam.type}
                 </span>
               </div>
 
-              <div className="rounded-md border border-border bg-background/50 p-3.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
-                  Crest Length
+              <div className="glass-panel-subtle rounded-xl p-4">
+                <span className="text-xs font-medium text-[#949ba4] block">
+                  Crest length
                 </span>
-                <span className="text-lg font-bold font-mono text-primary block mt-0.5">
+                <span className="text-2xl font-bold font-mono text-white block mt-1">
                   {activeCase.dam.crestLengthM > 0 ? `${activeCase.dam.crestLengthM} m` : '—'}
                 </span>
-                <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                <span className="text-[11px] text-[#949ba4] mt-1 block">
                   Crest El: {activeCase.dam.crestElevationM > 0 ? `${activeCase.dam.crestElevationM} m a.s.l` : '—'}
                 </span>
               </div>
 
-              <div className="rounded-md border border-border bg-background/50 p-3.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
-                  Gross Storage
+              <div className="glass-panel-subtle rounded-xl p-4">
+                <span className="text-xs font-medium text-[#949ba4] block">
+                  Gross reservoir storage
                 </span>
-                <span className="text-lg font-bold font-mono text-success block mt-0.5">
+                <span className="text-2xl font-bold font-mono text-[#23a55a] block mt-1">
                   {activeCase.dam.grossStorageMcm > 0 ? `${activeCase.dam.grossStorageMcm} MCM` : '—'}
                 </span>
-                <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                <span className="text-[11px] text-[#949ba4] mt-1 block">
                   Live: {activeCase.dam.liveStorageMcm > 0 ? `${activeCase.dam.liveStorageMcm} MCM` : '—'}
                 </span>
               </div>
 
-              <div className="rounded-md border border-border bg-background/50 p-3.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
-                  Catchment Area
+              <div className="glass-panel-subtle rounded-xl p-4">
+                <span className="text-xs font-medium text-[#949ba4] block">
+                  Catchment drainage area
                 </span>
-                <span className="text-lg font-bold font-mono text-warning block mt-0.5">
+                <span className="text-2xl font-bold font-mono text-[#f0b232] block mt-1">
                   {activeCase.dam.catchmentKm2 > 0 ? `${activeCase.dam.catchmentKm2} km²` : '—'}
                 </span>
-                <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                <span className="text-[11px] text-[#949ba4] mt-1 block">
                   Commissioned: {activeCase.dam.commissioned > 0 ? activeCase.dam.commissioned : '—'}
                 </span>
               </div>
@@ -109,17 +108,17 @@ export default function CaseStudyPage() {
 
           <Panel title="River Reach & Geography">
             <div className="grid grid-cols-2 gap-3 pt-1">
-              <div className="rounded-md border border-border bg-background/50 p-3.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">River</span>
-                <span className="text-sm font-bold text-foreground block mt-0.5">{activeCase.river}</span>
+              <div className="glass-panel-subtle rounded-xl p-3.5">
+                <span className="text-xs font-medium text-[#949ba4] block">Main stem</span>
+                <span className="text-sm font-semibold text-white block mt-1">{activeCase.river}</span>
               </div>
-              <div className="rounded-md border border-border bg-background/50 p-3.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">Reach</span>
-                <span className="text-sm font-bold font-mono text-foreground block mt-0.5">{activeCase.reachKm} km</span>
+              <div className="glass-panel-subtle rounded-xl p-3.5">
+                <span className="text-xs font-medium text-[#949ba4] block">Simulated reach length</span>
+                <span className="text-sm font-semibold font-mono text-[#7983f5] block mt-1">{activeCase.reachKm} km</span>
               </div>
-              <div className="col-span-2 rounded-md border border-border bg-background/50 p-3.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">Bounding Box</span>
-                <span className="text-xs font-mono text-foreground block mt-0.5">
+              <div className="col-span-2 glass-panel-subtle rounded-xl p-3.5">
+                <span className="text-xs font-medium text-[#949ba4] block">Geographic bounding box</span>
+                <span className="text-xs font-mono text-white block mt-1">
                   [{activeCase.bbox.join(', ')}]
                 </span>
               </div>
@@ -129,58 +128,74 @@ export default function CaseStudyPage() {
 
         {/* Right Column: Downstream & Datasets */}
         <div className="lg:col-span-6 space-y-4">
-          <Panel title="Downstream Chainage Towns" actions={<Badge variant="outline" className="text-[10px]">{activeCase.downstreamTowns.length} stations</Badge>}>
-            <div className="space-y-1.5 pt-1">
+          <Panel
+            title="Downstream Chainage Stations"
+            actions={
+              <span className="font-mono text-xs font-semibold text-[#7983f5]">
+                {activeCase.downstreamTowns.length} monitoring stations
+              </span>
+            }
+          >
+            <div className="space-y-2 pt-1">
               {activeCase.downstreamTowns.map((town: { name: string; lngLat: [number, number]; chainageKm: number }, idx: number) => (
                 <div
                   key={town.name}
-                  className="flex items-center gap-3 rounded-md border border-border bg-background/50 px-3 py-2.5"
+                  className="glass-panel-subtle flex items-center gap-3.5 rounded-lg px-3.5 py-3 hover:border-white/[0.16] transition-colors"
                 >
-                  <div className="flex size-6 items-center justify-center rounded-full border border-border text-[10px] font-mono text-muted-foreground">
+                  <div className="flex size-7 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] text-xs font-mono font-semibold text-[#7983f5]">
                     {idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground">{town.name}</p>
-                    <p className="text-[10px] text-muted-foreground font-mono">
-                      {town.chainageKm} km · [{town.lngLat[0].toFixed(4)}, {town.lngLat[1].toFixed(4)}]
+                    <p className="text-sm font-semibold text-white">{town.name}</p>
+                    <p className="text-xs text-[#949ba4] font-mono mt-0.5">
+                      Chainage: {town.chainageKm} km · [{town.lngLat[0].toFixed(4)}, {town.lngLat[1].toFixed(4)}]
                     </p>
                   </div>
-                  <MapPin className="size-3.5 text-muted-foreground shrink-0" />
+                  <MapPin className="size-4 text-[#7983f5] shrink-0" />
                 </div>
               ))}
             </div>
           </Panel>
 
-          <Panel title="Dataset Manifest" actions={<Badge variant="outline" className="text-[10px]">{activeCase.datasets.length} datasets</Badge>}>
+          <Panel
+            title="Dataset Manifest"
+            actions={
+              <span className="font-mono text-xs font-semibold text-[#7983f5]">
+                {activeCase.datasets.length} layers
+              </span>
+            }
+          >
             <div className="overflow-x-auto pt-1">
-              <table className="w-full text-[11px]">
+              <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-border text-muted-foreground">
-                    <th className="py-1.5 text-left font-medium">Dataset</th>
-                    <th className="py-1.5 text-left font-medium">Source</th>
-                    <th className="py-1.5 text-left font-medium">Res</th>
-                    <th className="py-1.5 text-left font-medium">CRS</th>
-                    <th className="py-1.5 text-right font-medium">Status</th>
+                  <tr className="border-b border-white/[0.08] text-[#949ba4]">
+                    <th className="py-2 text-left font-medium">Dataset</th>
+                    <th className="py-2 text-left font-medium">Source</th>
+                    <th className="py-2 text-left font-medium">Res</th>
+                    <th className="py-2 text-left font-medium">CRS</th>
+                    <th className="py-2 text-right font-medium">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {activeCase.datasets.map((ds: CaseDataset) => (
-                    <tr key={ds.id} className="border-b border-border/40">
-                      <td className="py-1.5 font-medium text-foreground">{ds.name}</td>
-                      <td className="py-1.5 text-muted-foreground">{ds.source}</td>
-                      <td className="py-1.5 font-mono text-muted-foreground">{ds.resolution}</td>
-                      <td className="py-1.5 font-mono text-muted-foreground">{ds.crs}</td>
-                      <td className="py-1.5 text-right">
+                    <tr key={ds.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                      <td className="py-2 font-semibold text-white">{ds.name}</td>
+                      <td className="py-2 text-[#949ba4]">{ds.source}</td>
+                      <td className="py-2 font-mono text-[#dbdee1]">{ds.resolution}</td>
+                      <td className="py-2 font-mono text-[#dbdee1]">{ds.crs}</td>
+                      <td className="py-2 text-right">
                         {ds.status === 'ready' ? (
-                          <span className="inline-flex items-center gap-1 text-success">
-                            <CheckCircle2 className="size-3" /> Ready
+                          <span className="inline-flex items-center gap-1.5 text-[#23a55a] font-semibold font-mono text-[11px]">
+                            <span className="size-1.5 rounded-full bg-[#23a55a] shadow-[0_0_6px_rgba(35,165,90,0.6)]" />
+                            Ready
                           </span>
                         ) : ds.status === 'processing' ? (
-                          <span className="inline-flex items-center gap-1 text-warning">
-                            <Clock className="size-3" /> Processing
+                          <span className="inline-flex items-center gap-1.5 text-[#f0b232] font-semibold font-mono text-[11px]">
+                            <span className="size-1.5 rounded-full bg-[#f0b232] shadow-[0_0_6px_rgba(240,178,50,0.6)]" />
+                            Processing
                           </span>
                         ) : (
-                          <span className="text-destructive">Missing</span>
+                          <span className="text-[#f23f43] font-semibold font-mono text-[11px]">Missing</span>
                         )}
                       </td>
                     </tr>

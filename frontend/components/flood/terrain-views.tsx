@@ -26,8 +26,10 @@ export function TerrainViews({ value, onChange }: { value: BaseMode; onChange: (
             aria-pressed={active}
             aria-label={`Switch main view to ${v.label}`}
             className={cn(
-              'relative min-h-28 overflow-hidden rounded-md border-2 transition-colors',
-              active ? 'border-primary' : 'border-transparent hover:border-border',
+              'relative min-h-28 overflow-hidden rounded-lg border transition-all duration-200 cursor-pointer',
+              active
+                ? 'border-[#5865f2] ring-1 ring-[#5865f2] shadow-[0_0_16px_rgba(88,101,242,0.35)]'
+                : 'border-white/[0.08] hover:border-white/[0.2]',
             )}
           >
             <MapView
