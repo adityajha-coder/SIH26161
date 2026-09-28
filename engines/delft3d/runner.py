@@ -11,7 +11,6 @@ import json
 import time
 import argparse
 import subprocess
-import numpy as np
 
 def run_benchmark():
     print("[Delft3D FM] Initialising benchmark dam-break flume test (Ritter 1892)...")

@@ -56,6 +56,10 @@ func (h *TileHandler) ServeContours(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fallback to object storage
+	if h.storage == nil {
+		http.Error(w, "Contours GeoJSON not found", http.StatusNotFound)
+		return
+	}
 	ctx := r.Context()
 	objectKey := "tiles/contours.geojson"
 	reader, size, contentType, err := h.storage.GetObject(ctx, objectKey)
@@ -87,6 +91,10 @@ func (h *TileHandler) ServeTileManifest(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	if h.storage == nil {
+		http.Error(w, "Tile manifest not found", http.StatusNotFound)
+		return
+	}
 	ctx := r.Context()
 	reader, _, _, err := h.storage.GetObject(ctx, "tiles/tile_manifest.json")
 	if err != nil {
@@ -112,6 +120,10 @@ func (h *TileHandler) serveTile(w http.ResponseWriter, r *http.Request, tileType
 	}
 
 	// Try object storage
+	if h.storage == nil {
+		http.Error(w, "Tile not found", http.StatusNotFound)
+		return
+	}
 	ctx := r.Context()
 	objectKey := fmt.Sprintf("tiles/%s/%s/%s/%s.png", tileType, z, x, y)
 	reader, size, contentType, err := h.storage.GetObject(ctx, objectKey)
