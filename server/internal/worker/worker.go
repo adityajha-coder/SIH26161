@@ -274,9 +274,9 @@ func (w *SimulationWorker) failRun(runID string, reason string) {
 
 	if w.hub != nil {
 		w.hub.BroadcastEvent("simulation_failed", "simulation", map[string]interface{}{
-			"run_id":  runID,
-			"status":  "failed",
-			"error":   reason,
+			"run_id": runID,
+			"status": "failed",
+			"error":  reason,
 		})
 	}
 }
@@ -323,4 +323,3 @@ func findProjectRoot() string {
 	}
 	return "."
 }
-

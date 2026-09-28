@@ -16,13 +16,13 @@ import (
 )
 
 type TileHandler struct {
-	storage    *storage.Client
+	storage     *storage.Client
 	projectRoot string
 }
 
 func NewTileHandler(store *storage.Client) *TileHandler {
 	return &TileHandler{
-		storage:    store,
+		storage:     store,
 		projectRoot: findRoot(),
 	}
 }
