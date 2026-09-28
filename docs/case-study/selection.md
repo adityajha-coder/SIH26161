@@ -42,21 +42,13 @@ This document defines the case studies selected for **SIH26161 (Dam Break Inunda
 
 ---
 
-## 2. Secondary Case Study (Regression / Validation): Rishiganga 2021 Event
+## 2. Multi-Dam National Benchmark Case Studies
 
-### Selection Rationale
-- **Documented Flash Flood Event**: On February 7, 2021, a massive rock-ice avalanche in Chamoli, Uttarakhand blocked the Rishiganga river, causing a devastating natural breach flash flood.
-- **Real Observed Validation**: Extensive post-event satellite imagery (Sentinel-1, Sentinel-2, PlanetScope) and surveyed water marks allow rigorous back-testing of the hydrodynamic models against ground truth.
+In addition to Tehri Dam, JALREKHA incorporates 3 major national benchmark dams across India's primary river basins:
 
-### Key Specifications
-- **Location**: Chamoli district, Uttarakhand (`30.4850° N, 79.7310° E`)
-- **Reach**: Rishiganga River downstream to Dhauliganga confluence (Raini village and Tapovan Vishnugad hydel project site).
-- **Reach Length**: ~25 km
-- **Bounding Box (WGS84 / EPSG:4326)**:
-  - Minimum Longitude: `79.55° E`
-  - Minimum Latitude: `30.40° N`
-  - Maximum Longitude: `79.85° E`
-  - Maximum Latitude: `30.60° N`
+1. **Sardar Sarovar Dam (Gujarat)**: Concrete gravity structure on the Narmada River (115 km reach from Kevadiya down to Bharuch and the Gulf of Khambhat; 9,500 MCM gross storage).
+2. **Bhakra Dam (Himachal Pradesh)**: High-head concrete gravity dam on the Satluj River (90 km corridor to Nangal Barrage, Anandpur Sahib, and Rupnagar; 9,621 MCM gross storage).
+3. **Idukki Arch Dam (Kerala)**: Double-curvature concrete arch dam on the Periyar River (85 km steep Western Ghats reach down to Neriamangalam and Aluva; 1,996 MCM gross storage).
 
 ---
 

@@ -18,7 +18,7 @@
     },
     "case_id": {
       "type": "string",
-      "enum": ["tehri-dam", "rishiganga-blockage"],
+      "enum": ["tehri-dam", "sardar-sarovar-dam", "bhakra-dam", "idukki-dam"],
       "description": "Identifier of the target case study"
     },
     "name": {

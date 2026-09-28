@@ -46,12 +46,28 @@ func main() {
 				ST_GeomFromText('POLYGON((78.10 29.85, 78.75 29.85, 78.75 30.55, 78.10 30.55, 78.10 29.85))', 4326)
 			),
 			(
-				'rishiganga-blockage',
-				'Rishiganga River Blockage (Chamoli 2021)',
-				'Secondary validation case study for river blockage and glacial landslide surge.',
-				'Uttarakhand',
-				'Alaknanda Basin (Rishiganga - Dhauliganga)',
-				ST_GeomFromText('POLYGON((79.60 30.40, 79.85 30.40, 79.85 30.60, 79.60 30.60, 79.60 30.40))', 4326)
+				'sardar-sarovar-dam',
+				'Sardar Sarovar Dam Inundation Study',
+				'Primary benchmark case for Narmada River corridor (115 km) from Kevadiya down to Bharuch and Gulf of Khambhat.',
+				'Gujarat',
+				'Narmada Basin',
+				ST_GeomFromText('POLYGON((72.80 21.50, 73.85 21.50, 73.85 22.10, 72.80 22.10, 72.80 21.50))', 4326)
+			),
+			(
+				'bhakra-dam',
+				'Bhakra Dam Inundation Study',
+				'Primary benchmark case for Satluj River canyon corridor (90 km) from Bilaspur/Nangal down to Anandpur Sahib and Rupnagar.',
+				'Himachal Pradesh',
+				'Indus Basin (Satluj River)',
+				ST_GeomFromText('POLYGON((76.25 30.90, 76.65 30.90, 76.65 31.55, 76.25 31.55, 76.25 30.90))', 4326)
+			),
+			(
+				'idukki-dam',
+				'Idukki Arch Dam Inundation Study',
+				'Primary benchmark case for Periyar River gorge corridor (85 km) through Western Ghats down to Neriamangalam and Aluva.',
+				'Kerala',
+				'Periyar Basin',
+				ST_GeomFromText('POLYGON((76.30 9.70, 77.10 9.70, 77.10 10.25, 76.30 10.25, 76.30 9.70))', 4326)
 			)
 		ON CONFLICT (id) DO UPDATE SET
 			name = EXCLUDED.name,
@@ -74,23 +90,75 @@ func main() {
 			max_water_level_m, crest_elevation_m, spillway_type,
 			spillway_capacity_cumec, year_completed, geom
 		)
-		VALUES (
-			'tehri-dam-structure',
-			'tehri-dam',
-			'Tehri Dam',
-			'Earth and Rockfill',
-			260.50,
-			575.00,
-			3540.00,
-			2615.00,
-			830.00,
-			835.00,
-			839.50,
-			'Chute and Shaft Spillways',
-			15300.00,
-			2006,
-			ST_SetSRID(ST_MakePoint(78.4808, 30.3781), 4326)
-		)
+		VALUES 
+			(
+				'tehri-dam-structure',
+				'tehri-dam',
+				'Tehri Dam',
+				'Earth and Rockfill',
+				260.50,
+				575.00,
+				3540.00,
+				2615.00,
+				830.00,
+				835.00,
+				839.50,
+				'Chute and Shaft Spillways',
+				15300.00,
+				2006,
+				ST_SetSRID(ST_MakePoint(78.4808, 30.3781), 4326)
+			),
+			(
+				'sardar-sarovar-structure',
+				'sardar-sarovar-dam',
+				'Sardar Sarovar Dam',
+				'Concrete Gravity',
+				163.00,
+				1210.00,
+				9500.00,
+				5800.00,
+				138.68,
+				140.21,
+				146.50,
+				'Chute Spillway with 23 Radial Gates',
+				84949.00,
+				2017,
+				ST_SetSRID(ST_MakePoint(73.7481, 21.8319), 4326)
+			),
+			(
+				'bhakra-dam-structure',
+				'bhakra-dam',
+				'Bhakra Dam',
+				'Concrete Gravity',
+				226.00,
+				518.16,
+				9621.00,
+				7192.00,
+				513.59,
+				515.11,
+				518.20,
+				'Overflow Spillway with 4 Radial Gates',
+				8212.00,
+				1963,
+				ST_SetSRID(ST_MakePoint(76.4358, 31.4103), 4326)
+			),
+			(
+				'idukki-dam-structure',
+				'idukki-dam',
+				'Idukki Arch Dam',
+				'Double Curvature Concrete Arch',
+				168.90,
+				365.85,
+				1996.00,
+				1460.00,
+				732.43,
+				733.00,
+				736.09,
+				'Cheruthoni Dam Surface Spillway',
+				5663.00,
+				1976,
+				ST_SetSRID(ST_MakePoint(76.9744, 9.8517), 4326)
+			)
 		ON CONFLICT (id) DO UPDATE SET
 			name = EXCLUDED.name,
 			dam_type = EXCLUDED.dam_type,
@@ -115,13 +183,35 @@ func main() {
 	log.Info().Msg("Seeding rivers...")
 	riversSQL := `
 		INSERT INTO rivers (id, case_id, name, reach_length_km, centreline)
-		VALUES (
-			'bhagirathi-ganga-reach',
-			'tehri-dam',
-			'Bhagirathi - Ganga River Reach',
-			105.00,
-			ST_GeomFromText('MULTILINESTRING((78.4808 30.3781, 78.4950 30.3100, 78.5989 30.1458, 78.4500 30.1000, 78.2676 30.0869, 78.1642 29.9457))', 4326)
-		)
+		VALUES 
+			(
+				'bhagirathi-ganga-reach',
+				'tehri-dam',
+				'Bhagirathi - Ganga River Reach',
+				105.00,
+				ST_GeomFromText('MULTILINESTRING((78.4808 30.3781, 78.4950 30.3100, 78.5989 30.1458, 78.4500 30.1000, 78.2676 30.0869, 78.1642 29.9457))', 4326)
+			),
+			(
+				'narmada-reach',
+				'sardar-sarovar-dam',
+				'Narmada River Corridor',
+				115.00,
+				ST_GeomFromText('MULTILINESTRING((73.7481 21.8319, 73.7150 21.8380, 73.6620 21.8210, 73.5650 21.7890, 73.3420 21.9120, 72.9980 21.7050, 72.8500 21.6500))', 4326)
+			),
+			(
+				'satluj-reach',
+				'bhakra-dam',
+				'Satluj River Corridor',
+				90.00,
+				ST_GeomFromText('MULTILINESTRING((76.4358 31.4103, 76.3810 31.3700, 76.5020 31.2350, 76.5680 31.1810, 76.5270 30.9660))', 4326)
+			),
+			(
+				'periyar-reach',
+				'idukki-dam',
+				'Periyar River Corridor',
+				85.00,
+				ST_GeomFromText('MULTILINESTRING((76.9744 9.8517, 76.9620 9.8700, 76.9050 9.9120, 76.7820 10.0540, 76.6210 10.0630, 76.3540 10.1080))', 4326)
+			)
 		ON CONFLICT (id) DO UPDATE SET
 			name = EXCLUDED.name,
 			reach_length_km = EXCLUDED.reach_length_km,
@@ -169,7 +259,17 @@ func main() {
 			('settlement-tehri', 'tehri-dam', 'New Tehri Town', 25400, 1550.00, 5.20, ST_SetSRID(ST_MakePoint(78.4800, 30.3900), 4326)),
 			('settlement-devprayag', 'tehri-dam', 'Devprayag', 7200, 472.00, 42.00, ST_SetSRID(ST_MakePoint(78.5989, 30.1458), 4326)),
 			('settlement-rishikesh', 'tehri-dam', 'Rishikesh', 102500, 372.00, 85.00, ST_SetSRID(ST_MakePoint(78.2676, 30.0869), 4326)),
-			('settlement-haridwar', 'tehri-dam', 'Haridwar', 228800, 314.00, 105.00, ST_SetSRID(ST_MakePoint(78.1642, 29.9457), 4326))
+			('settlement-haridwar', 'tehri-dam', 'Haridwar', 228800, 314.00, 105.00, ST_SetSRID(ST_MakePoint(78.1642, 29.9457), 4326)),
+			('settlement-kevadiya', 'sardar-sarovar-dam', 'Kevadiya / Ekta Nagar', 18500, 75.00, 5.00, ST_SetSRID(ST_MakePoint(73.7150, 21.8380), 4326)),
+			('settlement-rajpipla', 'sardar-sarovar-dam', 'Rajpipla', 39000, 42.00, 26.00, ST_SetSRID(ST_MakePoint(73.5650, 21.7890), 4326)),
+			('settlement-bharuch', 'sardar-sarovar-dam', 'Bharuch City', 221000, 15.00, 95.00, ST_SetSRID(ST_MakePoint(72.9980, 21.7050), 4326)),
+			('settlement-ankleshwar', 'sardar-sarovar-dam', 'Ankleshwar', 140000, 12.00, 104.00, ST_SetSRID(ST_MakePoint(73.0020, 21.6260), 4326)),
+			('settlement-nangal', 'bhakra-dam', 'Nangal', 40600, 326.00, 12.00, ST_SetSRID(ST_MakePoint(76.3810, 31.3700), 4326)),
+			('settlement-anandpur', 'bhakra-dam', 'Anandpur Sahib', 16500, 310.00, 34.00, ST_SetSRID(ST_MakePoint(76.5020, 31.2350), 4326)),
+			('settlement-ropar', 'bhakra-dam', 'Rupnagar (Ropar)', 56000, 260.00, 78.00, ST_SetSRID(ST_MakePoint(76.5270, 30.9660), 4326)),
+			('settlement-cheruthoni', 'idukki-dam', 'Cheruthoni', 12000, 680.00, 3.00, ST_SetSRID(ST_MakePoint(76.9620, 9.8700), 4326)),
+			('settlement-neriamangalam', 'idukki-dam', 'Neriamangalam', 18500, 120.00, 42.00, ST_SetSRID(ST_MakePoint(76.7820, 10.0540), 4326)),
+			('settlement-aluva', 'idukki-dam', 'Aluva', 145000, 18.00, 85.00, ST_SetSRID(ST_MakePoint(76.3540, 10.1080), 4326))
 		ON CONFLICT (id) DO UPDATE SET
 			name = EXCLUDED.name,
 			population = EXCLUDED.population,
@@ -181,26 +281,63 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to seed settlements")
 	}
 
-	// 6. Seed Baseline Scenario
-	log.Info().Msg("Seeding baseline scenario...")
+	// 6. Seed Baseline Scenarios
+	log.Info().Msg("Seeding baseline scenarios...")
 	scenariosSQL := `
 		INSERT INTO scenarios (
 			id, case_id, name, description, trigger_type,
 			breach_formation_time_hr, final_breach_width_m, final_breach_depth_m,
 			peak_discharge_cumec, reservoir_level_at_failure_m
 		)
-		VALUES (
-			'tehri-pmf-overtopping',
-			'tehri-dam',
-			'Probable Maximum Flood (PMF) Overtopping Breach',
-			'Baseline dam breach scenario triggered by extreme hydrological inflow exceeding spillway design capacity (Froehlich / MacDonald-Langridge breach formulation).',
-			'overtopping',
-			2.50,
-			180.00,
-			120.00,
-			65000.00,
-			835.00
-		)
+		VALUES 
+			(
+				'tehri-pmf-overtopping',
+				'tehri-dam',
+				'Probable Maximum Flood (PMF) Overtopping Breach',
+				'Baseline dam breach scenario triggered by extreme hydrological inflow exceeding spillway design capacity (Froehlich / MacDonald-Langridge breach formulation).',
+				'overtopping',
+				2.50,
+				180.00,
+				120.00,
+				65000.00,
+				835.00
+			),
+			(
+				'sardar-sarovar-pmf-overtopping',
+				'sardar-sarovar-dam',
+				'Sardar Sarovar PMF Overtopping Breach',
+				'Extreme overtopping surge along Narmada River reach to Bharuch and Gulf of Khambhat.',
+				'overtopping',
+				3.00,
+				220.00,
+				95.00,
+				110000.00,
+				140.20
+			),
+			(
+				'bhakra-pmf-overtopping',
+				'bhakra-dam',
+				'Bhakra Dam PMF Overtopping Breach',
+				'High-head catastrophic flood wave along Satluj River canyon corridor to Nangal and Ropar.',
+				'overtopping',
+				2.80,
+				190.00,
+				130.00,
+				85000.00,
+				515.10
+			),
+			(
+				'idukki-pmf-overtopping',
+				'idukki-dam',
+				'Idukki Arch Dam Extreme Inundation',
+				'Steep Western Ghats gorge outburst wave down to Aluva and Kochi periphery.',
+				'overtopping',
+				2.20,
+				140.00,
+				110.00,
+				45000.00,
+				733.00
+			)
 		ON CONFLICT (id) DO UPDATE SET
 			name = EXCLUDED.name,
 			description = EXCLUDED.description,

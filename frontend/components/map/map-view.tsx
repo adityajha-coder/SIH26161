@@ -1,9 +1,20 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import type { FeatureCollection, Geometry, Position } from 'geojson'
-import { Plus, Minus, Compass, Maximize2, X } from 'lucide-react'
-import { TEHRI } from '@/lib/case-study'
+import {
+  Plus,
+  Minus,
+  Compass,
+  Maximize2,
+  X,
+  Video,
+  Play,
+  Pause,
+  SkipForward,
+  SkipBack,
+} from 'lucide-react'
+import { CASES, type CaseStudy } from '@/lib/case-study'
 import { ATTRIBUTION, TILES, CESIUM_ION_TOKEN } from '@/lib/config'
 import type { FloodBands } from '@/lib/flood-model'
 import { formatClock, formatNumber } from '@/lib/format'
@@ -60,6 +71,84 @@ export interface MapViewProps {
   ariaLabel?: string
   showMaxExtent?: boolean
   cameraTarget?: { center: [number, number]; zoom?: number; pitch?: number; bearing?: number; nonce?: number } | null
+  activeCase?: CaseStudy
+  onSelectCase?: (caseId: string) => void
+  isDroneTour?: boolean
+  onToggleDroneTour?: (active: boolean) => void
+}
+
+// Drone Tour Helper Types & Functions
+interface TourWaypoint {
+  name: string
+  lngLat: [number, number]
+  chainageKm: number
+  description?: string
+}
+
+function buildTourWaypoints(activeCase?: CaseStudy): TourWaypoint[] {
+  if (!activeCase) {
+    return [
+      { name: 'Tehri Dam Crest (Breach Point)', lngLat: [78.4808, 30.3778], chainageKm: 0 },
+      { name: 'Koteshwar Dam Reach', lngLat: [78.4972, 30.2622], chainageKm: 15 },
+      { name: 'Devprayag Confluence (Alaknanda + Bhagirathi)', lngLat: [78.5986, 30.1459], chainageKm: 42 },
+      { name: 'Byasi / Kaudiyala Canyon', lngLat: [78.4500, 30.1100], chainageKm: 65 },
+      { name: 'Rishikesh Himalayan Gateway', lngLat: [78.2932, 30.1086], chainageKm: 84 },
+      { name: 'Haridwar Gangetic Floodplain', lngLat: [78.1710, 29.9565], chainageKm: 105 },
+    ]
+  }
+
+  const list: TourWaypoint[] = []
+
+  // 1. Dam breach inception point
+  list.push({
+    name: `${activeCase.dam.name} (Breach Point)`,
+    lngLat: activeCase.dam.lngLat,
+    chainageKm: 0,
+    description: `${activeCase.dam.type} · Elev ${activeCase.dam.crestElevationM || activeCase.dam.heightM}m`,
+  })
+
+  // 2. Downstream towns & key corridor landmarks
+  if (activeCase.downstreamTowns && activeCase.downstreamTowns.length > 0) {
+    for (const town of activeCase.downstreamTowns) {
+      list.push({
+        name: town.name,
+        lngLat: town.lngLat,
+        chainageKm: town.chainageKm,
+        description: `Corridor Sector · Chainage ${town.chainageKm} km`,
+      })
+    }
+  } else if (activeCase.riverReachCoordinates && activeCase.riverReachCoordinates.length > 1) {
+    for (let i = 1; i < activeCase.riverReachCoordinates.length; i++) {
+      const coord = activeCase.riverReachCoordinates[i]
+      const approxKm = Math.round((i / (activeCase.riverReachCoordinates.length - 1)) * activeCase.reachKm)
+      list.push({
+        name: `${activeCase.river} Sector ${i}`,
+        lngLat: coord,
+        chainageKm: approxKm,
+      })
+    }
+  }
+
+  return list.sort((a, b) => a.chainageKm - b.chainageKm)
+}
+
+function computeBearing(p1: [number, number], p2: [number, number]): number {
+  const lon1 = (p1[0] * Math.PI) / 180
+  const lat1 = (p1[1] * Math.PI) / 180
+  const lon2 = (p2[0] * Math.PI) / 180
+  const lat2 = (p2[1] * Math.PI) / 180
+  const y = Math.sin(lon2 - lon1) * Math.cos(lat2)
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1)
+  const deg = (Math.atan2(y, x) * 180) / Math.PI
+  return (deg + 360) % 360
+}
+
+function getTourAltitude(caseId?: string, chainageRatio = 0): number {
+  if (caseId === 'sardar-sarovar-dam') return 1600
+  if (caseId === 'bhakra-dam') return 1900
+  if (caseId === 'idukki-dam') return 2200
+  // Default (Tehri / Himalayan canyon descent): 2600m down to 1500m
+  return Math.round(2600 - chainageRatio * 1100)
 }
 
 interface PopupState {
@@ -127,6 +216,10 @@ export function MapView({
   ariaLabel,
   showMaxExtent = false,
   cameraTarget,
+  activeCase,
+  onSelectCase,
+  isDroneTour: isDroneTourProp,
+  onToggleDroneTour,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const viewerRef = useRef<import('cesium').Viewer | null>(null)
@@ -137,6 +230,164 @@ export function MapView({
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
   const [popup, setPopup] = useState<PopupState | null>(null)
+
+  // 3D Drone Tour / Follow the Wave Camera Animation State 
+  const [internalDroneTour, setInternalDroneTour] = useState(false)
+  const isDroneTour = isDroneTourProp !== undefined ? isDroneTourProp : internalDroneTour
+  const [tourPaused, setTourPaused] = useState(false)
+  const [tourSpeed, setTourSpeed] = useState<1 | 2 | 4>(1)
+  const [currentWaypointIdx, setCurrentWaypointIdx] = useState(0)
+
+  const tourActiveRef = useRef(false)
+  const tourPausedRef = useRef(false)
+  const tourSpeedRef = useRef<1 | 2 | 4>(1)
+  const currentWaypointIndexRef = useRef(0)
+
+  const tourWaypoints = useMemo(() => buildTourWaypoints(activeCase), [activeCase])
+
+  const flyToTourWaypoint = useCallback(
+    (index: number) => {
+      const viewer = viewerRef.current
+      const Cesium = cesiumRef.current
+      if (!viewer || viewer.isDestroyed() || !Cesium) return
+
+      const waypoints = buildTourWaypoints(activeCase)
+      if (waypoints.length === 0) return
+
+      const safeIdx = Math.max(0, Math.min(index, waypoints.length - 1))
+      currentWaypointIndexRef.current = safeIdx
+      setCurrentWaypointIdx(safeIdx)
+
+      const curr = waypoints[safeIdx]
+      const next = waypoints[(safeIdx + 1) % waypoints.length]
+
+      const headingDeg = computeBearing(curr.lngLat, next.lngLat)
+      const headingRad = Cesium.Math.toRadians(headingDeg)
+      const pitchRad = Cesium.Math.toRadians(-32)
+
+      const maxKm = activeCase?.reachKm || 100
+      const ratio = Math.min(1, Math.max(0, curr.chainageKm / maxKm))
+      const alt = getTourAltitude(activeCase?.id, ratio)
+
+      const duration = Math.max(2.5, 7.0 / tourSpeedRef.current)
+
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(curr.lngLat[0], curr.lngLat[1], alt),
+        orientation: {
+          heading: headingRad,
+          pitch: pitchRad,
+          roll: 0.0,
+        },
+        duration,
+        easingFunction: Cesium.EasingFunction.SINUSOIDAL_IN_OUT,
+        complete: () => {
+          if (!tourActiveRef.current || tourPausedRef.current) return
+          if (safeIdx === waypoints.length - 1) {
+            // Reached terminus of corridor - hold 2.5s then loop to breach inception
+            setTimeout(() => {
+              if (tourActiveRef.current && !tourPausedRef.current) {
+                flyToTourWaypoint(0)
+              }
+            }, 2500)
+          } else {
+            flyToTourWaypoint(safeIdx + 1)
+          }
+        },
+        cancel: () => {
+          // Flight interrupted or cancelled
+        },
+      })
+    },
+    [activeCase]
+  )
+
+  const handleToggleDroneTour = useCallback(() => {
+    const viewer = viewerRef.current
+    if (!viewer || viewer.isDestroyed()) return
+
+    const nextState = !isDroneTour
+    tourActiveRef.current = nextState
+    tourPausedRef.current = false
+    setTourPaused(false)
+    if (isDroneTourProp === undefined) {
+      setInternalDroneTour(nextState)
+    }
+    if (onToggleDroneTour) {
+      onToggleDroneTour(nextState)
+    }
+
+    if (nextState) {
+      flyToTourWaypoint(0)
+    } else {
+      viewer.camera.cancelFlight()
+    }
+  }, [isDroneTour, isDroneTourProp, onToggleDroneTour, flyToTourWaypoint])
+
+  const handleTogglePauseTour = useCallback(() => {
+    const viewer = viewerRef.current
+    if (!viewer || viewer.isDestroyed()) return
+
+    if (tourPaused) {
+      tourPausedRef.current = false
+      setTourPaused(false)
+      flyToTourWaypoint(currentWaypointIndexRef.current)
+    } else {
+      tourPausedRef.current = true
+      setTourPaused(true)
+      viewer.camera.cancelFlight()
+    }
+  }, [tourPaused, flyToTourWaypoint])
+
+  const handleNextWaypoint = useCallback(() => {
+    const next = (currentWaypointIndexRef.current + 1) % tourWaypoints.length
+    flyToTourWaypoint(next)
+  }, [tourWaypoints.length, flyToTourWaypoint])
+
+  const handlePrevWaypoint = useCallback(() => {
+    const prev = (currentWaypointIndexRef.current - 1 + tourWaypoints.length) % tourWaypoints.length
+    flyToTourWaypoint(prev)
+  }, [tourWaypoints.length, flyToTourWaypoint])
+
+  const handleCycleTourSpeed = useCallback(() => {
+    const nextSpeed: 1 | 2 | 4 = tourSpeed === 1 ? 2 : tourSpeed === 2 ? 4 : 1
+    tourSpeedRef.current = nextSpeed
+    setTourSpeed(nextSpeed)
+    if (!tourPausedRef.current && tourActiveRef.current) {
+      flyToTourWaypoint(currentWaypointIndexRef.current)
+    }
+  }, [tourSpeed, flyToTourWaypoint])
+
+  const handleStopDroneTour = useCallback(() => {
+    const viewer = viewerRef.current
+    if (viewer && !viewer.isDestroyed()) {
+      viewer.camera.cancelFlight()
+    }
+    tourActiveRef.current = false
+    tourPausedRef.current = false
+    setTourPaused(false)
+    if (isDroneTourProp === undefined) {
+      setInternalDroneTour(false)
+    }
+    if (onToggleDroneTour) {
+      onToggleDroneTour(false)
+    }
+  }, [isDroneTourProp, onToggleDroneTour])
+
+  // Reset or re-fly if active dam changes during active tour
+  useEffect(() => {
+    if (tourActiveRef.current) {
+      currentWaypointIndexRef.current = 0
+      setCurrentWaypointIdx(0)
+      flyToTourWaypoint(0)
+    }
+  }, [activeCase?.id, flyToTourWaypoint])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      tourActiveRef.current = false
+    }
+  }, [])
 
   const geo = useGeoData()
   const layers: LayerVisibility = { ...DEFAULT_LAYERS, ...layerOverrides }
@@ -203,10 +454,10 @@ export function MapView({
         if (cancelled || !containerRef.current) return
         cesiumRef.current = Cesium
 
-        const c = center ?? [78.47, 30.29]
-        const z = zoom ?? 10.5
-        const p = pitch ?? (base === 'terrain' ? 55 : 0)
-        const b = bearing ?? (base === 'terrain' ? 190 : 0)
+        const c = center ?? (activeCase?.center ?? activeCase?.dam.lngLat ?? [78.47, 30.29])
+        const z = zoom ?? (activeCase?.zoom ?? 10.5)
+        const p = pitch ?? (activeCase?.pitch ?? (base === 'terrain' ? 55 : 0))
+        const b = bearing ?? (activeCase?.bearing ?? (base === 'terrain' ? 190 : 0))
         const alt = Math.max(1500, 36000000 / Math.pow(2, z))
 
         // Create internal container for the viewer
@@ -322,6 +573,28 @@ export function MapView({
               const props = picked.id.properties.getValue(Cesium.JulianDate.now())
               if (!props) return
 
+              // Check if dam marker
+              if (props.caseId) {
+                const rows: [string, string][] = [
+                  ['Structure', props.kind ?? 'Dam'],
+                  ['River Basin', props.river ?? '—'],
+                  ['Structural Height', props.height ?? '—'],
+                  ['Gross Storage', props.storage ?? '—'],
+                ]
+                if (props.state) rows.push(['State', props.state])
+                if (props.isActive) rows.push(['Status', 'Active Benchmark Case'])
+                setPopup({
+                  x: movement.position.x,
+                  y: movement.position.y,
+                  title: String(props.name),
+                  rows,
+                })
+                if (onSelectCase && props.caseId !== activeCase?.id) {
+                  onSelectCase(props.caseId)
+                }
+                return
+              }
+
               // Check if settlement / asset
               if (props.name && (props.kind || props.population)) {
                 const rows: [string, string][] = [['Type', props.kind ?? 'Settlement']]
@@ -425,16 +698,16 @@ export function MapView({
     viewer.scene.verticalExaggeration = exaggeration
   }, [ready, base, exaggeration, updateBaseImagery])
 
-  // 3. Smooth Camera Angle Flight when switching between 3D Terrain and 2D Satellite
+  // 3. Smooth Camera Angle Flight when switching between 3D Terrain and 2D Satellite or switching active dam
   useEffect(() => {
     const viewer = viewerRef.current
     const Cesium = cesiumRef.current
     if (!ready || !viewer || viewer.isDestroyed() || !Cesium) return
 
-    const c = center ?? [78.47, 30.29]
-    const z = zoom ?? (base === 'terrain' ? 10.8 : 9.8)
-    const p = pitch ?? (base === 'terrain' ? 60 : 0)
-    const b = bearing ?? (base === 'terrain' ? 190 : 0)
+    const c = center ?? (activeCase?.center ?? activeCase?.dam.lngLat ?? [78.47, 30.29])
+    const z = zoom ?? (activeCase?.zoom ?? (base === 'terrain' ? 10.8 : 9.8))
+    const p = pitch ?? (activeCase?.pitch ?? (base === 'terrain' ? 60 : 0))
+    const b = bearing ?? (activeCase?.bearing ?? (base === 'terrain' ? 190 : 0))
     const alt = Math.max(1500, 36000000 / Math.pow(2, z))
 
     const cesiumPitch = Cesium.Math.toRadians(p - 90)
@@ -447,9 +720,9 @@ export function MapView({
         pitch: cesiumPitch,
         roll: 0.0,
       },
-      duration: 1.0,
+      duration: 1.4,
     })
-  }, [ready, base, center?.[0], center?.[1], zoom, pitch, bearing]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, base, activeCase?.id, center?.[0], center?.[1], zoom, pitch, bearing]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 4. Hydrology & Basemap Data Loaders (River, Reservoir, Roads, Dam, Decluttered Settlements)
   useEffect(() => {
@@ -460,7 +733,7 @@ export function MapView({
 
     // ── River Network
     ds.river.entities.removeAll()
-    if (geo.river?.features) {
+    if (activeCase?.id === 'tehri-dam' && geo.river?.features) {
       for (const f of geo.river.features) {
         const coords = extractPolylineCoords(f.geometry)
         for (const line of coords) {
@@ -476,11 +749,23 @@ export function MapView({
           }
         }
       }
+    } else if (activeCase?.riverReachCoordinates && activeCase.riverReachCoordinates.length >= 2) {
+      ds.river.entities.add({
+        polyline: {
+          positions: Cesium.Cartesian3.fromDegreesArray(flattenCoords(activeCase.riverReachCoordinates)),
+          width: 4.5,
+          material: new Cesium.PolylineGlowMaterialProperty({
+            glowPower: 0.25,
+            color: Cesium.Color.fromCssColorString('#38bdf8'),
+          }),
+          clampToGround: true,
+        },
+      })
     }
 
     // ── Reservoir
     ds.reservoir?.entities.removeAll()
-    if (geo.reservoir?.features && ds.reservoir) {
+    if (geo.reservoir?.features && ds.reservoir && (!activeCase || activeCase.id === 'tehri-dam')) {
       for (const f of geo.reservoir.features) {
         const rings = extractPolygonRings(f.geometry)
         for (const ring of rings) {
@@ -499,7 +784,7 @@ export function MapView({
 
     // ── Roads
     ds.roads?.entities.removeAll()
-    if (geo.roads?.features && ds.roads) {
+    if (geo.roads?.features && ds.roads && (!activeCase || activeCase.id === 'tehri-dam')) {
       for (const f of geo.roads.features) {
         const lines = extractPolylineCoords(f.geometry)
         for (const line of lines) {
@@ -517,39 +802,53 @@ export function MapView({
       }
     }
 
-    // ── Tehri Dam Marker
+    // All Dam Markers
     ds.dam?.entities.removeAll()
     if (ds.dam) {
-      ds.dam.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(TEHRI.dam.lngLat[0], TEHRI.dam.lngLat[1]),
-        properties: { name: TEHRI.dam.name, kind: 'Major Hydroelectric Dam' },
-        point: {
-          pixelSize: 11,
-          color: Cesium.Color.WHITE,
-          outlineColor: Cesium.Color.fromCssColorString('#0b1220'),
-          outlineWidth: 3,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        },
-        label: {
-          text: TEHRI.dam.name,
-          font: '600 12px "Poppins", sans-serif',
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          fillColor: Cesium.Color.WHITE,
-          outlineColor: Cesium.Color.fromCssColorString('#0b1220'),
-          outlineWidth: 3,
-          showBackground: true,
-          backgroundColor: Cesium.Color.fromCssColorString('rgba(12, 12, 12, 0.85)'),
-          backgroundPadding: new Cesium.Cartesian2(6, 4),
-          pixelOffset: new Cesium.Cartesian2(0, -18),
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
-        },
-      })
+      for (const cs of CASES) {
+        const isActive = activeCase ? cs.id === activeCase.id : cs.id === 'tehri-dam'
+        ds.dam.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(cs.dam.lngLat[0], cs.dam.lngLat[1]),
+          properties: {
+            caseId: cs.id,
+            name: cs.dam.name,
+            kind: `${cs.dam.type} (${cs.state})`,
+            height: cs.dam.heightM > 0 ? `${cs.dam.heightM} m` : 'Debris Lake',
+            storage: cs.dam.grossStorageMcm > 0 ? `${cs.dam.grossStorageMcm} MCM` : '—',
+            river: cs.river,
+            state: cs.state,
+            isActive,
+          },
+          point: {
+            pixelSize: isActive ? 14 : 9,
+            color: isActive ? Cesium.Color.fromCssColorString('#38bdf8') : Cesium.Color.WHITE,
+            outlineColor: isActive ? Cesium.Color.fromCssColorString('#0284c7') : Cesium.Color.fromCssColorString('#0b1220'),
+            outlineWidth: isActive ? 3.5 : 2,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          },
+          label: {
+            text: isActive ? `★ ${cs.dam.name}` : cs.dam.name,
+            font: isActive ? '700 13px "Poppins", sans-serif' : '600 11px "Poppins", sans-serif',
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            fillColor: isActive ? Cesium.Color.fromCssColorString('#38bdf8') : Cesium.Color.WHITE,
+            outlineColor: Cesium.Color.fromCssColorString('#0b1220'),
+            outlineWidth: 3,
+            showBackground: true,
+            backgroundColor: isActive
+              ? Cesium.Color.fromCssColorString('rgba(14, 165, 233, 0.35)')
+              : Cesium.Color.fromCssColorString('rgba(12, 12, 12, 0.85)'),
+            backgroundPadding: new Cesium.Cartesian2(6, 4),
+            pixelOffset: new Cesium.Cartesian2(0, -18),
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          },
+        })
+      }
     }
 
-    // ── Decluttered Settlements with Strict Hierarchy ──
+    // Decluttered Settlements with Strict Hierarchy
     ds.settlements?.entities.removeAll()
-    if (geo.settlements?.features && ds.settlements) {
+    if (activeCase?.id === 'tehri-dam' && geo.settlements?.features && ds.settlements) {
       for (const f of geo.settlements.features) {
         if (f.geometry.type === 'Point') {
           const [lng, lat] = f.geometry.coordinates as [number, number]
@@ -648,7 +947,43 @@ export function MapView({
         }
       }
     }
-  }, [ready, geo.river, geo.reservoir, geo.roads, geo.settlements])
+
+    // ── Downstream Risk Centers for activeCase
+    if (activeCase?.downstreamTowns && ds.settlements) {
+      for (const town of activeCase.downstreamTowns) {
+        ds.settlements.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(town.lngLat[0], town.lngLat[1]),
+          properties: {
+            name: town.name,
+            kind: 'Downstream Risk Center',
+            chainageKm: town.chainageKm,
+          },
+          point: {
+            pixelSize: 8,
+            color: Cesium.Color.fromCssColorString('#fbbf24'),
+            outlineColor: Cesium.Color.fromCssColorString('#1f2937'),
+            outlineWidth: 2,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          },
+          label: {
+            text: `${town.name} (${town.chainageKm} km)`,
+            font: '600 12px "Poppins", sans-serif',
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            fillColor: Cesium.Color.fromCssColorString('#f8fafc'),
+            outlineColor: Cesium.Color.fromCssColorString('#0b1220'),
+            outlineWidth: 2,
+            showBackground: true,
+            backgroundColor: Cesium.Color.fromCssColorString('rgba(12, 12, 12, 0.85)'),
+            backgroundPadding: new Cesium.Cartesian2(6, 3),
+            pixelOffset: new Cesium.Cartesian2(0, -14),
+            verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 160000),
+          },
+        })
+      }
+    }
+  }, [ready, activeCase, geo.river, geo.reservoir, geo.roads, geo.settlements])
 
   // 5. Exposure Layer (Hospitals, Schools, Critical Assets)
   useEffect(() => {
@@ -854,6 +1189,8 @@ export function MapView({
     })
   }
 
+  const currentWp = tourWaypoints[currentWaypointIdx] || tourWaypoints[0]
+
   return (
     <div className={cn('relative overflow-hidden bg-[#0C0C0C]', className)} role="region" aria-label={ariaLabel ?? label ?? 'Cesium 3D Globe'}>
       <div ref={containerRef} style={{ position: 'absolute', inset: 0 }} />
@@ -880,7 +1217,7 @@ export function MapView({
             type="button"
             onClick={() => handleZoom('in')}
             title="Zoom In"
-            className="flex size-7 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
+            className="flex size-7 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/8 transition-colors cursor-pointer"
           >
             <Plus className="size-3.5" />
           </button>
@@ -888,16 +1225,16 @@ export function MapView({
             type="button"
             onClick={() => handleZoom('out')}
             title="Zoom Out"
-            className="flex size-7 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
+            className="flex size-7 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/8 transition-colors cursor-pointer"
           >
             <Minus className="size-3.5" />
           </button>
-          <div className="my-0.5 h-px w-full bg-white/[0.08]" />
+          <div className="my-0.5 h-px w-full bg-white/8" />
           <button
             type="button"
             onClick={handleResetHeading}
             title="Reset North Orientation"
-            className="flex size-7 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
+            className="flex size-7 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/8 transition-colors cursor-pointer"
           >
             <Compass className="size-3.5" />
           </button>
@@ -905,20 +1242,132 @@ export function MapView({
             type="button"
             onClick={handleTiltToggle}
             title="Toggle 3D Perspective Tilt"
-            className="flex size-7 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
+            className="flex size-7 items-center justify-center rounded-xl text-white/70 hover:text-white hover:bg-white/8 transition-colors cursor-pointer"
           >
             <Maximize2 className="size-3.5" />
           </button>
+          <div className="my-0.5 h-px w-full bg-white/8" />
+          <button
+            type="button"
+            onClick={handleToggleDroneTour}
+            title={isDroneTour ? 'Stop Drone Tour' : 'Follow the Wave · 3D Drone Tour'}
+            className={cn(
+              'flex size-7 items-center justify-center rounded-xl transition-all cursor-pointer relative',
+              isDroneTour
+                ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/50'
+                : 'text-white/70 hover:text-white hover:bg-white/8'
+            )}
+          >
+            <Video className="size-3.5" />
+            {isDroneTour && (
+              <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-cyan-400 animate-ping" />
+            )}
+          </button>
+        </div>
+      )}
+
+
+      {/* ── 3D Drone Tour Broadcast Telemetry HUD Overlay ─────────── */}
+      {isDroneTour && ready && (
+        <div className="pointer-events-auto absolute top-20 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 animate-in fade-in slide-in-from-top-3 duration-200">
+          <div className="map-hud-panel-solid flex items-center gap-3 rounded-2xl px-4 py-2 border border-cyan-500/40 shadow-2xl backdrop-blur-2xl">
+            {/* Live Indicator */}
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="size-2 rounded-full bg-cyan-400 animate-ping" />
+              <span className="font-mono text-[11px] font-black tracking-wider text-cyan-300 uppercase">
+                Drone Tour
+              </span>
+            </div>
+
+            <div className="h-4 w-px bg-white/10" />
+
+            {/* Current Waypoint / Landmark */}
+            <div className="flex items-center gap-2 max-w-xs sm:max-w-md truncate">
+              <span className="text-xs font-bold text-white truncate">
+                {currentWp.name}
+              </span>
+              <span className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-white/80 shrink-0">
+                {currentWp.chainageKm} km
+              </span>
+            </div>
+
+            <div className="h-4 w-px bg-white/10" />
+
+            {/* Flight Controls */}
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={handlePrevWaypoint}
+                title="Previous Sector"
+                className="flex size-6 items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <SkipBack className="size-3" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleTogglePauseTour}
+                title={tourPaused ? 'Resume Drone Tour' : 'Pause Drone Tour'}
+                className="flex size-6 items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+              >
+                {tourPaused ? <Play className="size-3" /> : <Pause className="size-3" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleNextWaypoint}
+                title="Next Sector"
+                className="flex size-6 items-center justify-center rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <SkipForward className="size-3" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCycleTourSpeed}
+                title="Tour Flight Speed"
+                className="rounded-lg bg-cyan-500/20 px-1.5 py-0.5 font-mono text-[10px] font-bold text-cyan-300 hover:bg-cyan-500/30 transition-colors cursor-pointer"
+              >
+                {tourSpeed}×
+              </button>
+
+              <button
+                type="button"
+                onClick={handleStopDroneTour}
+                title="Exit Drone Tour"
+                className="flex size-6 items-center justify-center rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 hover:text-white transition-colors ml-1 cursor-pointer"
+              >
+                <X className="size-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Sub-telemetry strip */}
+          <div className="flex items-center gap-2.5 text-[9px] font-mono text-white/50 bg-[#0C0C0C]/85 px-3 py-0.5 rounded-full border border-white/5 backdrop-blur-md">
+            <span>PITCH -32°</span>
+            <span>•</span>
+            <span>ALT ~{getTourAltitude(activeCase?.id, currentWp.chainageKm / (activeCase?.reachKm || 100))}M</span>
+            <span>•</span>
+            <span className="text-cyan-400 font-bold">
+              SECTOR {currentWaypointIdx + 1} / {tourWaypoints.length}
+            </span>
+            {tourPaused && (
+              <>
+                <span>•</span>
+                <span className="text-amber-400 font-bold animate-pulse">PAUSED</span>
+              </>
+            )}
+          </div>
         </div>
       )}
 
       {/* Rich Interactive Entity Popup */}
       {popup && (
         <div
-          className="cesium-hud-popup absolute max-w-[270px] -translate-x-1/2 -translate-y-[calc(100%+12px)] pointer-events-auto"
+          className="cesium-hud-popup absolute max-w-67.5 -translate-x-1/2 -translate-y-[calc(100%+12px)] pointer-events-auto"
           style={{ left: popup.x, top: popup.y }}
         >
-          <div className="flex items-start justify-between gap-3 border-b border-white/[0.08] pb-1.5 mb-2">
+          <div className="flex items-start justify-between gap-3 border-b border-white/8 pb-1.5 mb-2">
             <span className="font-semibold text-white text-xs">{popup.title}</span>
             <button
               type="button"
@@ -941,7 +1390,7 @@ export function MapView({
 
       {/* Label Badge */}
       {label && (
-        <span className="pointer-events-none absolute bottom-2 left-2 rounded-xl bg-background/85 px-2.5 py-1 text-[11px] font-medium text-foreground border border-white/[0.06] backdrop-blur-md">
+        <span className="pointer-events-none absolute bottom-2 left-2 rounded-xl bg-background/85 px-2.5 py-1 text-[11px] font-medium text-foreground border border-white/6 backdrop-blur-md">
           {label}
         </span>
       )}

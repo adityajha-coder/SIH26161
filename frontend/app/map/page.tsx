@@ -4,14 +4,15 @@ import { useState, useCallback, useMemo } from 'react'
 import {
   Play, Pause, RotateCcw, Layers, ChevronRight, ChevronLeft,
   Mountain, Satellite, Moon, Map as MapIcon, Eye, EyeOff,
-  Clock
+  Clock, Landmark
 } from 'lucide-react'
 import { MapView } from '@/components/map/map-view'
 import { RampLegend } from '@/components/map/legend'
 import { DEFAULT_LAYERS, type BaseMode, type LayerVisibility } from '@/components/map/map-style'
-import { useSimulationPlayer, PLAYBACK_SPEEDS } from '@/components/flood/use-player'
+import { useSimulationPlayer } from '@/components/flood/use-player'
 import { usePlatform } from '@/lib/platform-store'
 import { useFloodResult } from '@/lib/use-flood'
+import { CASES } from '@/lib/case-study'
 import { formatClock } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { Slider } from '@/components/ui/slider'
@@ -62,7 +63,7 @@ const BASE_MODES: { mode: BaseMode; label: string; icon: typeof Mountain }[] = [
 ]
 
 export default function MapPage() {
-  const { activeScenario, activeRun } = usePlatform()
+  const { activeCaseId, activeCase, setActiveCaseId, activeScenario, activeRun } = usePlatform()
   const [base, setBase] = useState<BaseMode>('terrain')
   const [layers, setLayers] = useState<LayerVisibility>({
     ...DEFAULT_LAYERS,
@@ -76,10 +77,10 @@ export default function MapPage() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [legendExpanded, setLegendExpanded] = useState(true)
 
-  // Complete 129 km Delft3D hydrodynamic simulation
+  // Hydrodynamic simulation calibrated to active dam scenario
   const { result } = useFloodResult(activeScenario, 'delft3d', activeRun)
 
-  // Simulation time horizon (9900s = 02:45:00 for full 129 km reach to Haridwar)
+  // Simulation time horizon (calibrated for full corridor reach)
   const maxS = useMemo(() => {
     if (result && Number.isFinite(result.maxArrivalS) && result.maxArrivalS > 0) {
       return Math.ceil(result.maxArrivalS / 300) * 300
@@ -112,6 +113,22 @@ export default function MapPage() {
   const activeLegend = layers.arrivalTime ? 'arrival' : layers.floodVelocity ? 'velocity' : layers.floodDepth ? 'depth' : null
   const progress = maxS > 0 ? (player.timeS / maxS) * 100 : 0
 
+  const center = useMemo<[number, number]>(() => {
+    return activeCase.center ?? activeCase.dam.lngLat
+  }, [activeCase])
+
+  const zoom = useMemo(() => {
+    return is3d ? (activeCase.zoom ?? 10.8) : (activeCase.zoom ? activeCase.zoom - 0.9 : 9.8)
+  }, [activeCase, is3d])
+
+  const pitch = useMemo(() => {
+    return is3d ? (activeCase.pitch ?? 58) : 0
+  }, [activeCase, is3d])
+
+  const bearing = useMemo(() => {
+    return is3d ? (activeCase.bearing ?? 190) : 0
+  }, [activeCase, is3d])
+
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#0C0C0C]">
       {/* ── Full-bleed 3D Map Canvas ───────────────────────────────── */}
@@ -121,88 +138,106 @@ export default function MapPage() {
         exaggeration={exaggeration}
         flood={result?.bands ?? null}
         timeS={player.timeS}
-        center={is3d ? [78.505, 30.29] : [78.4, 30.17]}
-        zoom={is3d ? 11 : 9.7}
-        pitch={is3d ? 62 : 0}
-        bearing={is3d ? 190 : 0}
+        center={center}
+        zoom={zoom}
+        pitch={pitch}
+        bearing={bearing}
+        activeCase={activeCase}
+        onSelectCase={setActiveCaseId}
         className="absolute inset-0 h-full w-full"
         ariaLabel="Flood simulation map"
       />
 
-      {/* ── Top-Left: Minimal Clock Status Badge ────────────────────── */}
-      <div className="pointer-events-none absolute top-4 left-18 z-10">
-        <div className="pointer-events-auto map-hud-panel flex items-center gap-2.5 rounded-2xl px-3.5 py-2">
-          <span className={cn(
-            'size-2.5 rounded-full',
-            player.playing ? 'bg-[#23a55a]' : 'bg-[#f0b232]'
-          )} />
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-mono text-sm font-bold tabular-nums text-white">
-              {formatClock(player.timeS)}
-            </span>
-            <span className="text-[10px] text-white/40 uppercase font-mono">
-              / {formatClock(maxS)}
-            </span>
+      {/* ── Top Navigation Bar: Unified Non-Colliding Layout ──────── */}
+      <div className="pointer-events-none absolute top-4 left-18 right-4 z-10 flex items-center justify-between gap-3">
+        {/* Left: Dam Selector Glass Pill */}
+        <div className="pointer-events-auto flex items-center shrink-0">
+          <div className="map-hud-panel flex items-center gap-2.5 rounded-2xl px-3.5 py-1.5 border border-white/10 shadow-2xl backdrop-blur-xl">
+            <Landmark className="size-4 text-cyan-400 shrink-0" />
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] uppercase tracking-wider text-white/50 font-bold leading-none">Dam Case</span>
+                <span className="rounded bg-cyan-500/15 px-1.5 py-0.5 font-mono text-[9px] font-semibold text-cyan-300 leading-none">
+                  {activeCase.reachKm} km
+                </span>
+                <span
+                  className={cn(
+                    'size-1.5 rounded-full ml-0.5',
+                    player.playing ? 'bg-[#23a55a] animate-pulse' : 'bg-white/30'
+                  )}
+                  title={player.playing ? 'Simulation active' : 'Simulation paused'}
+                />
+              </div>
+              <select
+                value={activeCaseId}
+                onChange={(e) => setActiveCaseId(e.target.value)}
+                className="bg-transparent text-xs font-bold text-white outline-none cursor-pointer pr-1 leading-tight mt-0.5"
+              >
+                {CASES.map((c) => (
+                  <option key={c.id} value={c.id} className="bg-[#121212] text-white">
+                    {c.name} ({c.state})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <span className="text-white/20 text-xs">|</span>
-          <span className="text-[11px] text-white/60 font-medium">129 km Corridor</span>
         </div>
-      </div>
 
-      {/* ── Top-Center: Base Map Switcher ──────────────────────────── */}
-      <div className="pointer-events-auto absolute top-4 left-1/2 z-10 -translate-x-1/2">
-        <div className="map-hud-panel flex items-center gap-1 rounded-2xl p-1">
-          {BASE_MODES.map(({ mode, label, icon: Icon }) => (
-            <button
-              key={mode}
-              onClick={() => handleBase(mode)}
-              className={cn(
-                'flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-semibold transition-all duration-150 cursor-pointer',
-                base === mode
-                  ? 'bg-white text-black'
-                  : 'text-white/60 hover:text-white hover:bg-white/[0.06]'
-              )}
-            >
-              <Icon className="size-3.5" />
-              <span className="hidden sm:inline">{label}</span>
-            </button>
-          ))}
+        {/* Center: Base Map Switcher */}
+        <div className="pointer-events-auto flex items-center justify-center">
+          <div className="map-hud-panel flex items-center gap-1 rounded-2xl p-1 shadow-2xl backdrop-blur-xl">
+            {BASE_MODES.map(({ mode, label, icon: Icon }) => (
+              <button
+                key={mode}
+                onClick={() => handleBase(mode)}
+                className={cn(
+                  'flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[11px] font-semibold transition-all duration-150 cursor-pointer',
+                  base === mode
+                    ? 'bg-white text-black font-bold shadow-sm'
+                    : 'text-white/60 hover:text-white hover:bg-white/6'
+                )}
+              >
+                <Icon className="size-3.5" />
+                <span className="hidden md:inline">{label}</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* ── Top-Right: Layers Drawer Toggle ────────────────────────── */}
-      <div className="pointer-events-auto absolute top-4 right-4 z-10">
-        <button
-          onClick={() => setDrawerOpen(!drawerOpen)}
-          className={cn(
-            'map-hud-panel flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-semibold transition-all cursor-pointer',
-            drawerOpen
-              ? 'bg-white text-black'
-              : 'text-white/70 hover:text-white hover:bg-white/[0.06]'
-          )}
-        >
-          <Layers className="size-4" />
-          <span className="hidden sm:inline">Layers</span>
-          {drawerOpen ? <ChevronRight className="size-3.5" /> : <ChevronLeft className="size-3.5" />}
-        </button>
+        {/* Right: Layers Drawer Toggle */}
+        <div className="pointer-events-auto flex items-center justify-end shrink-0">
+          <button
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            className={cn(
+              'map-hud-panel flex items-center gap-1.5 rounded-2xl px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer shadow-2xl backdrop-blur-xl',
+              drawerOpen
+                ? 'bg-white text-black font-bold'
+                : 'text-white/70 hover:text-white hover:bg-white/6'
+            )}
+          >
+            <Layers className="size-4" />
+            <span className="hidden sm:inline">Layers</span>
+            {drawerOpen ? <ChevronRight className="size-3.5" /> : <ChevronLeft className="size-3.5" />}
+          </button>
+        </div>
       </div>
 
       {/* ── Layer Control Drawer ───────────────────────────────────── */}
       <div
         className={cn(
-          'absolute top-16 right-4 z-20 w-[270px] transition-all duration-200 ease-out',
+          'absolute top-16 right-4 z-20 w-67.5 transition-all duration-200 ease-out',
           drawerOpen
             ? 'translate-x-0 opacity-100 pointer-events-auto'
             : 'translate-x-full opacity-0 pointer-events-none'
         )}
       >
         <div className="map-hud-panel-solid flex flex-col gap-0.5 rounded-2xl max-h-[calc(100vh-160px)] overflow-y-auto">
-          <div className="px-4 pt-4 pb-2 border-b border-white/[0.06]">
+          <div className="px-4 pt-4 pb-2 border-b border-white/6">
             <h3 className="text-xs font-bold uppercase tracking-wider text-white/60">GIS Layers</h3>
           </div>
 
           {LAYER_GROUPS.map((group) => (
-            <div key={group.title} className="px-3 pt-2.5 pb-2 border-b border-white/[0.04]">
+            <div key={group.title} className="px-3 pt-2.5 pb-2 border-b border-white/4">
               <p className="px-1 pb-1 text-[10px] font-bold uppercase tracking-widest text-white/60">
                 {group.title}
               </p>
@@ -214,7 +249,7 @@ export default function MapPage() {
                       <label
                         className={cn(
                           'group flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-xs transition-all',
-                          isDisabled ? 'cursor-not-allowed opacity-35' : 'hover:bg-white/[0.06]'
+                          isDisabled ? 'cursor-not-allowed opacity-35' : 'hover:bg-white/6'
                         )}
                       >
                         <Checkbox
@@ -267,7 +302,7 @@ export default function MapPage() {
           </button>
           {legendExpanded && activeLegend && (
             <div className="animate-in fade-in duration-150">
-              <RampLegend kind={activeLegend} className="w-56 !bg-[#0C0C0C]/85 !backdrop-blur-xl border border-white/10" />
+              <RampLegend kind={activeLegend} className="w-56 bg-[#0C0C0C]/85! backdrop-blur-xl! border border-white/10" />
             </div>
           )}
         </div>
@@ -276,7 +311,7 @@ export default function MapPage() {
       {/* ── Bottom: Minimalist Cinematic Simulation Player ─────────── */}
       <div className="pointer-events-auto absolute bottom-0 inset-x-0 z-10 pl-16">
         {/* Progress ribbon */}
-        <div className="relative h-1 w-full bg-white/[0.08] overflow-hidden">
+        <div className="relative h-1 w-full bg-white/8 overflow-hidden">
           <div
             className="absolute inset-y-0 left-0 transition-[width] duration-75 ease-linear bg-white"
             style={{ width: `${progress}%` }}
@@ -302,7 +337,7 @@ export default function MapPage() {
           <button
             onClick={player.reset}
             title="Rewind to breach inception"
-            className="flex size-8 items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-white/[0.08] transition-all cursor-pointer shrink-0"
+            className="flex size-8 items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-white/8 transition-all cursor-pointer shrink-0"
           >
             <RotateCcw className="size-3.5" />
           </button>
@@ -327,10 +362,10 @@ export default function MapPage() {
             <span className="text-white/50">{formatClock(maxS)}</span>
           </div>
 
-          <div className="h-5 w-px bg-white/[0.08] hidden sm:block" />
+          <div className="h-5 w-px bg-white/8 hidden sm:block" />
 
           {/* Speed Selector */}
-          <div className="hidden sm:flex items-center gap-0.5 rounded-xl p-0.5 bg-white/[0.04]">
+          <div className="hidden sm:flex items-center gap-0.5 rounded-xl p-0.5 bg-white/4">
             {[1, 2, 4].map((s) => (
               <button
                 key={s}

@@ -5,7 +5,7 @@ import useSWR from 'swr'
 import { lineSliceAlong } from '@turf/turf'
 import type { Feature, LineString } from 'geojson'
 import { api } from './api'
-import { TEHRI } from './case-study'
+import { getCaseById, TEHRI } from './case-study'
 import {
   affectedRoadKm,
   chainageOf,
@@ -31,9 +31,30 @@ export function usePlainsStartKm(reach: Feature<LineString> | undefined) {
 }
 
 export function useFloodResult(scenario: Scenario | undefined, solver: SolverId = 'delft3d', run?: SimulationRun) {
-  const { mode } = usePlatform()
-  const { reach } = useGeoData()
-  const plainsStartKm = usePlainsStartKm(reach)
+  const { mode, activeCase } = usePlatform()
+  const { reach: tehriReach } = useGeoData()
+
+  const currentCase = scenario ? getCaseById(scenario.caseId) : activeCase
+
+  const reach = useMemo<Feature<LineString> | undefined>(() => {
+    if (currentCase.id === 'tehri-dam' && tehriReach) return tehriReach
+    if (currentCase.riverReachCoordinates && currentCase.riverReachCoordinates.length >= 2) {
+      return {
+        type: 'Feature',
+        properties: { role: 'reach', name: `${currentCase.name} River Reach` },
+        geometry: {
+          type: 'LineString',
+          coordinates: currentCase.riverReachCoordinates,
+        },
+      }
+    }
+    return tehriReach
+  }, [currentCase, tehriReach])
+
+  const plainsStartKm = useMemo(() => {
+    if (!reach) return 50
+    return Math.max(10, currentCase.reachKm * 0.7)
+  }, [reach, currentCase])
 
   const useRemote = mode === 'api' && run?.status === 'done' && !run.preview
   const remote = useSWR(useRemote ? ['results', run!.id] : null, () => api.getResults(run!.id))

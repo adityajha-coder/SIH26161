@@ -83,10 +83,10 @@ export function OverviewDashboard() {
         {/* Primary 3D Simulation Panel */}
         <Panel
           title="Dynamic Simulation"
-          className="h-[600px] lg:col-span-8 xl:col-span-9"
+          className="h-150 lg:col-span-8 xl:col-span-9"
           bodyClassName="p-3 flex flex-col gap-3 h-[calc(100%-49px)]"
           actions={
-            <div className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-black/30 p-1">
+            <div className="flex items-center gap-1 rounded-lg border border-white/8 bg-black/30 p-1">
               {TERRAIN_MODES.map((tm) => (
                 <button
                   key={tm.mode}
@@ -95,7 +95,7 @@ export function OverviewDashboard() {
                   className={`rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
                     base === tm.mode
                       ? 'bg-white text-black'
-                      : 'text-white/80 hover:bg-white/[0.1] hover:text-white'
+                      : 'text-white/80 hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   {tm.label}
@@ -111,7 +111,7 @@ export function OverviewDashboard() {
               exaggeration={exaggeration}
               flood={result?.bands ?? null}
               timeS={player.timeS}
-              className="flex-1 min-h-[440px] w-full rounded-xl overflow-hidden border border-white/[0.06]"
+              className="flex-1 min-h-110 w-full rounded-xl overflow-hidden border border-white/6"
             />
             <TimeControls
               timeS={player.timeS}
@@ -129,7 +129,7 @@ export function OverviewDashboard() {
         {/* Companion Control Panel */}
         <Panel
           title="Layer Controls & Exaggeration"
-          className="h-[600px] lg:col-span-4 xl:col-span-3 flex flex-col"
+          className="h-150 lg:col-span-4 xl:col-span-3 flex flex-col"
           bodyClassName="p-4 flex flex-col overflow-y-auto"
         >
           <LayerControl
@@ -147,7 +147,7 @@ export function OverviewDashboard() {
       <div className="grid gap-4 lg:grid-cols-12">
         <Panel
           title="Impact & Exposure"
-          className="h-[520px] lg:col-span-4"
+          className="h-130 lg:col-span-4"
           bodyClassName="p-4 h-[calc(100%-49px)] overflow-hidden"
         >
           <ImpactPanel flood={result?.bands ?? null} impact={impact} />
@@ -155,7 +155,7 @@ export function OverviewDashboard() {
 
         <Panel
           title="Breach Hydrograph"
-          className="h-[520px] lg:col-span-4 flex flex-col"
+          className="h-130 lg:col-span-4 flex flex-col"
           bodyClassName="p-4 flex flex-col justify-between"
           actions={
             hydro && (
@@ -166,7 +166,7 @@ export function OverviewDashboard() {
           }
         >
           {hydro && <HydrographChart base={hydro.base} low={hydro.low} high={hydro.high} className="h-64 w-full" />}
-          <div className="mt-4 rounded-lg border border-white/[0.08] bg-white/[0.02] p-3 text-xs text-white/80">
+          <div className="mt-4 rounded-lg border border-white/8 bg-white/2 p-3 text-xs text-white/80">
             <p className="font-medium text-white">Froehlich (2008) Breach Envelope</p>
             <p className="mt-1">
               Mass balance error:{' '}
@@ -179,7 +179,7 @@ export function OverviewDashboard() {
 
         <Panel
           title="Downstream Wave Arrival"
-          className="h-[520px] lg:col-span-4 overflow-hidden"
+          className="h-130 lg:col-span-4 overflow-hidden"
           bodyClassName="p-4 overflow-y-auto"
         >
           <ArrivalTable result={result} />

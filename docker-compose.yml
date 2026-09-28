@@ -32,7 +32,7 @@ services:
       retries: 5
 
   minio:
-    image: minio/minio:latest
+    image: cgr.dev/chainguard/minio:latest
     container_name: sih26161-minio
     restart: unless-stopped
     ports:
@@ -51,7 +51,7 @@ services:
       retries: 5
 
   minio-init:
-    image: minio/mc:latest
+    image: cgr.dev/chainguard/minio-client:latest-dev
     container_name: sih26161-minio-init
     depends_on:
       minio:

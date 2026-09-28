@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import { Mountain, MapPin, Compass, Database, CheckCircle2, Clock } from 'lucide-react'
 import { Panel } from '@/components/common/panel'
 import { CASES, type CaseStudy, type CaseDataset, type DatasetStatus } from '@/lib/case-study'
+import { usePlatform } from '@/lib/platform-store'
 
 export default function CaseStudyPage() {
-  const [selectedCaseId, setSelectedCaseId] = useState<string>('case-tehri-bhagirathi')
-  const activeCase: CaseStudy = CASES.find((c: CaseStudy) => c.id === selectedCaseId) ?? CASES[0]
+  const { activeCaseId, activeCase, setActiveCaseId } = usePlatform()
 
   return (
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
@@ -27,15 +26,15 @@ export default function CaseStudyPage() {
         </div>
 
         {/* Case Switcher Tabs */}
-        <div className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.02] p-1 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-white/8 bg-white/2 p-1 self-start sm:self-auto">
           {CASES.map((cs: CaseStudy) => (
             <button
               key={cs.id}
-              onClick={() => setSelectedCaseId(cs.id)}
+              onClick={() => setActiveCaseId(cs.id)}
               className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
-                cs.id === selectedCaseId
+                cs.id === activeCaseId
                   ? 'bg-white text-black'
-                  : 'text-[#949ba4] hover:text-white hover:bg-white/[0.04]'
+                  : 'text-[#949ba4] hover:text-white hover:bg-white/4'
               }`}
             >
               {cs.name} ({cs.state})
@@ -140,9 +139,9 @@ export default function CaseStudyPage() {
               {activeCase.downstreamTowns.map((town: { name: string; lngLat: [number, number]; chainageKm: number }, idx: number) => (
                 <div
                   key={town.name}
-                  className="glass-panel-subtle flex items-center gap-3.5 rounded-lg px-3.5 py-3 hover:border-white/[0.16] transition-colors"
+                  className="glass-panel-subtle flex items-center gap-3.5 rounded-lg px-3.5 py-3 hover:border-white/16 transition-colors"
                 >
-                  <div className="flex size-7 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.03] text-xs font-mono font-semibold text-white">
+                  <div className="flex size-7 items-center justify-center rounded-full border border-white/8 bg-white/3 text-xs font-mono font-semibold text-white">
                     {idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -168,7 +167,7 @@ export default function CaseStudyPage() {
             <div className="overflow-x-auto pt-1">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-white/[0.08] text-[#949ba4]">
+                  <tr className="border-b border-white/8 text-[#949ba4]">
                     <th className="py-2 text-left font-medium">Dataset</th>
                     <th className="py-2 text-left font-medium">Source</th>
                     <th className="py-2 text-left font-medium">Res</th>
@@ -178,7 +177,7 @@ export default function CaseStudyPage() {
                 </thead>
                 <tbody>
                   {activeCase.datasets.map((ds: CaseDataset) => (
-                    <tr key={ds.id} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+                    <tr key={ds.id} className="border-b border-white/4 hover:bg-white/2 transition-colors">
                       <td className="py-2 font-semibold text-white">{ds.name}</td>
                       <td className="py-2 text-[#949ba4]">{ds.source}</td>
                       <td className="py-2 font-mono text-[#dbdee1]">{ds.resolution}</td>

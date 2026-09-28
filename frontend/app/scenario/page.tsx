@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { HydrographChart } from '@/components/flood/hydrograph-chart'
 import { usePlatform } from '@/lib/platform-store'
-import { TEHRI, CHAMOLI } from '@/lib/case-study'
+import { TEHRI, SARDAR_SAROVAR, BHAKRA, IDUKKI, getCaseById } from '@/lib/case-study'
 import {
   BREACH_BOUNDS,
   MASS_BALANCE_TOLERANCE_PCT,
@@ -38,24 +38,52 @@ const CRISIS_PRESETS = [
     horizonH: 6,
   },
   {
-    id: 'rishiganga-2021',
-    title: 'Rishi Ganga 2021 Debris Blockage',
-    subtitle: '25 km Reach to Tapovan · Rock-Ice Avalanche Lake Outburst (Chamoli)',
-    badge: 'Natural Lake / GLOF',
-    caseId: CHAMOLI.id,
-    type: 'natural_blockage' as ScenarioType,
-    failureMode: 'natural_blockage' as FailureMode,
-    volumeMcm: 12.5,
-    breachHeightM: 35,
-    waterDepthM: 32,
-    manningN: 0.055,
-    horizonH: 4,
+    id: 'sardar-sarovar-pmf',
+    title: 'Sardar Sarovar Overtopping (PMF)',
+    subtitle: '115 km Narmada Reach · 9,500 MCM · Kevadiya to Bharuch Corridor',
+    badge: 'Concrete Gravity',
+    caseId: SARDAR_SAROVAR.id,
+    type: 'dam_break' as ScenarioType,
+    failureMode: 'overtopping' as FailureMode,
+    volumeMcm: 9500,
+    breachHeightM: 155,
+    waterDepthM: 145,
+    manningN: 0.038,
+    horizonH: 8,
+  },
+  {
+    id: 'bhakra-pmf',
+    title: 'Bhakra Dam Canyon Surge (PMF)',
+    subtitle: '90 km Satluj Reach · 9,621 MCM · 226m Head to Nangal & Ropar',
+    badge: 'High-Head Gravity',
+    caseId: BHAKRA.id,
+    type: 'dam_break' as ScenarioType,
+    failureMode: 'overtopping' as FailureMode,
+    volumeMcm: 9621,
+    breachHeightM: 215,
+    waterDepthM: 205,
+    manningN: 0.042,
+    horizonH: 7,
+  },
+  {
+    id: 'idukki-arch-breach',
+    title: 'Idukki Arch Dam Gorge Surge',
+    subtitle: '85 km Periyar Reach · 1,996 MCM · Steep Western Ghats to Aluva',
+    badge: 'Concrete Arch',
+    caseId: IDUKKI.id,
+    type: 'dam_break' as ScenarioType,
+    failureMode: 'overtopping' as FailureMode,
+    volumeMcm: 1996,
+    breachHeightM: 160,
+    waterDepthM: 155,
+    manningN: 0.048,
+    horizonH: 6,
   },
   {
     id: 'tehri-water-release',
     title: 'Emergency Spillway Water Release',
     subtitle: 'Full Reservoir Level (FRL 830m) · 15,300 m³/s Controlled Surge',
-    badge: 'Spillway Water Release',
+    badge: 'Spillway Surge',
     caseId: TEHRI.id,
     type: 'release' as ScenarioType,
     failureMode: 'spillway_release' as FailureMode,
@@ -152,7 +180,7 @@ export default function ScenarioPage() {
         name: `${modeLabel} · Hb=${breachHeightM}m`,
         type: scenarioType,
         demVersion: 'GLO-30 · UTM44N · v1',
-        initialWaterLevelM: selectedCaseId === TEHRI.id ? TEHRI.dam.frlM : 1800,
+        initialWaterLevelM: getCaseById(selectedCaseId).dam.frlM > 0 ? getCaseById(selectedCaseId).dam.frlM : 1800,
         reservoirVolumeM3,
         breachHeightM,
         failureMode,
@@ -195,7 +223,7 @@ export default function ScenarioPage() {
           </span>
           <span className="text-[11px] text-white/50">One-click parameters</span>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {CRISIS_PRESETS.map((preset) => {
             const isCurrent = activePreset === preset.id
             return (
@@ -205,7 +233,7 @@ export default function ScenarioPage() {
                 className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
                   isCurrent
                     ? 'border-white bg-white/10 text-white'
-                    : 'border-white/[0.08] bg-white/[0.02] text-[#949ba4] hover:border-white/[0.18] hover:text-white'
+                    : 'border-white/8 bg-white/2 text-[#949ba4] hover:border-white/18 hover:text-white'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -242,7 +270,7 @@ export default function ScenarioPage() {
                       className={`rounded-lg border px-3 py-2 text-xs font-semibold text-left transition-all cursor-pointer ${
                         failureMode === fm.value
                           ? 'border-white bg-white/10 text-white'
-                          : 'border-white/[0.08] text-[#949ba4] hover:bg-white/[0.04] hover:text-white'
+                          : 'border-white/8 text-[#949ba4] hover:bg-white/4 hover:text-white'
                       }`}
                     >
                       <div>{fm.label}</div>
@@ -336,7 +364,7 @@ export default function ScenarioPage() {
                     className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer transition-all duration-150 ${
                       isSelected
                         ? 'border-white/50 bg-white/10 text-white'
-                        : 'border-white/[0.08] bg-white/[0.02] text-[#949ba4] hover:border-white/[0.16] hover:text-white'
+                        : 'border-white/8 bg-white/2 text-[#949ba4] hover:border-white/16 hover:text-white'
                     }`}
                   >
                     <input
@@ -372,7 +400,7 @@ export default function ScenarioPage() {
 
           <Panel
             title="Breach Outflow Hydrograph Q(t)"
-            className="h-[340px]"
+            className="h-85"
             actions={
               <span className="font-mono text-xs font-medium text-white">
                 Peak {formatDischarge(hydrograph.peakDischargeM3s)}

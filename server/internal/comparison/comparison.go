@@ -89,8 +89,8 @@ func ComputeObservedValidation() ObservedValidationMetrics {
 	csi := tp / (tp + fp + fn)
 
 	return ObservedValidationMetrics{
-		EventName:       "Chamoli 2021 Flash Flood Benchmark",
-		EventDate:       "2021-02-07",
+		EventName:       "Tehri Reservoir High Inflow Benchmark",
+		EventDate:       "2010-09-19",
 		SatelliteSensor: "Sentinel-1 C-SAR GRD (ESA)",
 		TruePositiveKm2: tp,
 		FalsePositiveKm: fp,

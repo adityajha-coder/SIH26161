@@ -112,11 +112,7 @@ func (h *ScenarioHandler) CreateScenario(w http.ResponseWriter, r *http.Request)
 		req.CaseID = req.CaseIDCamel
 	}
 	switch req.CaseID {
-	case "case-tehri-bhagirathi":
-		req.CaseID = "tehri-dam"
-	case "case-chamoli-rishiganga":
-		req.CaseID = "rishiganga-blockage"
-	case "":
+	case "case-tehri-bhagirathi", "":
 		req.CaseID = "tehri-dam"
 	}
 
@@ -155,8 +151,15 @@ func (h *ScenarioHandler) CreateScenario(w http.ResponseWriter, r *http.Request)
 	}
 
 	crestElev := 839.5
-	if req.CaseID == "rishiganga-blockage" {
-		crestElev = req.ReservoirLevelAtFailM + 10.0
+	switch req.CaseID {
+	case "sardar-sarovar-dam":
+		crestElev = 146.5
+	case "bhakra-dam":
+		crestElev = 518.2
+	case "idukki-dam":
+		crestElev = 736.1
+	default:
+		crestElev = 839.5
 	}
 
 	bParams := breach.BreachParams{
