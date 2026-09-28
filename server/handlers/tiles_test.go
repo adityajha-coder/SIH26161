@@ -5,6 +5,9 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -12,6 +15,33 @@ import (
 
 func TestTileHandler(t *testing.T) {
 	h := NewTileHandler(nil)
+	h.projectRoot = t.TempDir()
+
+	writeTestTile := func(t *testing.T, tileType string) {
+		t.Helper()
+		dir := filepath.Join(h.projectRoot, "data", "processed", "tiles", tileType, "10", "735")
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatalf("Failed to create tile directory: %v", err)
+		}
+		png := append([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, []byte("test-tile")...)
+		if err := os.WriteFile(filepath.Join(dir, "422.png"), png, 0o644); err != nil {
+			t.Fatalf("Failed to write test tile: %v", err)
+		}
+	}
+
+	writeTestTile(t, "terrain")
+	writeTestTile(t, "hillshade")
+
+	contoursPath := filepath.Join(h.projectRoot, "data", "processed", "tiles", "contours.geojson")
+	if err := os.MkdirAll(filepath.Dir(contoursPath), 0o755); err != nil {
+		t.Fatalf("Failed to create contours directory: %v", err)
+	}
+	contoursPayload := `{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"elev":"`
+	contoursPayload += strings.Repeat("1200", 400)
+	contoursPayload += `"},"geometry":{"type":"LineString","coordinates":[[78.1,30.2],[78.2,30.3]]}}]}`
+	if err := os.WriteFile(contoursPath, []byte(contoursPayload), 0o644); err != nil {
+		t.Fatalf("Failed to write contours fixture: %v", err)
+	}
 
 	t.Run("ServeTerrainTile", func(t *testing.T) {
 		r := chi.NewRouter()
