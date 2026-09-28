@@ -184,7 +184,6 @@ export default function ScenarioPage() {
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
       <PageHeader
         title="Breach & Water Surge Scenario Engine"
-        description="Unified hydrodynamic scenario generator for structural dam breaks, natural landslide dam blockages (e.g. Rishi Ganga 2021), and emergency reservoir spillway water release."
       />
 
       {/* Preset Quick-Selector */}

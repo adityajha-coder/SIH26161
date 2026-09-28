@@ -84,15 +84,23 @@ func (h *ScenarioHandler) ListScenarios(w http.ResponseWriter, r *http.Request) 
 func (h *ScenarioHandler) CreateScenario(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		CaseID                 string  `json:"case_id"`
+		CaseIDCamel            string  `json:"caseId"`
 		Name                   string  `json:"name"`
 		Description            string  `json:"description"`
 		TriggerType            string  `json:"trigger_type"`
+		FailureMode            string  `json:"failureMode"`
 		BreachFormationTimeHr  float64 `json:"breach_formation_time_hr"`
+		FormationTimeS         float64 `json:"formationTimeS"`
 		FinalBreachWidthM      float64 `json:"final_breach_width_m"`
+		BreachWidthM           float64 `json:"breachWidthM"`
 		FinalBreachDepthM      float64 `json:"final_breach_depth_m"`
+		BreachHeightM          float64 `json:"breachHeightM"`
 		PeakDischargeCumec     float64 `json:"peak_discharge_cumec"`
+		PeakDischargeM3s       float64 `json:"peakDischargeM3s"`
 		ReservoirLevelAtFailM  float64 `json:"reservoir_level_at_failure_m"`
+		InitialWaterLevelM     float64 `json:"initialWaterLevelM"`
 		ReleasedVolumeMCM      float64 `json:"released_volume_mcm"`
+		ReservoirVolumeM3      float64 `json:"reservoirVolumeM3"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -101,13 +109,54 @@ func (h *ScenarioHandler) CreateScenario(w http.ResponseWriter, r *http.Request)
 	}
 
 	if req.CaseID == "" {
+		req.CaseID = req.CaseIDCamel
+	}
+	switch req.CaseID {
+	case "case-tehri-bhagirathi":
 		req.CaseID = "tehri-dam"
+	case "case-chamoli-rishiganga":
+		req.CaseID = "rishiganga-blockage"
+	case "":
+		req.CaseID = "tehri-dam"
+	}
+
+	if req.TriggerType == "" {
+		req.TriggerType = req.FailureMode
+	}
+	if req.TriggerType == "" {
+		req.TriggerType = "overtopping"
+	}
+
+	if req.ReleasedVolumeMCM <= 0 && req.ReservoirVolumeM3 > 0 {
+		req.ReleasedVolumeMCM = req.ReservoirVolumeM3 / 1e6
 	}
 	if req.ReleasedVolumeMCM <= 0 {
 		req.ReleasedVolumeMCM = 2100.0
 	}
+
+	if req.ReservoirLevelAtFailM <= 0 && req.InitialWaterLevelM > 0 {
+		req.ReservoirLevelAtFailM = req.InitialWaterLevelM
+	}
 	if req.ReservoirLevelAtFailM <= 0 {
 		req.ReservoirLevelAtFailM = 830.0
+	}
+
+	if req.FinalBreachWidthM <= 0 && req.BreachWidthM > 0 {
+		req.FinalBreachWidthM = req.BreachWidthM
+	}
+	if req.FinalBreachDepthM <= 0 && req.BreachHeightM > 0 {
+		req.FinalBreachDepthM = req.BreachHeightM
+	}
+	if req.BreachFormationTimeHr <= 0 && req.FormationTimeS > 0 {
+		req.BreachFormationTimeHr = req.FormationTimeS / 3600.0
+	}
+	if req.PeakDischargeCumec <= 0 && req.PeakDischargeM3s > 0 {
+		req.PeakDischargeCumec = req.PeakDischargeM3s
+	}
+
+	crestElev := 839.5
+	if req.CaseID == "rishiganga-blockage" || req.ReservoirLevelAtFailM > 835 {
+		crestElev = req.ReservoirLevelAtFailM + 10.0
 	}
 
 	bParams := breach.BreachParams{
@@ -118,6 +167,7 @@ func (h *ScenarioHandler) CreateScenario(w http.ResponseWriter, r *http.Request)
 		BreachWidthM:        req.FinalBreachWidthM,
 		BreachDepthM:        req.FinalBreachDepthM,
 		FormationTimeHr:     req.BreachFormationTimeHr,
+		DamCrestElevationM:  crestElev,
 		SimulationHorizonHr: 18.0,
 	}
 

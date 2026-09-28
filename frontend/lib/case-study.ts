@@ -41,7 +41,7 @@ export interface CaseStudy {
 }
 
 export const TEHRI: CaseStudy = {
-  id: 'case-tehri-bhagirathi',
+  id: 'tehri-dam',
   name: 'Tehri Dam',
   river: 'Bhagirathi – Ganga',
   state: 'Uttarakhand',
@@ -85,7 +85,7 @@ export const TEHRI: CaseStudy = {
 }
 
 export const CHAMOLI: CaseStudy = {
-  id: 'case-chamoli-rishiganga',
+  id: 'rishiganga-blockage',
   name: 'Rishiganga Blockage',
   river: 'Rishiganga – Dhauliganga',
   state: 'Uttarakhand',

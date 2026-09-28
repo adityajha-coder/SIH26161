@@ -1,41 +1,13 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { GitCompare, ArrowLeftRight } from 'lucide-react'
-import { Panel, PageHeader, StatTile, PreviewNotice, EmptyState } from '@/components/common/panel'
+import { ArrowLeftRight, Check, Waves, Layers } from 'lucide-react'
+import { PageHeader, EmptyState, PreviewNotice } from '@/components/common/panel'
 import { usePlatform } from '@/lib/platform-store'
 import { useFloodResult, SPH_DOMAIN_KM } from '@/lib/use-flood'
 import { SOLVERS, type SolverId } from '@/lib/types'
 import { formatNumber, formatDuration } from '@/lib/format'
 import { cn } from '@/lib/utils'
-
-interface ComparisonMetrics {
-  floodedAreaDiffPct: number
-  maxDepthDiffM: number
-  arrivalTimeDiffS: number
-  reachCoverageRatio: number
-  eulerianAreaKm2: number
-  sphAreaKm2: number
-}
-
-function computeComparison(
-  eulerianResult: { floodedAreaKm2: number; maxArrivalS: number; stations: { peakDepthM: number }[] } | null,
-  sphResult: { floodedAreaKm2: number; maxArrivalS: number; stations: { peakDepthM: number }[] } | null,
-): ComparisonMetrics | null {
-  if (!eulerianResult || !sphResult) return null
-  const eArea = eulerianResult.floodedAreaKm2
-  const sArea = sphResult.floodedAreaKm2
-  const eMaxDepth = Math.max(...eulerianResult.stations.map((s) => s.peakDepthM))
-  const sMaxDepth = Math.max(...sphResult.stations.map((s) => s.peakDepthM))
-  return {
-    floodedAreaDiffPct: eArea > 0 ? ((sArea - eArea) / eArea) * 100 : 0,
-    maxDepthDiffM: sMaxDepth - eMaxDepth,
-    arrivalTimeDiffS: sphResult.maxArrivalS - eulerianResult.maxArrivalS,
-    reachCoverageRatio: SPH_DOMAIN_KM / 105,
-    eulerianAreaKm2: eArea,
-    sphAreaKm2: sArea,
-  }
-}
 
 export default function ComparePage() {
   const { activeScenario, activeRun } = usePlatform()
@@ -45,169 +17,299 @@ export default function ComparePage() {
   const { result: leftResult, isPreview: leftPreview } = useFloodResult(activeScenario, leftSolver, activeRun)
   const { result: rightResult, isPreview: rightPreview } = useFloodResult(activeScenario, rightSolver, activeRun)
 
-  const metrics = useMemo(() => computeComparison(leftResult, rightResult), [leftResult, rightResult])
-
   const solverPairs: SolverId[] = ['delft3d', 'sph']
+
+  // Delta calculations
+  const comparison = useMemo(() => {
+    if (!leftResult || !rightResult) return null
+
+    const leftArea = leftResult.floodedAreaKm2
+    const rightArea = rightResult.floodedAreaKm2
+    const areaDiffPct = leftArea > 0 ? ((rightArea - leftArea) / leftArea) * 100 : 0
+
+    const leftMaxDepth = Math.max(...leftResult.stations.map((s) => s.peakDepthM))
+    const rightMaxDepth = Math.max(...rightResult.stations.map((s) => s.peakDepthM))
+    const depthDiffM = rightMaxDepth - leftMaxDepth
+
+    const arrivalDiffS = rightResult.maxArrivalS - leftResult.maxArrivalS
+
+    // Build unified station comparison rows (sampling evenly along reach)
+    const sampledLeft = leftResult.stations.filter(
+      (_, i) => i % Math.max(1, Math.floor(leftResult.stations.length / 10)) === 0
+    )
+
+    const tableRows = sampledLeft.map((ls) => {
+      const matchRight = rightResult.stations.find(
+        (rs) => Math.abs(rs.chainageKm - ls.chainageKm) < 2.5
+      )
+      return {
+        chainageKm: ls.chainageKm,
+        leftDepth: ls.peakDepthM,
+        leftVelocity: ls.velocityMs,
+        leftArrival: ls.arrivalS,
+        rightDepth: matchRight?.peakDepthM,
+        rightVelocity: matchRight?.velocityMs,
+        rightArrival: matchRight?.arrivalS,
+        depthDiff: matchRight ? matchRight.peakDepthM - ls.peakDepthM : undefined,
+      }
+    })
+
+    return {
+      leftArea,
+      rightArea,
+      areaDiffPct,
+      leftMaxDepth,
+      rightMaxDepth,
+      depthDiffM,
+      arrivalDiffS,
+      tableRows,
+    }
+  }, [leftResult, rightResult])
 
   return (
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
+      {/* Clean Header - No subheadings */}
       <PageHeader
         title="Cross-Solver Validation"
-        description="Hydrodynamic benchmark comparing Eulerian finite-volume (Delft3D FM) against Lagrangian particle hydrodynamics (DualSPHysics)."
+        actions={
+          activeScenario ? (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white/5 border border-white/8 text-white/80">
+              <span className="size-1.5 rounded-full bg-white/70" />
+              {activeScenario.name}
+            </span>
+          ) : undefined
+        }
       />
 
-      {/* Solver Selector */}
-      <div className="glass-panel flex flex-col sm:flex-row items-center gap-4 rounded-xl p-4">
-        <SolverPicker label="Reference" value={leftSolver} options={solverPairs} onChange={setLeftSolver} />
-        <div className="size-8 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center shrink-0">
-          <ArrowLeftRight className="size-4 text-white" />
+      {/* Solver Selectors */}
+      <div className="glass-panel rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4">
+        {/* Left Solver */}
+        <div className="flex-1 w-full">
+          <span className="text-[11px] font-medium text-white/40 block mb-2">Reference Model</span>
+          <div className="grid grid-cols-2 gap-2">
+            {solverPairs.map((id) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setLeftSolver(id)}
+                className={cn(
+                  'px-3.5 py-2.5 rounded-lg border text-left transition-all cursor-pointer',
+                  leftSolver === id
+                    ? 'bg-white/10 border-white/20 text-white'
+                    : 'bg-white/2 border-white/6 text-white/50 hover:bg-white/4 hover:text-white/80'
+                )}
+              >
+                <div className="text-xs font-semibold">{SOLVERS[id].name}</div>
+                <div className="text-[10px] text-white/40 mt-0.5">{SOLVERS[id].kind}</div>
+              </button>
+            ))}
+          </div>
         </div>
-        <SolverPicker label="Comparative" value={rightSolver} options={solverPairs} onChange={setRightSolver} />
+
+        {/* Center Divider Icon */}
+        <div className="size-8 rounded-full bg-white/4 border border-white/8 flex items-center justify-center shrink-0">
+          <ArrowLeftRight className="size-3.5 text-white/60" />
+        </div>
+
+        {/* Right Solver */}
+        <div className="flex-1 w-full">
+          <span className="text-[11px] font-medium text-white/40 block mb-2">Comparative Model</span>
+          <div className="grid grid-cols-2 gap-2">
+            {solverPairs.map((id) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setRightSolver(id)}
+                className={cn(
+                  'px-3.5 py-2.5 rounded-lg border text-left transition-all cursor-pointer',
+                  rightSolver === id
+                    ? 'bg-white/10 border-white/20 text-white'
+                    : 'bg-white/2 border-white/6 text-white/50 hover:bg-white/4 hover:text-white/80'
+                )}
+              >
+                <div className="text-xs font-semibold">{SOLVERS[id].name}</div>
+                <div className="text-[10px] text-white/40 mt-0.5">{SOLVERS[id].kind}</div>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {!metrics ? (
+      {!comparison ? (
         <EmptyState
           title="Awaiting solver execution"
-          description="Both solvers require simulation passes to calculate differential hydrodynamics. Analytical Manning data is active."
+          description="Simulation output required for cross-solver comparison."
         />
       ) : (
         <>
-          {/* Metrics Summary */}
+          {/* Key Delta Metrics */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatTile
-              label="Flooded Area Δ"
-              value={`${metrics.floodedAreaDiffPct >= 0 ? '+' : ''}${metrics.floodedAreaDiffPct.toFixed(1)}%`}
-              tone={Math.abs(metrics.floodedAreaDiffPct) < 15 ? 'success' : 'warning'}
-              hint={`E: ${formatNumber(metrics.eulerianAreaKm2, 1)} km² · S: ${formatNumber(metrics.sphAreaKm2, 1)} km²`}
-            />
-            <StatTile
-              label="Max Depth Δ"
-              value={`${metrics.maxDepthDiffM >= 0 ? '+' : ''}${metrics.maxDepthDiffM.toFixed(2)}`}
-              unit="m"
-              tone={Math.abs(metrics.maxDepthDiffM) < 1 ? 'success' : 'warning'}
-            />
-            <StatTile
-              label="Arrival Time Δ"
-              value={formatDuration(Math.abs(metrics.arrivalTimeDiffS))}
-              tone={Math.abs(metrics.arrivalTimeDiffS) < 600 ? 'success' : 'warning'}
-              hint={metrics.arrivalTimeDiffS > 0 ? 'SPH slower' : 'SPH faster'}
-            />
-            <StatTile
-              label="SPH Reach Extent"
-              value={`${(metrics.reachCoverageRatio * 100).toFixed(0)}%`}
-              hint={`${SPH_DOMAIN_KM} km of 105 km total`}
-            />
+            <div className="glass-panel rounded-xl p-3.5">
+              <span className="text-[11px] font-medium text-white/50">Flooded Footprint Δ</span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-xl font-bold font-mono text-white tabular-nums">
+                  {comparison.areaDiffPct >= 0 ? '+' : ''}
+                  {comparison.areaDiffPct.toFixed(1)}%
+                </span>
+              </div>
+              <div className="mt-1 text-[11px] text-white/40 font-mono">
+                {formatNumber(comparison.leftArea, 1)} vs {formatNumber(comparison.rightArea, 1)} km²
+              </div>
+            </div>
+
+            <div className="glass-panel rounded-xl p-3.5">
+              <span className="text-[11px] font-medium text-white/50">Peak Water Depth Δ</span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-xl font-bold font-mono text-white tabular-nums">
+                  {comparison.depthDiffM >= 0 ? '+' : ''}
+                  {comparison.depthDiffM.toFixed(2)} m
+                </span>
+              </div>
+              <div className="mt-1 text-[11px] text-white/40 font-mono">
+                {comparison.leftMaxDepth.toFixed(1)} vs {comparison.rightMaxDepth.toFixed(1)} m max
+              </div>
+            </div>
+
+            <div className="glass-panel rounded-xl p-3.5">
+              <span className="text-[11px] font-medium text-white/50">Arrival Time Offset</span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-xl font-bold font-mono text-white tabular-nums">
+                  {formatDuration(Math.abs(comparison.arrivalDiffS))}
+                </span>
+              </div>
+              <div className="mt-1 text-[11px] text-white/40 font-mono">
+                {comparison.arrivalDiffS > 0 ? `${SOLVERS[rightSolver].name} lagging` : 'Consistent leading edge'}
+              </div>
+            </div>
+
+            <div className="glass-panel rounded-xl p-3.5">
+              <span className="text-[11px] font-medium text-white/50">SPH Domain Extent</span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="text-xl font-bold font-mono text-white tabular-nums">
+                  {SPH_DOMAIN_KM} km
+                </span>
+                <span className="text-xs text-white/40 font-mono">/ 105 km</span>
+              </div>
+              <div className="mt-1 text-[11px] text-white/40 font-mono">
+                Near-field dam-break reach
+              </div>
+            </div>
           </div>
 
-          {/* Side-by-side station comparison */}
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Panel title={`${SOLVERS[leftSolver].name} — Reach Stations`}>
-              {leftResult ? (
-                <StationTable stations={leftResult.stations} />
-              ) : (
-                <p className="text-xs text-muted-foreground">No data available</p>
-              )}
-            </Panel>
-            <Panel title={`${SOLVERS[rightSolver].name} — Reach Stations`}>
-              {rightResult ? (
-                <StationTable stations={rightResult.stations} />
-              ) : (
-                <p className="text-xs text-muted-foreground">No data available</p>
-              )}
-            </Panel>
+          {/* Unified Station Comparison Table */}
+          <div className="glass-panel rounded-xl overflow-hidden">
+            <div className="p-3.5 border-b border-white/6 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-white" />
+                <span className="text-xs font-semibold text-white">Reach Station Hydrodynamics</span>
+              </div>
+              <div className="flex items-center gap-3 text-[11px] font-mono text-white/40">
+                <span>{SOLVERS[leftSolver].name} (Ref)</span>
+                <span>vs</span>
+                <span>{SOLVERS[rightSolver].name}</span>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-white/6 text-white/40 text-[11px]">
+                    <th className="py-2.5 px-4 text-left font-medium">Chainage</th>
+                    <th className="py-2.5 px-3 text-right font-medium">{SOLVERS[leftSolver].name} Depth</th>
+                    <th className="py-2.5 px-3 text-right font-medium">{SOLVERS[rightSolver].name} Depth</th>
+                    <th className="py-2.5 px-3 text-right font-medium">Depth Δ</th>
+                    <th className="py-2.5 px-3 text-right font-medium">Velocity (Ref)</th>
+                    <th className="py-2.5 px-4 text-right font-medium">Arrival (Ref)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/4">
+                  {comparison.tableRows.map((row, i) => {
+                    const hasRight = row.rightDepth !== undefined
+                    const diff = row.depthDiff ?? 0
+                    return (
+                      <tr key={i} className="hover:bg-white/2 transition-colors font-mono">
+                        <td className="py-2.5 px-4 text-white font-medium">
+                          {row.chainageKm.toFixed(1)} km
+                        </td>
+                        <td className="py-2.5 px-3 text-right text-white">
+                          {row.leftDepth.toFixed(2)} m
+                        </td>
+                        <td className="py-2.5 px-3 text-right text-white">
+                          {hasRight ? `${row.rightDepth!.toFixed(2)} m` : '—'}
+                        </td>
+                        <td className="py-2.5 px-3 text-right">
+                          {hasRight ? (
+                            <span
+                              className={cn(
+                                'text-[11px] font-semibold',
+                                Math.abs(diff) < 0.5 ? 'text-white/60' : diff > 0 ? 'text-amber-400' : 'text-blue-400'
+                              )}
+                            >
+                              {diff >= 0 ? '+' : ''}
+                              {diff.toFixed(2)} m
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-white/30">Past domain</span>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-3 text-right text-white/70">
+                          {row.leftVelocity.toFixed(1)} m/s
+                        </td>
+                        <td className="py-2.5 px-4 text-right text-white/60">
+                          {formatDuration(row.leftArrival)}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          {/* Diagnostics */}
-          <Panel title="Solver Engine Configuration">
-            <dl className="grid grid-cols-2 gap-3 text-xs pt-1 sm:grid-cols-4">
-              <div className="glass-panel-subtle p-3 rounded-lg">
-                <dt className="text-[#949ba4]">Reference Engine</dt>
-                <dd className="mt-1 font-mono text-white font-semibold">{SOLVERS[leftSolver].name} {SOLVERS[leftSolver].version}</dd>
+          {/* Method Specifications */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="glass-panel rounded-xl p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-white">{SOLVERS.delft3d.name}</span>
+                <span className="text-[10px] font-mono text-white/40">{SOLVERS.delft3d.version}</span>
               </div>
-              <div className="glass-panel-subtle p-3 rounded-lg">
-                <dt className="text-[#949ba4]">Comparative Engine</dt>
-                <dd className="mt-1 font-mono text-white font-semibold">{SOLVERS[rightSolver].name} {SOLVERS[rightSolver].version}</dd>
+              <div className="grid grid-cols-2 gap-2 pt-2 text-xs border-t border-white/6">
+                <div>
+                  <span className="text-[10px] text-white/40 block">Formulation</span>
+                  <span className="text-white text-[11px]">Eulerian Shallow Water</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-white/40 block">Domain Scale</span>
+                  <span className="text-white text-[11px]">105 km Valley Basin</span>
+                </div>
               </div>
-              <div className="glass-panel-subtle p-3 rounded-lg">
-                <dt className="text-[#949ba4]">Discretization A</dt>
-                <dd className="mt-1 font-mono text-white font-semibold">{leftResult?.method ?? 'Eulerian Finite Volume'}</dd>
+            </div>
+
+            <div className="glass-panel rounded-xl p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-white">{SOLVERS.sph.name}</span>
+                <span className="text-[10px] font-mono text-white/40">{SOLVERS.sph.version}</span>
               </div>
-              <div className="glass-panel-subtle p-3 rounded-lg">
-                <dt className="text-[#949ba4]">Discretization B</dt>
-                <dd className="mt-1 font-mono text-white font-semibold">{rightResult?.method ?? 'Lagrangian SPH Particles'}</dd>
+              <div className="grid grid-cols-2 gap-2 pt-2 text-xs border-t border-white/6">
+                <div>
+                  <span className="text-[10px] text-white/40 block">Formulation</span>
+                  <span className="text-white text-[11px]">Lagrangian Particle SPH</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-white/40 block">Domain Scale</span>
+                  <span className="text-white text-[11px]">45 km Near-Field Surge</span>
+                </div>
               </div>
-            </dl>
-          </Panel>
+            </div>
+          </div>
         </>
       )}
 
       {(leftPreview || rightPreview) && (
         <PreviewNotice>
-          Comparison uses analytical Manning preview data. Real solver outputs will replace these once API runs complete.
+          Comparison active on Manning hydraulic baseline. Solver output syncs upon simulation completion.
         </PreviewNotice>
       )}
-    </div>
-  )
-}
-
-function SolverPicker({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string
-  value: SolverId
-  options: SolverId[]
-  onChange: (v: SolverId) => void
-}) {
-  return (
-    <div className="flex-1 w-full">
-      <p className="mb-2 text-xs font-semibold text-[#dbdee1]">{label} solver</p>
-      <div className="flex gap-1.5">
-        {options.map((s) => (
-          <button
-            key={s}
-            onClick={() => onChange(s)}
-            className={cn(
-              'flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-all cursor-pointer',
-              value === s
-                ? 'border-white bg-white/10 text-white'
-                : 'border-white/[0.08] bg-white/[0.02] text-[#949ba4] hover:bg-white/[0.05] hover:text-white',
-            )}
-          >
-            {SOLVERS[s].name}
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function StationTable({ stations }: { stations: { chainageKm: number; peakDepthM: number; velocityMs: number; arrivalS: number }[] }) {
-  const sampled = stations.filter((_, i) => i % Math.max(1, Math.floor(stations.length / 12)) === 0)
-  return (
-    <div className="overflow-x-auto pt-1">
-      <table className="w-full text-xs">
-        <thead>
-          <tr className="border-b border-white/[0.06] text-[#949ba4]">
-            <th className="py-2 text-left font-medium">Chainage</th>
-            <th className="py-2 text-right font-medium">Depth</th>
-            <th className="py-2 text-right font-medium">Velocity</th>
-            <th className="py-2 text-right font-medium">Arrival</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sampled.map((s, i) => (
-            <tr key={i} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
-              <td className="py-2 font-mono text-white">{s.chainageKm.toFixed(1)} km</td>
-              <td className="py-2 text-right font-mono text-white">{s.peakDepthM.toFixed(2)} m</td>
-              <td className="py-2 text-right font-mono text-white">{s.velocityMs.toFixed(2)} m/s</td>
-              <td className="py-2 text-right font-mono text-[#949ba4]">{formatDuration(s.arrivalS)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   )
 }

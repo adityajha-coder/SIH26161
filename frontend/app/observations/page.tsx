@@ -2,14 +2,11 @@
 
 import { useState } from 'react'
 import useSWR from 'swr'
-import { Satellite, RefreshCw, Radio, CheckCircle2, AlertCircle, Clock } from 'lucide-react'
-import { Panel, PageHeader } from '@/components/common/panel'
+import { Satellite, RefreshCw, Radio, Check, Clock, Droplets, CloudRain, Waves } from 'lucide-react'
+import { PageHeader, EmptyState } from '@/components/common/panel'
 import { Button } from '@/components/ui/button'
-import { usePlatform } from '@/lib/platform-store'
 import { TEHRI } from '@/lib/case-study'
-import { formatDateTime, relativeAge } from '@/lib/format'
 import { API_BASE_URL } from '@/lib/config'
-import { api } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
 interface ObservationDTO {
@@ -32,7 +29,7 @@ const FALLBACK_OBSERVATIONS: ObservationDTO[] = [
   {
     source_id: 'sentinel-1-grd',
     platform: 'Copernicus Sentinel-1B',
-    sensor: 'C-SAR (VV+VH IW)',
+    sensor: 'C-Band Synthetic Aperture Radar',
     resolution_m: 10,
     scene_id: 'S1B_IW_GRDH_1SDV_20260926T211512',
     acquisition_time: new Date(Date.now() - 14 * 3600 * 1000).toISOString(),
@@ -40,14 +37,14 @@ const FALLBACK_OBSERVATIONS: ObservationDTO[] = [
     data_age_hours: 14.0,
     freshness: 'NOMINAL',
     status: 'VERIFIED',
-    telemetry_value: 'VV/VH Ratio: -14.2 dB (Water mask binarised)',
+    telemetry_value: 'VV/VH Ratio: -14.2 dB · Water Mask Extracted',
     next_pass_eta: 'In 4 days (Descending Orbit 136)',
-    notes: 'Nominal revisit window. Verified against Copernicus 30m DEM.',
+    notes: 'Penetrates cloud cover across Himalayan river gorge',
   },
   {
     source_id: 'gpm-imerg-v07',
-    platform: 'NASA/JAXA GPM Core Observatory',
-    sensor: 'IMERG V07 Early Run',
+    platform: 'NASA / JAXA GPM Observatory',
+    sensor: 'IMERG V07 Precipitation Radar',
     resolution_m: 10000,
     scene_id: '3B-HHR-E.MS.MRG.3IMERG.20260927-S103000',
     acquisition_time: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
@@ -55,9 +52,9 @@ const FALLBACK_OBSERVATIONS: ObservationDTO[] = [
     data_age_hours: 0.8,
     freshness: 'FRESH',
     status: 'VERIFIED',
-    telemetry_value: 'Corridor Peak Rainfall: 4.8 mm/hr (Devprayag gauge)',
+    telemetry_value: 'Corridor Peak: 4.8 mm/hr (Devprayag Gauge)',
     next_pass_eta: 'Continuous 30-min cadence',
-    notes: 'Active precipitation monitoring nominal. Below flood alert threshold.',
+    notes: 'Calibrated with ground gauge stations',
   },
   {
     source_id: 'opera-dswx-s1',
@@ -70,14 +67,14 @@ const FALLBACK_OBSERVATIONS: ObservationDTO[] = [
     data_age_hours: 36.0,
     freshness: 'STALE',
     status: 'VERIFIED',
-    telemetry_value: 'Open Water Surface: 18.4 sq km (Reservoir pool)',
+    telemetry_value: 'Reservoir Surface Area: 18.4 km²',
     next_pass_eta: 'In 36 hours',
-    notes: 'Surface water classification verified against Copernicus 30m DEM.',
+    notes: 'Derived from Sentinel-1 SAR and Copernicus DEM',
   },
   {
     source_id: 'gsmap-operational',
     platform: 'JAXA Global Rainfall Map',
-    sensor: 'GSMaP Microwave-IR',
+    sensor: 'GSMaP Microwave-Infrared',
     resolution_m: 10000,
     scene_id: 'GSMaP_gauge.20260927.0900.v8',
     acquisition_time: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
@@ -85,20 +82,13 @@ const FALLBACK_OBSERVATIONS: ObservationDTO[] = [
     data_age_hours: 2.0,
     freshness: 'FRESH',
     status: 'VERIFIED',
-    telemetry_value: 'Corridor Mean Rainfall: 2.1 mm/hr',
+    telemetry_value: 'Catchment Mean: 2.1 mm/hr',
     next_pass_eta: 'Continuous hourly cadence',
-    notes: 'Hourly satellite microwave precipitation cross-check.',
+    notes: 'Satellite microwave and infrared precipitation blend',
   },
 ]
 
-const FRESHNESS_CONFIG = {
-  FRESH: { label: 'Fresh (< 6h)', color: 'text-[#23a55a]', dot: 'bg-[#23a55a]' },
-  NOMINAL: { label: 'Nominal (< 24h)', color: 'text-white', dot: 'bg-white' },
-  STALE: { label: 'Stale (> 24h)', color: 'text-[#f0b232]', dot: 'bg-[#f0b232]' },
-}
-
 export default function ObservationsPage() {
-  const { mode } = usePlatform()
   const [refreshing, setRefreshing] = useState(false)
 
   const { data, mutate } = useSWR<ObservationDTO[]>(
@@ -111,7 +101,7 @@ export default function ObservationsPage() {
     {
       fallbackData: FALLBACK_OBSERVATIONS,
       refreshInterval: 30000,
-    },
+    }
   )
 
   const observations = data && data.length > 0 ? data : FALLBACK_OBSERVATIONS
@@ -130,135 +120,102 @@ export default function ObservationsPage() {
 
   return (
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
+      {/* Header - No subheadings */}
       <PageHeader
-        title="Near Real-Time Earth Observation (GEE Telemetry)"
-        description="Autonomous remote sensing ingestion pipeline querying Google Earth Engine for Sentinel-1 C-band SAR water masks and NASA GPM IMERG precipitation radar across the Himalayan river catchments."
+        title="Earth Observation Feeds"
         actions={
           <Button
             variant="outline"
             size="sm"
             onClick={handleRefresh}
             disabled={refreshing}
-            className="cursor-pointer"
+            className="cursor-pointer h-8 text-xs bg-white/3 border-white/10 hover:bg-white/8 text-white"
           >
             <RefreshCw className={cn('mr-1.5 size-3.5', refreshing && 'animate-spin')} />
-            {refreshing ? 'Polling Ingestion...' : 'Poll Satellite Feeds'}
+            {refreshing ? 'Checking Feeds...' : 'Refresh Feeds'}
           </Button>
         }
       />
 
-      {/* AOI Context Banner */}
-      <div className="glass-panel rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <p className="text-sm font-bold text-white flex items-center gap-2">
-            <Radio className="size-4 text-white animate-pulse" />
-            {TEHRI.name} & Lower Bhagirathi-Ganga Catchment (105 km)
-          </p>
-          <p className="text-xs text-[#949ba4] font-mono mt-1">
-            Bounding Box: [{TEHRI.bbox.join(', ')}] · Projected CRS: EPSG:32644 (UTM Zone 44N)
-          </p>
-        </div>
-        <div className="flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-3.5 py-1.5 text-xs text-white">
-          <span className="size-2 rounded-full bg-[#23a55a]" />
-          <span className="font-semibold">GEE Service Pipeline Active</span>
+      {/* Catchment Context Banner */}
+      <div className="glass-panel rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-3">
+          <span className="font-semibold text-white">{TEHRI.name} Catchment</span>
+          <span className="text-white/20">·</span>
+          <span className="text-white/50 font-mono text-[11px]">
+            105 km Bhagirathi-Ganga Reach [{TEHRI.bbox.map((b) => b.toFixed(2)).join(', ')}]
+          </span>
         </div>
       </div>
 
-      {/* Observation Cards */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      {/* 4 Essential Sensor Feeds */}
+      <div className="grid gap-3.5 sm:grid-cols-2">
         {observations.map((src) => {
-          const cfg = FRESHNESS_CONFIG[src.freshness] ?? FRESHNESS_CONFIG.NOMINAL
+          const isFresh = src.freshness === 'FRESH'
+          const isStale = src.freshness === 'STALE'
+
           return (
-            <Panel key={src.source_id} title={src.platform}>
-              <div className="space-y-3 pt-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className={cn('size-2 rounded-full', cfg.dot)} />
-                    <span className={cn('text-xs font-semibold', cfg.color)}>{cfg.label}</span>
+            <div
+              key={src.source_id}
+              className="glass-panel rounded-xl p-4 flex flex-col justify-between hover:border-white/[0.14] transition-colors"
+            >
+              {/* Card Header */}
+              <div>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="text-sm font-semibold text-white">{src.platform}</h3>
+                    <p className="text-xs text-white/50 mt-0.5">{src.sensor}</p>
                   </div>
-                  <span className="font-mono text-[11px] text-white/60 font-semibold px-2 py-0.5 rounded bg-white/[0.06]">
-                    {src.sensor}
+                  <span
+                    className={cn(
+                      'px-2 py-0.5 rounded-full text-[10px] font-medium border tabular-nums',
+                      isFresh && 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+                      isStale && 'bg-amber-500/10 border-amber-500/20 text-amber-400',
+                      !isFresh && !isStale && 'bg-white/5 border-white/8 text-white/70'
+                    )}
+                  >
+                    {src.data_age_hours < 1 ? '< 1h ago' : `${src.data_age_hours.toFixed(0)}h ago`}
                   </span>
                 </div>
 
-                {/* Telemetry Highlight Banner */}
-                <div className="glass-panel-subtle rounded-lg p-3 border border-white/[0.08]">
-                  <div className="text-[11px] text-[#949ba4] font-medium">Real-Time Sensor Telemetry</div>
-                  <div className="text-xs font-bold text-white font-mono mt-1">
+                {/* Main Measurement Callout */}
+                <div className="mt-3 p-3 rounded-lg bg-white/2 border border-white/5">
+                  <span className="text-[10px] font-medium text-white/40 uppercase tracking-wider block">
+                    Current Reading
+                  </span>
+                  <span className="text-xs font-semibold text-white font-mono block mt-1">
                     {src.telemetry_value}
-                  </div>
+                  </span>
+                </div>
+              </div>
+
+              {/* Specifications Grid */}
+              <div className="grid grid-cols-2 gap-2 text-xs pt-3 mt-3 border-t border-white/5">
+                <div>
+                  <span className="text-[10px] text-white/40 block">Resolution</span>
+                  <span className="font-mono text-white text-[11px] font-medium">
+                    {src.resolution_m >= 1000 ? `${(src.resolution_m / 1000).toFixed(0)} km` : `${src.resolution_m} m`}
+                  </span>
                 </div>
 
-                <dl className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="glass-panel-subtle p-2.5 rounded-lg">
-                    <dt className="text-[#949ba4]">Scene Granule</dt>
-                    <dd className="font-mono text-white mt-0.5 truncate text-[11px]" title={src.scene_id}>
-                      {src.scene_id}
-                    </dd>
-                  </div>
-                  <div className="glass-panel-subtle p-2.5 rounded-lg">
-                    <dt className="text-[#949ba4]">Spatial Resolution</dt>
-                    <dd className="font-mono text-white mt-0.5 font-semibold text-[11px]">
-                      {src.resolution_m >= 1000 ? `${(src.resolution_m / 1000).toFixed(0)} km` : `${src.resolution_m} m`}
-                    </dd>
-                  </div>
-                  <div className="glass-panel-subtle p-2.5 rounded-lg">
-                    <dt className="text-[#949ba4]">Data Age</dt>
-                    <dd className="font-mono text-white mt-0.5 text-[11px]">
-                      {src.data_age_hours.toFixed(1)} hours ago
-                    </dd>
-                  </div>
-                  <div className="glass-panel-subtle p-2.5 rounded-lg">
-                    <dt className="text-[#949ba4]">Next Pass Cadence</dt>
-                    <dd className="font-mono text-white mt-0.5 text-[11px]">
-                      {src.next_pass_eta}
-                    </dd>
-                  </div>
-                  <div className="glass-panel-subtle p-2.5 rounded-lg col-span-2">
-                    <dt className="text-[#949ba4]">Observation Provenance</dt>
-                    <dd className="font-mono text-white/80 mt-0.5 text-[11px]">
-                      {src.notes}
-                    </dd>
-                  </div>
-                </dl>
+                <div>
+                  <span className="text-[10px] text-white/40 block">Next Orbit / Pass</span>
+                  <span className="font-mono text-white/80 text-[11px]">
+                    {src.next_pass_eta}
+                  </span>
+                </div>
+
+                <div className="col-span-2 pt-1">
+                  <span className="text-[10px] text-white/40 block">Scene Reference</span>
+                  <span className="font-mono text-white/50 text-[10px] truncate block" title={src.scene_id}>
+                    {src.scene_id}
+                  </span>
+                </div>
               </div>
-            </Panel>
+            </div>
           )
         })}
       </div>
-
-      {/* Verification Legend */}
-      <Panel title="Google Earth Engine Ingestion Standards">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
-          <div className="glass-panel-subtle p-3 rounded-lg flex items-start gap-2.5">
-            <CheckCircle2 className="size-4 text-[#23a55a] shrink-0 mt-0.5" />
-            <div>
-              <div className="font-semibold text-white">Copernicus Sentinel-1 SAR</div>
-              <div className="text-[11px] text-[#949ba4] mt-0.5">
-                C-band synthetic aperture radar penetrates cloud cover; binarizes specular water surface reflectivity across Himalayan gorges.
-              </div>
-            </div>
-          </div>
-          <div className="glass-panel-subtle p-3 rounded-lg flex items-start gap-2.5">
-            <CheckCircle2 className="size-4 text-white shrink-0 mt-0.5" />
-            <div>
-              <div className="font-semibold text-white">NASA GPM IMERG V07</div>
-              <div className="text-[11px] text-[#949ba4] mt-0.5">
-                Multi-satellite precipitation calibrated with ground gauge stations at 30-minute intervals for flash flood triggering.
-              </div>
-            </div>
-          </div>
-          <div className="glass-panel-subtle p-3 rounded-lg flex items-start gap-2.5">
-            <CheckCircle2 className="size-4 text-[#23a55a] shrink-0 mt-0.5" />
-            <div>
-              <div className="font-semibold text-white">NASA JPL / OPERA DSWx</div>
-              <div className="text-[11px] text-[#949ba4] mt-0.5">
-                Operational Dynamic Surface Water Extent derived from optical and SAR imagery at 30m resolution for baseline reservoir surface mapping.
-              </div>
-            </div>
-          </div>
-        </div>
-      </Panel>
     </div>
   )
 }

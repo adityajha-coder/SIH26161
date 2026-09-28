@@ -29,7 +29,7 @@ export function TerrainViews({ value, onChange }: { value: BaseMode; onChange: (
               'relative min-h-28 overflow-hidden rounded-lg border transition-all duration-200 cursor-pointer',
               active
                 ? 'border-white ring-1 ring-white/60'
-                : 'border-white/[0.08] hover:border-white/[0.2]',
+                : 'border-white/8 hover:border-white/20',
             )}
           >
             <MapView

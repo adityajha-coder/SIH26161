@@ -54,7 +54,6 @@ export default function ExportsPage() {
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
       <PageHeader
         title="GIS & Hydrological Exports"
-        description="Download geospatial simulation bundles in standard GIS formats (.shp ZIP, .kml, .geojson). Every package embeds CRS projection, solver provenance, and Froehlich parameter records."
       />
 
       {/* Run Context */}
@@ -92,7 +91,7 @@ export default function ExportsPage() {
           return (
             <Panel key={fmt.id}>
               <div className="flex gap-4">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-white">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-white/8 bg-white/3 text-white">
                   <Icon className="size-5" />
                 </div>
                 <div className="min-w-0 flex-1">

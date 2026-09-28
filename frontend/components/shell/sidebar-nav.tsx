@@ -43,7 +43,7 @@ export function SidebarNav() {
                 'flex size-10 items-center justify-center rounded-xl transition-all duration-200 cursor-pointer',
                 active
                   ? 'bg-white text-black'
-                  : 'text-white/60 hover:text-white hover:bg-white/[0.08]'
+                  : 'text-white/60 hover:text-white hover:bg-white/8'
               )}
             >
               <Icon className="size-4.5" />

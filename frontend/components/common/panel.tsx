@@ -18,7 +18,7 @@ export function Panel({
   return (
     <Tag className={cn('glass-panel flex min-h-0 flex-col rounded-xl overflow-hidden', className)} suppressHydrationWarning>
       {(title || actions) && (
-        <header className="flex items-center justify-between gap-3 px-4 pt-3.5 pb-2.5 border-b border-white/[0.05]">
+        <header className="flex items-center justify-between gap-3 px-4 pt-3.5 pb-2.5 border-b border-white/5">
           {title && (
             <div className="flex items-center gap-2">
               <span className="size-1.5 rounded-full bg-white" aria-hidden="true" />
@@ -47,7 +47,7 @@ export function StatTile({
   hint?: string
 }) {
   return (
-    <div className="glass-panel-subtle rounded-xl p-3.5 transition-colors hover:border-white/[0.12]" suppressHydrationWarning>
+    <div className="glass-panel-subtle rounded-xl p-3.5 transition-colors hover:border-white/12" suppressHydrationWarning>
       <p className="text-xs font-semibold text-white/90">{label}</p>
       <p
         className={cn(
@@ -104,7 +104,7 @@ export function PreviewNotice({ className, children }: { className?: string; chi
 
 export function EmptyState({ title, description, action }: { title: string; description?: string; action?: React.ReactNode }) {
   return (
-    <div className="glass-panel-subtle flex h-full min-h-48 flex-col items-center justify-center gap-2.5 rounded-xl border-dashed border-white/[0.1] p-8 text-center">
+    <div className="glass-panel-subtle flex h-full min-h-48 flex-col items-center justify-center gap-2.5 rounded-xl border-dashed border-white/10 p-8 text-center">
       <p className="text-sm font-semibold text-foreground">{title}</p>
       {description && <p className="max-w-sm text-xs text-muted-foreground text-pretty leading-relaxed">{description}</p>}
       {action && <div className="mt-2">{action}</div>}

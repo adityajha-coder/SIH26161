@@ -282,10 +282,14 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
   const createScenario = useCallback(
     async (input: ScenarioInput) => {
       if (mode === 'api') {
-        const s = await api.createScenario(input)
-        await remoteScenarios.mutate()
-        setActiveScenarioId(s.id)
-        return s
+        try {
+          const s = await api.createScenario(input)
+          await remoteScenarios.mutate()
+          setActiveScenarioId(s.id)
+          return s
+        } catch (err) {
+          console.warn('Backend createScenario failed, falling back to local runner:', err)
+        }
       }
       const s: Scenario = { ...input, id: `scn-${Date.now().toString(36)}`, createdAt: now() }
       setLocalScenarios((prev) => [s, ...prev])

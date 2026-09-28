@@ -33,7 +33,7 @@ export function SimulationView({
   const is3d = layers.terrain3d || base === 'terrain'
   const legend = layers.arrivalTime ? 'arrival' : layers.floodVelocity ? 'velocity' : layers.floodDepth ? 'depth' : null
   return (
-    <div className={cn('relative overflow-hidden rounded-xl min-h-[380px] w-full', className)}>
+    <div className={cn('relative overflow-hidden rounded-xl min-h-95 w-full', className)}>
       <MapView
         base={base}
         layers={layers}
@@ -56,7 +56,7 @@ export function SimulationView({
             </p>
             <p className="text-[10px] text-white/50">{title}</p>
           </div>
-          {legend && <RampLegend kind={legend} className="pointer-events-none absolute bottom-8 left-2 w-48 !bg-black/70 !backdrop-blur-xl" />}
+          {legend && <RampLegend kind={legend} className="pointer-events-none absolute bottom-8 left-2 w-48 bg-black/70! backdrop-blur-xl!" />}
         </>
       )}
     </div>

@@ -18,14 +18,14 @@ export function TopBar({
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.08] bg-[#0C0C0C]/85 backdrop-blur-md px-4 lg:px-6">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/8 bg-[#0C0C0C]/85 backdrop-blur-md px-4 lg:px-6">
       <div className="flex items-center gap-3 min-w-0">
         {/* Mobile menu trigger */}
         <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden text-white hover:bg-white/[0.08]" aria-label="Open navigation" />}>
+          <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden text-white hover:bg-white/8" aria-label="Open navigation" />}>
             <Menu className="size-5" />
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 bg-[#080808] p-0 border-r border-white/[0.08]">
+          <SheetContent side="left" className="w-64 bg-[#080808] p-0 border-r border-white/8">
             <SheetTitle className="sr-only">Navigation</SheetTitle>
             <SidebarNav />
           </SheetContent>
@@ -37,7 +37,7 @@ export function TopBar({
             type="button"
             onClick={onToggleSidebar}
             title="Show sidebar"
-            className="hidden lg:flex size-8 items-center justify-center rounded-lg text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
+            className="hidden lg:flex size-8 items-center justify-center rounded-lg text-white hover:bg-white/8 transition-colors cursor-pointer"
           >
             <PanelLeft className="size-4.5" />
           </button>

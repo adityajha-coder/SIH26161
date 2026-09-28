@@ -48,7 +48,7 @@ export function TimeControls({
           onClick={onReset}
           title="Rewind to breach start (00:00:00)"
           aria-label="Reset to breach time"
-          className="size-8 shrink-0 text-white/80 hover:bg-white/[0.08] hover:text-white cursor-pointer"
+          className="size-8 shrink-0 text-white/80 hover:bg-white/8 hover:text-white cursor-pointer"
         >
           <RotateCcw className="size-3.5" />
         </Button>
@@ -74,7 +74,7 @@ export function TimeControls({
 
       {/* Playback Speed Selector */}
       {onSpeedChange && speed !== undefined && (
-        <div className="hidden shrink-0 items-center rounded-lg border border-white/[0.08] bg-white/[0.03] p-0.5 sm:flex" role="group" aria-label="Playback speed">
+        <div className="hidden shrink-0 items-center rounded-lg border border-white/8 bg-white/3 p-0.5 sm:flex" role="group" aria-label="Playback speed">
           {PLAYBACK_SPEEDS.map((s) => (
             <button
               key={s}

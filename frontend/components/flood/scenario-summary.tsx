@@ -22,7 +22,7 @@ export function ScenarioSummary({ scenario, className }: { scenario: Scenario; c
   return (
     <dl className={cn('grid grid-cols-1 gap-x-6 text-xs sm:grid-cols-2', className)}>
       {rows.map(([k, v]) => (
-        <div key={k} className="flex items-baseline justify-between gap-3 border-b border-white/[0.05] py-2">
+        <div key={k} className="flex items-baseline justify-between gap-3 border-b border-white/5 py-2">
           <dt className="text-[#949ba4]">{k}</dt>
           <dd className="text-right font-mono tabular-nums text-white font-medium">{v}</dd>
         </div>

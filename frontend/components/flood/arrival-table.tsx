@@ -29,7 +29,7 @@ export function ArrivalTable({ result }: { result: FloodResult | null }) {
       <table className="w-full text-xs">
         <caption className="sr-only">Flood wave arrival at downstream towns</caption>
         <thead className="text-left text-xs text-[#949ba4]">
-          <tr className="border-b border-white/[0.08]">
+          <tr className="border-b border-white/8">
             <th className="py-2 text-left font-medium">Town</th>
             <th className="py-2 text-right font-medium">Chainage</th>
             <th className="py-2 text-right font-medium">Arrival</th>
@@ -39,7 +39,7 @@ export function ArrivalTable({ result }: { result: FloodResult | null }) {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.town} className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors">
+            <tr key={r.town} className="border-b border-white/4 hover:bg-white/2 transition-colors">
               <td className="py-2 text-white font-medium">{r.town}</td>
               <td className="py-2 text-right font-mono tabular-nums text-[#949ba4]">{formatNumber(r.chainageKm, 1)} km</td>
               <td className="py-2 text-right font-mono tabular-nums text-[#dbdee1]">{r.station ? formatClock(r.station.arrivalS) : 'outside domain'}</td>

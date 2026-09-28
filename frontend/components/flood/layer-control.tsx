@@ -54,7 +54,7 @@ export function LayerControl({
             <li key={item.key}>
               <label
                 htmlFor={id}
-                className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs text-white hover:bg-white/[0.06] transition-colors has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-40"
+                className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-xs text-white hover:bg-white/6 transition-colors has-disabled:cursor-not-allowed has-disabled:opacity-40"
               >
                 <Checkbox
                   id={id}
@@ -72,7 +72,7 @@ export function LayerControl({
         })}
       </ul>
 
-      <div className="mt-auto space-y-4 border-t border-white/[0.08] pt-3.5">
+      <div className="mt-auto space-y-4 border-t border-white/8 pt-3.5">
         <div>
           <div className="mb-2 flex items-center justify-between text-xs">
             <span className="text-white font-medium">Terrain Exaggeration</span>
