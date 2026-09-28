@@ -437,8 +437,8 @@ export default function ObservationsPage() {
                   className={cn(
                     'transition-colors cursor-pointer',
                     isSelected
-                      ? 'bg-white/[0.08] text-white'
-                      : 'hover:bg-white/[0.03] text-white/80'
+                      ? 'bg-white/8 text-white'
+                      : 'hover:bg-white/3 text-white/80'
                   )}
                 >
                   <td className="py-3 pl-4 sm:pl-5 pr-3 whitespace-nowrap">
@@ -457,7 +457,7 @@ export default function ObservationsPage() {
                   </td>
                   <td className="py-3 px-3 font-mono text-white/90 text-xs">
                     <div
-                      className="max-w-[130px] sm:max-w-[190px] xl:max-w-[240px] truncate"
+                      className="max-w-32.5 sm:max-w-47.5 xl:max-w-60 truncate"
                       title={
                         obs.id === 'sentinel-1-grd'
                           ? `Scene: ${obs.sceneId}`
@@ -656,7 +656,7 @@ export default function ObservationsPage() {
                   sizes="(max-width: 768px) 100vw, 420px"
                   priority
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3 flex items-center justify-between">
+                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 via-black/35 to-transparent p-3 flex items-center justify-between">
                   <span className="text-xs font-semibold text-white drop-shadow-md">
                     {activeCase.dam.name}
                   </span>
@@ -742,7 +742,7 @@ export default function ObservationsPage() {
                 <div className="flex items-start justify-between py-1">
                   <span className="text-white/40 text-[11px]">Scene ID</span>
                   <span
-                    className="text-white font-mono text-[11px] text-right max-w-[200px] truncate"
+                    className="text-white font-mono text-[11px] text-right max-w-50 truncate"
                     title={selectedObs.sceneId}
                   >
                     {selectedObs.sceneId}

@@ -92,7 +92,7 @@ export default function RunsPage() {
                   'w-full text-left rounded-xl border p-4 transition-all duration-150 cursor-pointer',
                   run.id === activeRun?.id
                     ? 'border-white/40 bg-white/10 ring-1 ring-white/20'
-                    : 'glass-panel hover:border-white/[0.16] hover:bg-white/[0.04]',
+                    : 'glass-panel hover:border-white/16 hover:bg-white/4',
                 )}
               >
                 <div className="flex items-center justify-between">
@@ -107,7 +107,7 @@ export default function RunsPage() {
                   </span>
                 </div>
                 <div className="mt-3">
-                  <Progress value={run.progress} className="h-1.5 bg-white/[0.06]" />
+                  <Progress value={run.progress} className="h-1.5 bg-white/6" />
                 </div>
                 <div className="mt-2 flex items-center justify-between text-xs text-[#949ba4] font-mono">
                   <span>{SOLVERS[run.solver].kind} · {SOLVERS[run.solver].version}</span>
@@ -135,14 +135,14 @@ export default function RunsPage() {
                             'flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-xs transition-colors',
                             isPast && 'text-[#23a55a] bg-[#23a55a]/5',
                             isCurrent && 'bg-white/15 text-white font-semibold border-l-2 border-white',
-                            !isPast && !isCurrent && 'text-[#949ba4] bg-white/[0.02]',
+                            !isPast && !isCurrent && 'text-[#949ba4] bg-white/2',
                           )}
                         >
                           <span className={cn(
                             'flex size-5 items-center justify-center rounded-full border text-[10px] font-mono',
                             isPast && 'border-[#23a55a] bg-[#23a55a]/20 text-[#23a55a]',
                             isCurrent && 'border-white bg-white text-black',
-                            !isPast && !isCurrent && 'border-white/[0.1] text-[#949ba4]',
+                            !isPast && !isCurrent && 'border-white/10 text-[#949ba4]',
                           )}>
                             {isPast ? '✓' : i + 1}
                           </span>
@@ -185,13 +185,13 @@ export default function RunsPage() {
                   </dl>
                 </Panel>
 
-                <Panel title="Execution Log" className="h-[260px]" bodyClassName="p-0">
+                <Panel title="Execution Log" className="h-65" bodyClassName="p-0">
                   <div className="h-full overflow-y-auto bg-[#080808] p-3.5 font-mono text-[11px] leading-relaxed">
                     {activeRun.logs.length === 0 ? (
                       <p className="text-[#949ba4]">No log entries recorded yet.</p>
                     ) : (
                       activeRun.logs.map((entry, i) => (
-                        <div key={i} className="flex gap-2.5 py-0.5 hover:bg-white/[0.02] px-1 rounded">
+                        <div key={i} className="flex gap-2.5 py-0.5 hover:bg-white/2 px-1 rounded">
                           <span className="shrink-0 text-[#949ba4]">{new Date(entry.at).toLocaleTimeString('en-IN', { hour12: false })}</span>
                           <span className={cn(
                             'shrink-0 font-semibold w-12',

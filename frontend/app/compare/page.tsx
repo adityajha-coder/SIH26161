@@ -455,7 +455,7 @@ export default function ComparePage() {
                     <span className="size-2 rounded-full bg-amber-400" />
                     <span className="text-white/80">{SOLVERS[rightSolver].name}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-white/40 hidden md:flex">
+                  <div className="hidden md:flex items-center gap-1.5 text-white/40">
                     <span className="border-t border-dashed border-white/40 w-4 inline-block" />
                     <span>SPH Boundary</span>
                   </div>

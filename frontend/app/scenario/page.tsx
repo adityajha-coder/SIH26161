@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SlidersHorizontal, AlertTriangle, CheckCircle2, Play, Sparkles, Mountain, Waves, ShieldAlert } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Play } from 'lucide-react'
 import { Panel, PageHeader, StatTile, PreviewNotice } from '@/components/common/panel'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,15 +19,14 @@ import {
   type FailureMode,
 } from '@/lib/breach'
 import { formatDischarge, formatDuration, formatNumber, formatVolumeMcm } from '@/lib/format'
-import { useScenarioHydrographs } from '@/lib/use-hydrograph'
 import type { SolverId, ScenarioType } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
-const CRISIS_PRESETS = [
+const PRESETS = [
   {
     id: 'tehri-overtopping',
-    title: 'Tehri Dam Overtopping (PMF)',
-    subtitle: '105 km Bhagirathi Reach · 3,540 MCM · Extreme Wave Surge',
-    badge: 'Structural Dam Break',
+    label: 'Tehri Dam',
+    tag: 'Dam Break',
     caseId: TEHRI.id,
     type: 'dam_break' as ScenarioType,
     failureMode: 'overtopping' as FailureMode,
@@ -39,9 +38,8 @@ const CRISIS_PRESETS = [
   },
   {
     id: 'sardar-sarovar-pmf',
-    title: 'Sardar Sarovar Overtopping (PMF)',
-    subtitle: '115 km Narmada Reach · 9,500 MCM · Kevadiya to Bharuch Corridor',
-    badge: 'Concrete Gravity',
+    label: 'Sardar Sarovar',
+    tag: 'Concrete Gravity',
     caseId: SARDAR_SAROVAR.id,
     type: 'dam_break' as ScenarioType,
     failureMode: 'overtopping' as FailureMode,
@@ -53,9 +51,8 @@ const CRISIS_PRESETS = [
   },
   {
     id: 'bhakra-pmf',
-    title: 'Bhakra Dam Canyon Surge (PMF)',
-    subtitle: '90 km Satluj Reach · 9,621 MCM · 226m Head to Nangal & Ropar',
-    badge: 'High-Head Gravity',
+    label: 'Bhakra Dam',
+    tag: 'High-Head Gravity',
     caseId: BHAKRA.id,
     type: 'dam_break' as ScenarioType,
     failureMode: 'overtopping' as FailureMode,
@@ -67,9 +64,8 @@ const CRISIS_PRESETS = [
   },
   {
     id: 'idukki-arch-breach',
-    title: 'Idukki Arch Dam Gorge Surge',
-    subtitle: '85 km Periyar Reach · 1,996 MCM · Steep Western Ghats to Aluva',
-    badge: 'Concrete Arch',
+    label: 'Idukki Dam',
+    tag: 'Concrete Arch',
     caseId: IDUKKI.id,
     type: 'dam_break' as ScenarioType,
     failureMode: 'overtopping' as FailureMode,
@@ -81,9 +77,8 @@ const CRISIS_PRESETS = [
   },
   {
     id: 'tehri-water-release',
-    title: 'Emergency Spillway Water Release',
-    subtitle: 'Full Reservoir Level (FRL 830m) · 15,300 m³/s Controlled Surge',
-    badge: 'Spillway Surge',
+    label: 'Spillway Release',
+    tag: 'Controlled Surge',
     caseId: TEHRI.id,
     type: 'release' as ScenarioType,
     failureMode: 'spillway_release' as FailureMode,
@@ -106,19 +101,19 @@ const SOLVER_OPTIONS: { id: SolverId; label: string; desc: string }[] = [
   {
     id: 'delft3d',
     label: 'Delft3D FM (Eulerian SWE)',
-    desc: 'Unstructured grid 2D shallow water equations for 105 km downstream corridor',
+    desc: '2D shallow water equations on unstructured grid',
   },
   {
     id: 'sph',
     label: 'DualSPHysics (Lagrangian SPH)',
-    desc: 'Meshless 3D particle hydrodynamics for near-field violent canyon turbulence',
+    desc: 'Meshless 3D particle hydrodynamics',
   },
 ]
+
 
 export default function ScenarioPage() {
   const { activeScenario, createScenario, submitRuns } = usePlatform()
   const router = useRouter()
-  const hydro = useScenarioHydrographs(activeScenario)
 
   const [activePreset, setActivePreset] = useState<string>('tehri-overtopping')
   const [selectedCaseId, setSelectedCaseId] = useState<string>(TEHRI.id)
@@ -132,7 +127,7 @@ export default function ScenarioPage() {
   const [selectedSolvers, setSelectedSolvers] = useState<SolverId[]>(['delft3d', 'sph'])
   const [submitting, setSubmitting] = useState(false)
 
-  const applyPreset = (preset: typeof CRISIS_PRESETS[0]) => {
+  const applyPreset = (preset: typeof PRESETS[0]) => {
     setActivePreset(preset.id)
     setSelectedCaseId(preset.caseId)
     setScenarioType(preset.type)
@@ -161,6 +156,8 @@ export default function ScenarioPage() {
     setSelectedSolvers((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
     )
+
+  const markCustom = () => setActivePreset('custom')
 
   const handleSubmit = useCallback(async () => {
     if (selectedSolvers.length === 0) return
@@ -210,162 +207,108 @@ export default function ScenarioPage() {
 
   return (
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
-      <PageHeader
-        title="Breach & Water Surge Scenario Engine"
-      />
+      <PageHeader title="Scenario Engine" />
 
-      {/* Preset Quick-Selector */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-white/80 flex items-center gap-1.5">
-            <Sparkles className="size-3.5 text-white" />
-            Calibrated Disaster Scenarios (Problem Statement Presets)
-          </span>
-          <span className="text-[11px] text-white/50">One-click parameters</span>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {CRISIS_PRESETS.map((preset) => {
-            const isCurrent = activePreset === preset.id
-            return (
-              <button
-                key={preset.id}
-                onClick={() => applyPreset(preset)}
-                className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
-                  isCurrent
-                    ? 'border-white bg-white/10 text-white'
-                    : 'border-white/8 bg-white/2 text-[#949ba4] hover:border-white/18 hover:text-white'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-white truncate">{preset.title}</span>
-                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-white/10 text-white shrink-0">
-                    {preset.badge}
-                  </span>
-                </div>
-                <p className="text-[11px] text-white/60 mt-1 leading-snug">{preset.subtitle}</p>
-              </button>
-            )
-          })}
-        </div>
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        {PRESETS.map((p) => {
+          const active = activePreset === p.id
+          return (
+            <button
+              key={p.id}
+              onClick={() => applyPreset(p)}
+              className={cn(
+                'shrink-0 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer',
+                active
+                  ? 'border-white bg-white/10 text-white'
+                  : 'border-white/8 text-[#949ba4] hover:border-white/18 hover:text-white',
+              )}
+            >
+              <span className="text-white">{p.label}</span>
+              <span className="ml-1.5 text-[10px] font-mono text-white/50">{p.tag}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile label="Peak Outflow" value={formatNumber(Math.round(hydrograph.peakDischargeM3s))} unit="m³/s" tone="danger" />
+        <StatTile label="Breach Width" value={formatNumber(Math.round(params.avgWidthM))} unit="m" />
+        <StatTile label="Formation Time" value={formatDuration(params.formationTimeS)} />
+        <StatTile
+          label="Mass Balance"
+          value={`${hydrograph.massBalanceErrorPct.toFixed(3)}%`}
+          tone={massBalanceOk ? 'success' : 'danger'}
+          hint={massBalanceOk ? 'Balanced' : `Exceeds ±${MASS_BALANCE_TOLERANCE_PCT}%`}
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-12">
-        {/* Left: Form */}
+
+        {/* Left: Parameters */}
         <div className="lg:col-span-5 space-y-4">
-          <Panel title="Hazard & Breach Parameters">
-            <div className="space-y-4 pt-1">
-              <div>
-                <Label className="text-xs font-medium text-[#dbdee1]">Failure / Inundation Mode</Label>
-                <div className="mt-1.5 grid grid-cols-2 gap-1.5">
-                  {FAILURE_MODES.map((fm) => (
-                    <button
-                      key={fm.value}
-                      onClick={() => {
-                        setFailureMode(fm.value)
-                        setActivePreset('custom')
-                        if (fm.value === 'natural_blockage') setScenarioType('natural_blockage')
-                        else if (fm.value === 'spillway_release') setScenarioType('release')
-                        else setScenarioType('dam_break')
-                      }}
-                      className={`rounded-lg border px-3 py-2 text-xs font-semibold text-left transition-all cursor-pointer ${
-                        failureMode === fm.value
-                          ? 'border-white bg-white/10 text-white'
-                          : 'border-white/8 text-[#949ba4] hover:bg-white/4 hover:text-white'
-                      }`}
-                    >
-                      <div>{fm.label}</div>
-                      <div className="text-[10px] text-white/50 font-normal">{fm.tag}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
 
-              <FieldRow
-                label="Reservoir / Impounded Storage"
-                unit="MCM"
-                hint={`${BREACH_BOUNDS.reservoirVolumeM3.min / 1e6}–${BREACH_BOUNDS.reservoirVolumeM3.max / 1e6} MCM`}
-              >
-                <Input
-                  type="number"
-                  value={Math.round(reservoirVolumeM3 / 1e6)}
-                  onChange={(e) => {
-                    setReservoirVolumeM3(Number(e.target.value) * 1e6)
-                    setActivePreset('custom')
+          {/* Failure Mode */}
+          <Panel title="Failure Mode">
+            <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+              {FAILURE_MODES.map((fm) => (
+                <button
+                  key={fm.value}
+                  onClick={() => {
+                    setFailureMode(fm.value)
+                    markCustom()
+                    if (fm.value === 'natural_blockage') setScenarioType('natural_blockage')
+                    else if (fm.value === 'spillway_release') setScenarioType('release')
+                    else setScenarioType('dam_break')
                   }}
-                />
+                  className={cn(
+                    'rounded-lg border px-3 py-2 text-xs font-semibold text-left transition-all cursor-pointer',
+                    failureMode === fm.value
+                      ? 'border-white bg-white/10 text-white'
+                      : 'border-white/8 text-[#949ba4] hover:bg-white/4 hover:text-white',
+                  )}
+                >
+                  <div>{fm.label}</div>
+                  <div className="text-[10px] text-white/50 font-normal">{fm.tag}</div>
+                </button>
+              ))}
+            </div>
+          </Panel>
+
+          {/* Breach Parameters */}
+          <Panel title="Breach Parameters">
+            <div className="space-y-3.5 pt-0.5">
+              <FieldRow label="Reservoir Storage" unit="MCM" hint={`${BREACH_BOUNDS.reservoirVolumeM3.min / 1e6}–${BREACH_BOUNDS.reservoirVolumeM3.max / 1e6}`}>
+                <Input type="number" value={Math.round(reservoirVolumeM3 / 1e6)} onChange={(e) => { setReservoirVolumeM3(Number(e.target.value) * 1e6); markCustom() }} className="font-mono" />
               </FieldRow>
-
-              <FieldRow
-                label="Breach / Dam Height"
-                unit="m"
-                hint={`${BREACH_BOUNDS.breachHeightM.min}–${BREACH_BOUNDS.breachHeightM.max} m`}
-              >
-                <Input
-                  type="number"
-                  value={breachHeightM}
-                  onChange={(e) => {
-                    setBreachHeightM(Number(e.target.value))
-                    setActivePreset('custom')
-                  }}
-                  className="font-mono"
-                />
+              <FieldRow label="Breach Height" unit="m" hint={`${BREACH_BOUNDS.breachHeightM.min}–${BREACH_BOUNDS.breachHeightM.max}`}>
+                <Input type="number" value={breachHeightM} onChange={(e) => { setBreachHeightM(Number(e.target.value)); markCustom() }} className="font-mono" />
               </FieldRow>
-
-              <FieldRow
-                label="Water Depth at Failure"
-                unit="m"
-                hint={`${BREACH_BOUNDS.waterDepthM.min}–${BREACH_BOUNDS.waterDepthM.max} m`}
-              >
-                <Input
-                  type="number"
-                  value={waterDepthM}
-                  onChange={(e) => {
-                    setWaterDepthM(Number(e.target.value))
-                    setActivePreset('custom')
-                  }}
-                  className="font-mono"
-                />
+              <FieldRow label="Water Depth at Failure" unit="m" hint={`${BREACH_BOUNDS.waterDepthM.min}–${BREACH_BOUNDS.waterDepthM.max}`}>
+                <Input type="number" value={waterDepthM} onChange={(e) => { setWaterDepthM(Number(e.target.value)); markCustom() }} className="font-mono" />
               </FieldRow>
-
-              <FieldRow label="Bed Roughness (Manning's n)" unit="" hint="0.025 (smooth) – 0.070 (boulders)">
-                <Input
-                  type="number"
-                  step={0.001}
-                  value={manningN}
-                  onChange={(e) => {
-                    setManningN(Number(e.target.value))
-                    setActivePreset('custom')
-                  }}
-                  className="font-mono"
-                />
+              <FieldRow label="Manning's n" unit="" hint="0.025 – 0.070">
+                <Input type="number" step={0.001} value={manningN} onChange={(e) => { setManningN(Number(e.target.value)); markCustom() }} className="font-mono" />
               </FieldRow>
-
-              <FieldRow label="Simulation Horizon" unit="hours" hint="1–24 hours">
-                <Input
-                  type="number"
-                  value={horizonH}
-                  onChange={(e) => {
-                    setHorizonH(Number(e.target.value))
-                    setActivePreset('custom')
-                  }}
-                  className="font-mono"
-                />
+              <FieldRow label="Simulation Horizon" unit="hours" hint="1–24">
+                <Input type="number" value={horizonH} onChange={(e) => { setHorizonH(Number(e.target.value)); markCustom() }} className="font-mono" />
               </FieldRow>
             </div>
           </Panel>
 
-          <Panel title="Multi-Physics Solvers (DualSPHysics & Delft3D)">
-            <div className="space-y-2.5 pt-1">
+          {/* Solver Selection */}
+          <Panel title="Solvers">
+            <div className="space-y-2 pt-0.5">
               {SOLVER_OPTIONS.map((s) => {
                 const isSelected = selectedSolvers.includes(s.id)
                 return (
                   <label
                     key={s.id}
-                    className={`flex items-start gap-3 rounded-xl border p-3 cursor-pointer transition-all duration-150 ${
+                    className={cn(
+                      'flex items-start gap-3 rounded-xl border p-3 cursor-pointer transition-all duration-150',
                       isSelected
                         ? 'border-white/50 bg-white/10 text-white'
-                        : 'border-white/8 bg-white/2 text-[#949ba4] hover:border-white/16 hover:text-white'
-                    }`}
+                        : 'border-white/8 bg-white/2 text-[#949ba4] hover:border-white/16 hover:text-white',
+                    )}
                   >
                     <input
                       type="checkbox"
@@ -384,20 +327,8 @@ export default function ScenarioPage() {
           </Panel>
         </div>
 
-        {/* Right: Computed Output */}
+        {/* Right: Chart + Validation + Submit */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatTile label="Peak Outflow" value={formatNumber(Math.round(hydrograph.peakDischargeM3s))} unit="m³/s" tone="danger" />
-            <StatTile label="Breach / Gate Width" value={formatNumber(Math.round(params.avgWidthM))} unit="m" />
-            <StatTile label="Formation / Ramp Time" value={formatDuration(params.formationTimeS)} />
-            <StatTile
-              label="Mass Balance"
-              value={`${hydrograph.massBalanceErrorPct.toFixed(3)}%`}
-              tone={massBalanceOk ? 'success' : 'danger'}
-              hint={massBalanceOk ? 'Balanced' : `Exceeds ±${MASS_BALANCE_TOLERANCE_PCT}%`}
-            />
-          </div>
-
           <Panel
             title="Breach Outflow Hydrograph Q(t)"
             className="h-85"
@@ -416,26 +347,27 @@ export default function ScenarioPage() {
             )}
           </Panel>
 
-          <Panel title="Hydrodynamic Model Provenance & Verification">
-            <div className="space-y-2 pt-1">
+          {/* Validation Checks */}
+          <Panel title="Verification">
+            <div className="space-y-2 pt-0.5">
               <ValidationRow
                 ok={massBalanceOk}
-                label="Volumetric Conservation"
-                detail={`Released ${formatVolumeMcm(hydrograph.releasedVolumeM3)} vs impounded ${formatVolumeMcm(hydrograph.targetVolumeM3)} (Error: ${hydrograph.massBalanceErrorPct.toFixed(2)}%)`}
+                label="Volume Conservation"
+                detail={`Released ${formatVolumeMcm(hydrograph.releasedVolumeM3)} / Impounded ${formatVolumeMcm(hydrograph.targetVolumeM3)} (${hydrograph.massBalanceErrorPct.toFixed(2)}%)`}
               />
               <ValidationRow
                 ok={breachHeightM >= 1 && breachHeightM <= 300}
-                label="Physical Elevation Bounds"
-                detail={`${breachHeightM} m elevation depth (Valid in [${BREACH_BOUNDS.breachHeightM.min}, ${BREACH_BOUNDS.breachHeightM.max}] m)`}
+                label="Elevation Bounds"
+                detail={`${breachHeightM} m within [${BREACH_BOUNDS.breachHeightM.min}, ${BREACH_BOUNDS.breachHeightM.max}] m`}
               />
               <ValidationRow
                 ok={true}
-                label="Governing Hydraulic Formulation"
+                label="Hydraulic Formulation"
                 detail={params.equation}
               />
               <ValidationRow
                 ok={selectedSolvers.length > 0}
-                label="Dual-Model Verification"
+                label="Solver Selection"
                 detail={selectedSolvers.length > 0 ? selectedSolvers.map((s) => (s === 'delft3d' ? 'Delft3D FM' : 'DualSPHysics')).join(' + ') : 'None selected'}
               />
             </div>
@@ -448,7 +380,7 @@ export default function ScenarioPage() {
             size="lg"
           >
             <Play className="mr-2 size-4" />
-            {submitting ? 'Creating Scenario...' : 'Create Scenario & Queue Dual-Solver Run'}
+            {submitting ? 'Creating Scenario...' : 'Create Scenario & Queue Simulation'}
           </Button>
         </div>
       </div>

@@ -336,7 +336,7 @@ export default function ImpactPage() {
           {impact.depthBands.map((db) => {
             const pct = (db.count / maxCount) * 100
             return (
-              <div key={db.band} className="p-2.5 rounded-lg bg-white/[0.02] border border-white/4 space-y-1.5">
+              <div key={db.band} className="p-2.5 rounded-lg bg-white/2 border border-white/4 space-y-1.5">
                 <div className="flex items-center justify-between text-[11px] font-mono">
                   <span className="text-white/50">{db.band}</span>
                   <span className={cn('font-semibold', db.count > 0 ? 'text-white' : 'text-white/30')}>
@@ -515,8 +515,8 @@ export default function ImpactPage() {
                     className={cn(
                       'transition-colors cursor-pointer',
                       isSelected
-                        ? 'bg-white/[0.08] text-white'
-                        : 'hover:bg-white/[0.03] text-white/80'
+                        ? 'bg-white/8 text-white'
+                        : 'hover:bg-white/3 text-white/80'
                     )}
                   >
                     <td className="py-3 pl-4 sm:pl-5 pr-3 whitespace-nowrap">
@@ -617,7 +617,7 @@ export default function ImpactPage() {
             sizes="(max-width: 768px) 100vw, 420px"
             priority
           />
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-3 flex items-center justify-between">
+          <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 via-black/35 to-transparent p-3 flex items-center justify-between">
             <span className="text-xs font-semibold text-white drop-shadow-md">
               {activeCase.dam.name}
             </span>

@@ -1,111 +1,134 @@
 'use client'
 
-import { useState } from 'react'
-import { Download, FileJson, FileText, Map as MapIcon, FileArchive, CheckCircle2, Waves, Building2 } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import {
+  Download,
+  FileJson,
+  FileText,
+  Map as MapIcon,
+  FileArchive,
+  ChevronDown,
+  Check,
+} from 'lucide-react'
 import { Panel, PageHeader } from '@/components/common/panel'
 import { usePlatform } from '@/lib/platform-store'
 import { SOLVERS } from '@/lib/types'
 import { api } from '@/lib/api'
-import { TEHRI, SARDAR_SAROVAR, BHAKRA, IDUKKI, type CaseStudy } from '@/lib/case-study'
+import { CASES } from '@/lib/case-study'
 import { cn } from '@/lib/utils'
-
-const CASE_STUDIES: CaseStudy[] = [TEHRI, SARDAR_SAROVAR, BHAKRA, IDUKKI]
 
 const EXPORT_FORMATS = [
   {
-    id: 'shp' as const,
-    name: 'ESRI Shapefile Archive',
-    description: 'Standard multi-file bundle (.shp, .shx, .dbf, .prj) projected to WGS 84 (EPSG:4326) / UTM for ArcGIS and QGIS analysis.',
-    icon: FileArchive,
-    ext: '.zip',
-    mime: 'application/zip',
-    primary: true,
+    id: 'geojson' as const,
+    name: 'GeoJSON Boundary & Grid',
+    icon: FileJson,
+    ext: '.geojson',
+    mime: 'application/geo+json',
   },
   {
     id: 'kml' as const,
     name: 'Google Earth KML / KMZ',
-    description: 'Vector flood perimeter and downstream impact settlement placemarks formatted for Google Earth 3D inspection.',
     icon: MapIcon,
     ext: '.kml',
     mime: 'application/vnd.google-earth.kml+xml',
-    primary: true,
   },
   {
-    id: 'geojson' as const,
-    name: 'GeoJSON Boundary & Feature Grid',
-    description: 'High-resolution flood extent polygon with maximum depth, velocity vectors, and wavefront arrival time attributes.',
-    icon: FileJson,
-    ext: '.geojson',
-    mime: 'application/geo+json',
-    primary: false,
+    id: 'shp' as const,
+    name: 'ESRI Shapefile Archive',
+    icon: FileArchive,
+    ext: '.zip',
+    mime: 'application/zip',
   },
   {
     id: 'report' as const,
     name: 'Executive Technical Dossier',
-    description: 'Comprehensive hydrological assessment report containing scenario parameters, mass balance verification, and exposure tables.',
     icon: FileText,
     ext: '.md',
     mime: 'text/markdown',
-    primary: false,
   },
 ]
 
 export default function ExportsPage() {
-  const { activeRun, activeScenario } = usePlatform()
-  
-  // Default to scenario case if active, otherwise Tehri
-  const initialCaseId = (activeScenario as any)?.caseId || (activeScenario as any)?.case_id || TEHRI.id
-  const [selectedCaseId, setSelectedCaseId] = useState<string>(initialCaseId)
+  const { activeRun, activeScenario, activeCase, activeCaseId, setActiveCaseId } = usePlatform()
 
-  const selectedCase = CASE_STUDIES.find((c) => c.id === selectedCaseId) ?? TEHRI
-  const targetRunId = (activeRun && activeRun.status === 'done') ? activeRun.id : `${selectedCase.id}-simulation-run`
-  const targetScenarioName = activeScenario?.name ?? `${selectedCase.name} Dam Break & Inundation Analysis`
-  const targetEngineName = activeRun ? `${SOLVERS[activeRun.solver].name} ${SOLVERS[activeRun.solver].version}` : 'Delft3D FM & DualSPHysics (Coupled)'
+  const [isDamMenuOpen, setIsDamMenuOpen] = useState(false)
+  const damMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (damMenuRef.current && !damMenuRef.current.contains(event.target as Node)) {
+        setIsDamMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const targetRunId = activeRun && activeRun.status === 'done' ? activeRun.id : `${activeCase.id}-simulation-run`
+  const targetScenarioName = activeScenario?.name ?? `${activeCase.name} PMF Overtopping Analysis`
+  const targetEngineName = activeRun ? `${SOLVERS[activeRun.solver].name} ${SOLVERS[activeRun.solver].version}` : 'Delft3D FM (D-Flow FM 2024.03)'
 
   return (
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
       <PageHeader
         title="GIS & Hydrological Exports"
-      />
-
-      {/* Case Study Selection for Dynamic Exports */}
-      <div className="glass-panel rounded-xl p-4 space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-[#949ba4]">Target Benchmark Dam / River Reach</h2>
-            <p className="text-xs text-white/60 mt-0.5">Select a case study to generate case-tailored GIS polygons, station points, and technical reports</p>
-          </div>
-          <span className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/80 self-start sm:self-auto">
-            {selectedCase.reachKm} km Reach · {selectedCase.river}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 pt-1">
-          {CASE_STUDIES.map((c) => {
-            const isSelected = c.id === selectedCaseId
-            return (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => setSelectedCaseId(c.id)}
+        actions={
+          <div className="relative" ref={damMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsDamMenuOpen((prev) => !prev)}
+              aria-expanded={isDamMenuOpen}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium bg-white/6 hover:bg-white/10 border border-white/10 text-white transition-all cursor-pointer shadow-sm backdrop-blur-md focus:outline-none focus:ring-1 focus:ring-white/20"
+            >
+              <span className="font-semibold text-white">{activeCase.name}</span>
+              <span className="text-[11px] text-white/50 hidden sm:inline">({activeCase.state})</span>
+              <ChevronDown
                 className={cn(
-                  'flex flex-col text-left p-3 rounded-lg border transition-all duration-150 cursor-pointer',
-                  isSelected
-                    ? 'border-white/50 bg-white/10 text-white shadow-sm'
-                    : 'border-white/8 bg-white/2 text-[#949ba4] hover:border-white/20 hover:text-white'
+                  'size-3.5 text-white/50 transition-transform duration-200 shrink-0',
+                  isDamMenuOpen && 'rotate-180 text-white'
                 )}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-xs font-semibold text-white truncate">{c.name}</span>
-                  {isSelected && <CheckCircle2 className="size-3.5 text-emerald-400 shrink-0" />}
+              />
+            </button>
+
+            {isDamMenuOpen && (
+              <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-[#121212]/98 border border-white/12 p-1.5 shadow-2xl backdrop-blur-2xl z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-2.5 py-1.5 text-[10px] font-semibold text-white/40 uppercase tracking-wider">
+                  Select Benchmark Dam
                 </div>
-                <span className="text-[10px] text-white/50 mt-1 truncate">{c.state}</span>
-                <span className="text-[10px] font-mono text-white/70 mt-0.5">{c.reachKm} km reach</span>
-              </button>
-            )
-          })}
-        </div>
-      </div>
+                <div className="space-y-1">
+                  {CASES.map((c) => {
+                    const isSelected = c.id === activeCaseId
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveCaseId(c.id)
+                          setIsDamMenuOpen(false)
+                        }}
+                        className={cn(
+                          'w-full text-left flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-colors cursor-pointer',
+                          isSelected
+                            ? 'bg-white/12 text-white border border-white/10'
+                            : 'text-white/70 hover:bg-white/6 hover:text-white'
+                        )}
+                      >
+                        <div className="min-w-0 pr-2">
+                          <p className="font-medium text-white truncate">{c.name}</p>
+                          <p className="text-[11px] text-white/40 truncate">
+                            {c.river} · {c.state}
+                          </p>
+                        </div>
+                        {isSelected && <Check className="size-4 text-emerald-400 shrink-0" />}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        }
+      />
 
       {/* Run Context */}
       <div className="glass-panel rounded-xl p-4">
@@ -121,40 +144,29 @@ export default function ExportsPage() {
             </dd>
           </div>
           <div className="glass-panel-subtle p-3 rounded-lg">
-            <dt className="text-[#949ba4]">Package Status</dt>
-            <dd className="mt-1 font-mono font-semibold flex items-center gap-1.5 text-[#23a55a]">
-              <span className="size-1.5 rounded-full bg-[#23a55a]" />
-              READY FOR QGIS / ARCGIS / GOOGLE EARTH
-            </dd>
-          </div>
-          <div className="glass-panel-subtle p-3 rounded-lg">
             <dt className="text-[#949ba4]">Spatial Reference</dt>
             <dd className="mt-1 font-mono text-white font-semibold">EPSG:4326 / EPSG:32644</dd>
           </div>
+          <div
+            onClick={() => setIsDamMenuOpen((prev) => !prev)}
+            className="glass-panel-subtle p-3 rounded-lg cursor-pointer hover:border-white/20 transition-colors group"
+          >
+            <dt className="text-[#949ba4] flex items-center justify-between">
+              <span>Target Dam</span>
+              <span className="text-[10px] text-white/40 group-hover:text-white/70 transition-colors">Select ▼</span>
+            </dt>
+            <dd className="mt-1 font-mono text-white font-semibold truncate">
+              {activeCase.name}
+            </dd>
+          </div>
         </dl>
-      </div>
-
-      {/* Downstream Stations Preview for Selected Dam */}
-      <div className="glass-panel rounded-xl p-3.5 flex flex-wrap items-center gap-3 text-xs">
-        <div className="flex items-center gap-1.5 text-white font-medium">
-          <Building2 className="size-3.5 text-[#949ba4]" />
-          <span>Downstream Stations:</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {selectedCase.downstreamTowns.map((t, idx) => (
-            <span key={t.name} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/5 border border-white/8 text-[11px] font-mono text-white/80">
-              {t.name} <span className="text-white/40">({t.chainageKm} km)</span>
-              {idx < selectedCase.downstreamTowns.length - 1 && <span className="text-white/20 ml-1">→</span>}
-            </span>
-          ))}
-        </div>
       </div>
 
       {/* Export Cards */}
       <div className="grid gap-4 sm:grid-cols-2">
         {EXPORT_FORMATS.map((fmt) => {
           const Icon = fmt.icon
-          const downloadUrl = api.exportUrl(targetRunId, fmt.id, selectedCase.id)
+          const downloadUrl = api.exportUrl(targetRunId, fmt.id, activeCase.id)
           return (
             <Panel key={fmt.id}>
               <div className="flex gap-4">
@@ -166,7 +178,6 @@ export default function ExportsPage() {
                     <h3 className="text-sm font-semibold text-white">{fmt.name}</h3>
                     <span className="font-mono text-xs font-bold text-white/90">{fmt.ext}</span>
                   </div>
-                  <p className="mt-1.5 text-xs text-[#949ba4] leading-relaxed">{fmt.description}</p>
                   <div className="mt-4">
                     <a
                       href={downloadUrl}
@@ -174,7 +185,7 @@ export default function ExportsPage() {
                       className="inline-flex items-center justify-center rounded-lg bg-white hover:bg-white/90 text-black px-3.5 h-8 text-xs font-semibold transition-all duration-150 cursor-pointer"
                     >
                       <Download className="mr-1.5 size-3.5" />
-                      Download {selectedCase.name} {fmt.name} ({fmt.ext})
+                      Download {fmt.name} ({fmt.ext})
                     </a>
                   </div>
                 </div>
@@ -187,8 +198,8 @@ export default function ExportsPage() {
       {/* Metadata Notice */}
       <Panel title="Export Provenance Metadata">
         <p className="text-xs text-[#949ba4] leading-relaxed pt-1">
-          Every exported dataset includes: target case study ({selectedCase.name}, {selectedCase.river}), solver identification and hydrodynamic algorithm version, DEM origin (GLO-30 Copernicus DEM, EPSG:32644),
-          simulation epoch timestamp, breach hydrograph derivation equations (Froehlich 2008), and mass-balance residual verification. ESRI shapefiles incorporate coordinate projection sidecars (.prj) for direct ingestion in ArcGIS and QGIS.
+          Every exported dataset includes: target case study ({activeCase.name}, {activeCase.river}), solver identification and algorithm version, DEM origin (GLO-30 Copernicus DEM, EPSG:32644),
+          simulation epoch timestamp, breach hydrograph derivation equations (Froehlich 2008), and mass-balance residual verification. ESRI shapefiles incorporate coordinate projection sidecars (.prj).
         </p>
       </Panel>
     </div>
