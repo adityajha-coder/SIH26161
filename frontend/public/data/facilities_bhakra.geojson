@@ -1,0 +1,159 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "BBMB Main Hospital Nangal",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.3815,
+          31.3695
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Civil Hospital Anandpur Sahib",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.5015,
+          31.2345
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sri Guru Harkrishan Sahib Hospital Kiratpur",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.5675,
+          31.1805
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Community Health Centre Bharatgarh",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.5745,
+          31.1095
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Civil Hospital Rupnagar",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.5265,
+          30.9655
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "IIT Ropar Emergency Health Centre",
+        "kind": "clinic"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.5125,
+          30.9785
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kendriya Vidyalaya BBMB Nangal",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.382,
+          31.371
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Khalsa Senior Secondary School Anandpur",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.5025,
+          31.236
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "DAV Senior Secondary School Kiratpur",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.5685,
+          31.182
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Government College Rupnagar",
+        "kind": "college"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.528,
+          30.9675
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Guru Gobind Singh Khalsa College",
+        "kind": "college"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.453,
+          31.284
+        ]
+      }
+    }
+  ]
+}

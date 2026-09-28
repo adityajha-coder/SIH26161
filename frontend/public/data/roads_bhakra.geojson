@@ -1,0 +1,88 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "NH-503 Nangal-Kiratpur River Highway",
+        "ref": "NH-503",
+        "highway": "primary"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.4358,
+            31.4103
+          ],
+          [
+            76.381,
+            31.37
+          ],
+          [
+            76.42,
+            31.3
+          ],
+          [
+            76.502,
+            31.235
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kiratpur-Rupnagar River Corridor",
+        "ref": "NH-205",
+        "highway": "trunk"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.502,
+            31.235
+          ],
+          [
+            76.568,
+            31.181
+          ],
+          [
+            76.55,
+            31.05
+          ],
+          [
+            76.527,
+            30.966
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Nangal Barrage River Crossing Bridge",
+        "ref": "SH-24",
+        "highway": "primary"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.375,
+            31.375
+          ],
+          [
+            76.381,
+            31.37
+          ],
+          [
+            76.39,
+            31.365
+          ]
+        ]
+      }
+    }
+  ]
+}

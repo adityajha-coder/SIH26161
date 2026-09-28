@@ -1,0 +1,243 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kevadiya Primary Health Centre",
+        "kind": "clinic"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.7155,
+          21.8375
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Garudeshwar Community Health Centre",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.6625,
+          21.8205
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tilakwada Referral Hospital",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.6125,
+          21.8045
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "SSG Sub-District Hospital Rajpipla",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.5655,
+          21.7885
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "General Hospital Nandod",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.5025,
+          21.8145
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "CHC Sinor Hospital",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.3425,
+          21.9115
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Civil Hospital Bharuch",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.9985,
+          21.7055
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Apex Trauma & Heart Hospital Bharuch",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.9975,
+          21.7045
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Jayaben Mody Multi-Speciality Hospital Ankleshwar",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.0015,
+          21.6265
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kendriya Vidyalaya Ekta Nagar",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.716,
+          21.839
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Garudeshwar Model High School",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.663,
+          21.822
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rajpipla Government High School",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.564,
+          21.79
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Government Degree College Rajpipla",
+        "kind": "college"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.566,
+          21.788
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sinor Higher Secondary School",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.3415,
+          21.9125
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Shree Rang Navchetan High School Bharuch",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.999,
+          21.704
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Government Polytechnic Bharuch",
+        "kind": "college"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.0005,
+          21.707
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ankleshwar Public Model School",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.003,
+          21.6255
+        ]
+      }
+    }
+  ]
+}

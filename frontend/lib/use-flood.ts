@@ -113,8 +113,10 @@ export interface ImpactComputation {
   depthBands: { band: string; count: number }[]
 }
 
-export function useImpact(result: FloodResult | null, atTimeS = Infinity): ImpactComputation | null {
-  const { settlements, facilities, roads } = useGeoData()
+export function useImpact(result: FloodResult | null, atTimeS = Infinity, caseId?: string): ImpactComputation | null {
+  const { activeCase, activeScenario } = usePlatform()
+  const effectiveCaseId = caseId || activeScenario?.caseId || activeCase?.id || 'tehri-dam'
+  const { settlements, facilities, roads } = useGeoData(effectiveCaseId)
   const bucket = Number.isFinite(atTimeS) ? Math.round(atTimeS / 300) * 300 : Infinity
 
   return useMemo(() => {

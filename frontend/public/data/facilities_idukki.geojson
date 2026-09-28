@@ -1,0 +1,173 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Taluk Hospital Cheruthoni",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.9615,
+          9.8695
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Idukki District Hospital Painavu",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.9375,
+          9.8905
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Primary Health Centre Karimban",
+        "kind": "clinic"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.8825,
+          9.9245
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Government Hospital Neriamangalam",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7815,
+          10.0535
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Taluk Hospital Kothamangalam",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.6205,
+          10.0625
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mar Baselios Medical Mission Hospital",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.6225,
+          10.0645
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Taluk Headquarters Hospital Aluva",
+        "kind": "hospital"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.3535,
+          10.1075
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Government Vocational Higher Secondary School Cheruthoni",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.9625,
+          9.8715
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Model Residential School Painavu",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.9385,
+          9.8925
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Government High School Neriamangalam",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.7825,
+          10.0555
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "St. George Higher Secondary School Kothamangalam",
+        "kind": "school"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.6215,
+          10.0615
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Union Christian College Aluva",
+        "kind": "college"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.3555,
+          10.1095
+        ]
+      }
+    }
+  ]
+}

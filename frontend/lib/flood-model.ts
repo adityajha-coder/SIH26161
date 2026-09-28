@@ -130,6 +130,8 @@ export interface ExposedAsset extends AssetProps {
   lngLat: [number, number]
   arrivalS: number
   depthM: number
+  chainageKm?: number
+  velocityMs?: number
 }
 
 function bboxOf(f: Feature<Polygon | MultiPolygon>): [number, number, number, number] {
@@ -162,7 +164,16 @@ export function intersectAssets(
         if (!hit || f.properties.depthM > hit.depthM) hit = f.properties
       }
     }
-    if (hit) out.push({ ...a.properties, lngLat: [x, y], arrivalS: hit.arrivalS, depthM: hit.depthM })
+    if (hit) {
+      out.push({
+        ...a.properties,
+        lngLat: [x, y],
+        arrivalS: hit.arrivalS,
+        depthM: hit.depthM,
+        chainageKm: hit.chainageKm,
+        velocityMs: hit.velocityMs,
+      })
+    }
   }
   return out.sort((a, b) => a.arrivalS - b.arrivalS)
 }

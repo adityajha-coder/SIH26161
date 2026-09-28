@@ -28,7 +28,10 @@ export function villagesOnly(impact: ImpactComputation | null) {
   return impact?.villages.filter((v) => v.kind === 'village' || v.kind === 'hamlet') ?? []
 }
 
+import { usePlatform } from '@/lib/platform-store'
+
 export function ImpactPanel({ flood, impact }: { flood: FloodBands | null; impact: ImpactComputation | null }) {
+  const { activeCase } = usePlatform()
   const [tab, setTab] = useState('areas')
   const exposure = useMemo(() => exposureCollection(impact), [impact])
   const villages = villagesOnly(impact)
@@ -52,8 +55,9 @@ export function ImpactPanel({ flood, impact }: { flood: FloodBands | null; impac
               exposure={exposure}
               layers={{ settlements: false, exposure: true, roads: true, floodDepth: true }}
               floodOpacity={0.55}
-              center={[78.36, 30.14]}
-              zoom={9.9}
+              center={activeCase?.center ?? [78.36, 30.14]}
+              zoom={activeCase?.zoom ?? 9.9}
+              interactive={false}
               className="absolute inset-0"
               ariaLabel="Impact map of affected settlements and facilities"
             />

@@ -1,0 +1,245 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bhakra Dam Toe (Olinda)",
+        "kind": "hamlet",
+        "population": 1200
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.434,
+          31.409
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Brahmpur",
+        "kind": "village",
+        "population": 2800
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.415,
+          31.395
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Mehatpur",
+        "kind": "village",
+        "population": 4600
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.402,
+          31.39
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Nangal Township",
+        "kind": "city",
+        "population": 40600
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.381,
+          31.37
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Naya Nangal",
+        "kind": "town",
+        "population": 14200
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.398,
+          31.332
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bhabat",
+        "kind": "village",
+        "population": 3100
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.41,
+          31.315
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ganguwal",
+        "kind": "village",
+        "population": 5100
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.452,
+          31.285
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kotla Power Colony",
+        "kind": "village",
+        "population": 2400
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.475,
+          31.26
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Anandpur Sahib",
+        "kind": "city",
+        "population": 16800
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.502,
+          31.235
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Lodhipur",
+        "kind": "village",
+        "population": 3900
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.52,
+          31.21
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kiratpur Sahib",
+        "kind": "town",
+        "population": 8700
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.568,
+          31.181
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kalyanpur",
+        "kind": "village",
+        "population": 2500
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.572,
+          31.145
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bharatgarh",
+        "kind": "village",
+        "population": 6400
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.575,
+          31.11
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ghanauli",
+        "kind": "village",
+        "population": 7900
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.552,
+          31.035
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rupnagar (Ropar)",
+        "kind": "city",
+        "population": 56000
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.527,
+          30.966
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Chamkaur Sahib",
+        "kind": "town",
+        "population": 12200
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.495,
+          30.892
+        ]
+      }
+    }
+  ]
+}

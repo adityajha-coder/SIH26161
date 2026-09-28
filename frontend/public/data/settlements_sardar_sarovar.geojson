@@ -1,0 +1,335 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Dam Toe / Kevadiya Colony",
+        "kind": "village",
+        "population": 4500
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.744,
+          21.833
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ekta Nagar (Kevadiya)",
+        "kind": "town",
+        "population": 12800
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.715,
+          21.838
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gora",
+        "kind": "village",
+        "population": 2100
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.71,
+          21.841
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Navagam",
+        "kind": "village",
+        "population": 3400
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.692,
+          21.832
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Garudeshwar",
+        "kind": "town",
+        "population": 8600
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.662,
+          21.821
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Indravarna",
+        "kind": "village",
+        "population": 1800
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.64,
+          21.815
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tilakwada",
+        "kind": "town",
+        "population": 9200
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.612,
+          21.805
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Vadiya",
+        "kind": "village",
+        "population": 2600
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.585,
+          21.796
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Rajpipla",
+        "kind": "city",
+        "population": 54900
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.565,
+          21.789
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Nandod",
+        "kind": "village",
+        "population": 11400
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.502,
+          21.815
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Poicha",
+        "kind": "village",
+        "population": 6200
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.48,
+          21.83
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sisodra",
+        "kind": "village",
+        "population": 3100
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.415,
+          21.87
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sinor",
+        "kind": "town",
+        "population": 14200
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.342,
+          21.912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Barkal",
+        "kind": "village",
+        "population": 2900
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.28,
+          21.875
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Nareshwar",
+        "kind": "village",
+        "population": 5800
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.235,
+          21.84
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Jhanor",
+        "kind": "village",
+        "population": 4700
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.18,
+          21.76
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Shuklatirth",
+        "kind": "village",
+        "population": 7500
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.11,
+          21.752
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Zadeshwar",
+        "kind": "town",
+        "population": 28000
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.045,
+          21.722
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bharuch",
+        "kind": "city",
+        "population": 224000
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.998,
+          21.705
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ankleshwar",
+        "kind": "city",
+        "population": 140800
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          73.002,
+          21.626
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Hansot",
+        "kind": "village",
+        "population": 8900
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.91,
+          21.58
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Dahej Estuary",
+        "kind": "town",
+        "population": 18500
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.85,
+          21.65
+        ]
+      }
+    }
+  ]
+}

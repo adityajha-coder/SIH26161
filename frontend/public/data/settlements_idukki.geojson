@@ -1,0 +1,200 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Cheruthoni Dam Toe",
+        "kind": "hamlet",
+        "population": 1500
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.968,
+          9.858
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Cheruthoni Town",
+        "kind": "town",
+        "population": 14500
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.962,
+          9.87
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Painavu (District HQ)",
+        "kind": "town",
+        "population": 6800
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.938,
+          9.891
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Chelachuvadu",
+        "kind": "village",
+        "population": 5400
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.905,
+          9.912
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Karimban",
+        "kind": "village",
+        "population": 7200
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.883,
+          9.925
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Thadiyampadu",
+        "kind": "village",
+        "population": 3600
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.865,
+          9.94
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Panankutty",
+        "kind": "village",
+        "population": 4100
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.852,
+          9.955
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Lower Periyar",
+        "kind": "village",
+        "population": 5300
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.82,
+          9.992
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Neriamangalam",
+        "kind": "town",
+        "population": 16200
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.782,
+          10.054
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bhoothathankettu",
+        "kind": "village",
+        "population": 8400
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.702,
+          10.082
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Kothamangalam",
+        "kind": "city",
+        "population": 38800
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.621,
+          10.063
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Perumbavoor",
+        "kind": "city",
+        "population": 65000
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.482,
+          10.115
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Aluva (Periyar Estuary)",
+        "kind": "city",
+        "population": 160000
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          76.354,
+          10.108
+        ]
+      }
+    }
+  ]
+}

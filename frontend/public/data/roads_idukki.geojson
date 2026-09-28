@@ -1,0 +1,113 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "SH-33 Thodupuzha-Idukki Highway",
+        "ref": "SH-33",
+        "highway": "primary"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.9744,
+            9.8517
+          ],
+          [
+            76.962,
+            9.87
+          ],
+          [
+            76.905,
+            9.912
+          ],
+          [
+            76.883,
+            9.925
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "NH-85 Kochi-Dhanushkodi Highway",
+        "ref": "NH-85",
+        "highway": "primary"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.883,
+            9.925
+          ],
+          [
+            76.84,
+            9.98
+          ],
+          [
+            76.782,
+            10.054
+          ],
+          [
+            76.621,
+            10.063
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "SH-40 Perumbavoor-Aluva Periyar Highway",
+        "ref": "SH-40",
+        "highway": "primary"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.621,
+            10.063
+          ],
+          [
+            76.482,
+            10.115
+          ],
+          [
+            76.354,
+            10.108
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Neriamangalam Historic Arch Bridge",
+        "ref": "Bridge",
+        "highway": "bridge"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            76.78,
+            10.053
+          ],
+          [
+            76.782,
+            10.054
+          ],
+          [
+            76.785,
+            10.055
+          ]
+        ]
+      }
+    }
+  ]
+}

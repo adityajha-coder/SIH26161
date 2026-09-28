@@ -1,0 +1,130 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "SH-11 Kevadiya-Garudeshwar Corridor",
+        "ref": "SH-11",
+        "highway": "primary"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            73.7481,
+            21.8319
+          ],
+          [
+            73.715,
+            21.838
+          ],
+          [
+            73.662,
+            21.821
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "SH-64 Rajpipla Highway",
+        "ref": "SH-64",
+        "highway": "primary"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            73.662,
+            21.821
+          ],
+          [
+            73.565,
+            21.789
+          ],
+          [
+            73.48,
+            21.83
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Narmada River Road Sinor",
+        "ref": "MDR-12",
+        "highway": "secondary"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            73.48,
+            21.83
+          ],
+          [
+            73.342,
+            21.912
+          ],
+          [
+            73.18,
+            21.76
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "NH-48 Golden Bridge River Crossing",
+        "ref": "NH-48",
+        "highway": "trunk"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            72.995,
+            21.715
+          ],
+          [
+            72.998,
+            21.705
+          ],
+          [
+            73.002,
+            21.626
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ankleshwar-Dahej Coastal Expressway",
+        "ref": "SH-6",
+        "highway": "primary"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            73.002,
+            21.626
+          ],
+          [
+            72.91,
+            21.58
+          ],
+          [
+            72.85,
+            21.65
+          ]
+        ]
+      }
+    }
+  ]
+}

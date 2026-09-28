@@ -57,6 +57,21 @@ const FALLBACK_OBSERVATIONS: ObservationDTO[] = [
     notes: 'Calibrated with ground gauge stations',
   },
   {
+    source_id: 'landsat-9-c2l2',
+    platform: 'USGS / NASA Landsat 9',
+    sensor: 'OLI-2 / TIRS-2 Surface Reflectance',
+    resolution_m: 30,
+    scene_id: 'LC09_L2SP_146039_20260925_02_T1',
+    acquisition_time: new Date(Date.now() - 38 * 3600 * 1000).toISOString(),
+    ingestion_time: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    data_age_hours: 38.0,
+    freshness: 'NOMINAL',
+    status: 'VERIFIED',
+    telemetry_value: 'MNDWI Water Index: +0.48 · Active Pool: 42.1 km²',
+    next_pass_eta: 'In 6 days (WRS-2 Path 146 / Row 39)',
+    notes: 'OLI-2 Green & SWIR-1 MNDWI water delineation with 4.2% cloud cover',
+  },
+  {
     source_id: 'opera-dswx-s1',
     platform: 'NASA JPL / OPERA',
     sensor: 'Dynamic Surface Water Extent',
@@ -148,7 +163,7 @@ export default function ObservationsPage() {
         </div>
       </div>
 
-      {/* 4 Essential Sensor Feeds */}
+      {/* 5 Essential Sensor Feeds (Sentinel-1 SAR, GPM IMERG, Landsat-9, OPERA DSWx, GSMaP) */}
       <div className="grid gap-3.5 sm:grid-cols-2">
         {observations.map((src) => {
           const isFresh = src.freshness === 'FRESH'
