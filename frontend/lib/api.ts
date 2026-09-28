@@ -71,6 +71,6 @@ export const api = {
   latestObservations: (caseId: string) =>
     apiFetch<ObservationProduct[]>(`/api/v1/observations/latest?caseId=${encodeURIComponent(caseId)}`),
   refreshObservations: () => apiFetch<{ queued: boolean }>('/api/v1/observations/refresh', { method: 'POST' }),
-  exportUrl: (runId: string, format: 'kml' | 'shp' | 'geojson' | 'report') =>
-    `${API_BASE_URL}/api/v1/exports/${runId}/${format}`,
+  exportUrl: (runId: string, format: 'kml' | 'shp' | 'geojson' | 'report', caseId?: string) =>
+    `${API_BASE_URL}/api/v1/exports/${runId}/${format}${caseId ? `?case_id=${encodeURIComponent(caseId)}` : ''}`,
 }

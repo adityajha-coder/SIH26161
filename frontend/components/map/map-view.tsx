@@ -226,6 +226,10 @@ export function MapView({
   const cesiumRef = useRef<CesiumType | null>(null)
   const dataSourcesRef = useRef<Partial<DataSourcesMap>>({})
   const currentBaseLayerRef = useRef<import('cesium').ImageryLayer | null>(null)
+  const lastFlownCaseIdRef = useRef<string | null>(null)
+  const lastFlownBaseRef = useRef<BaseMode | null>(null)
+  const isFirstFlightRef = useRef(true)
+  const loadedCaseIdRef = useRef<string | null>(null)
 
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -704,6 +708,21 @@ export function MapView({
     const Cesium = cesiumRef.current
     if (!ready || !viewer || viewer.isDestroyed() || !Cesium) return
 
+    // Prevent camera jump/re-flight on initial render or re-mounting
+    if (isFirstFlightRef.current) {
+      isFirstFlightRef.current = false
+      lastFlownCaseIdRef.current = activeCase?.id ?? null
+      lastFlownBaseRef.current = base
+      return
+    }
+
+    // Only fly if base or activeCase actually changed
+    if (lastFlownCaseIdRef.current === activeCase?.id && lastFlownBaseRef.current === base) {
+      return
+    }
+    lastFlownCaseIdRef.current = activeCase?.id ?? null
+    lastFlownBaseRef.current = base
+
     const c = center ?? (activeCase?.center ?? activeCase?.dam.lngLat ?? [78.47, 30.29])
     const z = zoom ?? (activeCase?.zoom ?? (base === 'terrain' ? 10.8 : 9.8))
     const p = pitch ?? (activeCase?.pitch ?? (base === 'terrain' ? 60 : 0))
@@ -722,7 +741,7 @@ export function MapView({
       },
       duration: 1.4,
     })
-  }, [ready, base, activeCase?.id, center?.[0], center?.[1], zoom, pitch, bearing]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, base, activeCase?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 4. Hydrology & Basemap Data Loaders (River, Reservoir, Roads, Dam, Decluttered Settlements)
   useEffect(() => {
@@ -730,6 +749,12 @@ export function MapView({
     const Cesium = cesiumRef.current
     const ds = dataSourcesRef.current
     if (!ready || !viewer || viewer.isDestroyed() || !Cesium || !ds.river) return
+
+    // Avoid clearing and re-rendering if already loaded for this case study
+    if (loadedCaseIdRef.current === activeCase?.id && ds.river.entities.values.length > 0) {
+      return
+    }
+    loadedCaseIdRef.current = activeCase?.id ?? null
 
     // ── River Network
     ds.river.entities.removeAll()

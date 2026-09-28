@@ -45,6 +45,7 @@ export function SimulationView({
         zoom={is3d ? 11 : compact ? 10.4 : 9.7}
         pitch={is3d ? 62 : 0}
         bearing={is3d ? 190 : 0}
+        interactive={false}
         className="absolute inset-0"
         ariaLabel="Flood simulation map"
       />
