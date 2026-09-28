@@ -1,0 +1,54 @@
+{
+  "id": "dam-sardar-sarovar",
+  "case_id": "sardar-sarovar-dam",
+  "national_id": "GJ04HH0001",
+  "name": "Sardar Sarovar Dam",
+  "official_source": {
+    "agency": "Central Water Commission (CWC) / Sardar Sarovar Narmada Nigam Ltd (SSNNL)",
+    "registry": "National Register of Large Dams (NRLD)",
+    "verification_status": "official"
+  },
+  "location": {
+    "state": "Gujarat",
+    "district": "Narmada",
+    "river": "Narmada",
+    "basin": "Narmada",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [73.7481, 21.8319]
+    }
+  },
+  "structural_parameters": {
+    "dam_type": "Concrete Gravity",
+    "structural_height_m": 163.0,
+    "hydraulic_height_m": 149.0,
+    "crest_length_m": 1210.0,
+    "crest_width_m": 12.0,
+    "base_width_m": 125.0,
+    "top_elevation_m": 146.5,
+    "year_completed": 2017
+  },
+  "reservoir_parameters": {
+    "gross_storage_mcm": 9500.0,
+    "effective_storage_mcm": 5800.0,
+    "dead_storage_mcm": 3700.0,
+    "reservoir_area_sqkm": 375.33,
+    "full_reservoir_level_m": 138.68,
+    "max_water_level_m": 140.21,
+    "min_drawdown_level_m": 110.64
+  },
+  "spillway_parameters": {
+    "type": "Ogee Crest Chute Spillway with 23 Radial Gates (60ft x 55ft)",
+    "crest_elevation_m": 121.92,
+    "chute_capacity_cumec": 84949.0,
+    "total_discharge_capacity_cumec": 84949.0
+  },
+  "crest_geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [73.7445, 21.8355],
+      [73.7481, 21.8319],
+      [73.7512, 21.8285]
+    ]
+  }
+}

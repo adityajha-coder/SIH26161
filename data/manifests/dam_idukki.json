@@ -1,0 +1,54 @@
+{
+  "id": "dam-idukki",
+  "case_id": "idukki-dam",
+  "national_id": "KL03HH0001",
+  "name": "Idukki Arch Dam",
+  "official_source": {
+    "agency": "Central Water Commission (CWC) / Kerala State Electricity Board (KSEB)",
+    "registry": "National Register of Large Dams (NRLD)",
+    "verification_status": "official"
+  },
+  "location": {
+    "state": "Kerala",
+    "district": "Idukki",
+    "river": "Periyar",
+    "basin": "Periyar",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [76.9744, 9.8517]
+    }
+  },
+  "structural_parameters": {
+    "dam_type": "Double Curvature Concrete Arch",
+    "structural_height_m": 168.91,
+    "hydraulic_height_m": 150.0,
+    "crest_length_m": 365.85,
+    "crest_width_m": 7.62,
+    "base_width_m": 19.81,
+    "top_elevation_m": 736.09,
+    "year_completed": 1976
+  },
+  "reservoir_parameters": {
+    "gross_storage_mcm": 1996.0,
+    "effective_storage_mcm": 1460.0,
+    "dead_storage_mcm": 536.0,
+    "reservoir_area_sqkm": 60.0,
+    "full_reservoir_level_m": 732.43,
+    "max_water_level_m": 733.0,
+    "min_drawdown_level_m": 695.0
+  },
+  "spillway_parameters": {
+    "type": "Cheruthoni Concrete Gravity Dam with 5 Radial Gates (12.2m x 10.36m)",
+    "crest_elevation_m": 723.3,
+    "chute_capacity_cumec": 5663.0,
+    "total_discharge_capacity_cumec": 5663.0
+  },
+  "crest_geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [76.9730, 9.8528],
+      [76.9744, 9.8517],
+      [76.9758, 9.8505]
+    ]
+  }
+}

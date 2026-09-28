@@ -1,20 +1,6 @@
 {
   "events": [
     {
-      "id": "event-rishiganga-2021",
-      "name": "Chamoli Flash Flood & River Blockage Event",
-      "date": "2021-02-07",
-      "trigger": "Rock and hanging glacier avalanche on Ronti peak causing downstream river blockage and catastrophic surge wave",
-      "peak_discharge_cumec": 2400.0,
-      "reach_affected": "Rishiganga - Dhauliganga - Alaknanda reach (25 km)",
-      "sensors_available": [
-        "Sentinel-1 SAR C-band (pre and post event passes)",
-        "Sentinel-2 Optical (cloud-free post-event imagery)",
-        "PlanetScope 3m high-resolution daily imagery"
-      ],
-      "validation_use": "Benchmark dataset for SPH wave impact and Delft3D steep-canyon flood wave arrival times"
-    },
-    {
       "id": "event-tehri-2010",
       "name": "Tehri Reservoir Extreme Inflow Event",
       "date": "2010-09-19",

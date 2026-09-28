@@ -1,5 +1,5 @@
 {
-  "primary_case": {
+  "tehri-dam": {
     "id": "tehri-dam",
     "name": "Tehri Dam (Bhagirathi River)",
     "description": "Highest earth and rock-fill dam in India, set in a steep Himalayan gorge extending to Rishikesh/Haridwar floodplains.",
@@ -25,7 +25,7 @@
       "spillway_capacity_cumec": 15300.0,
       "year_completed": 2006,
       "coordinates": {
-        "lon": 78.4803,
+        "lon": 78.4808,
         "lat": 30.3781
       }
     },
@@ -35,22 +35,112 @@
       "reach_length_km": 105.0
     }
   },
-  "secondary_case": {
-    "id": "rishiganga-chamoli",
-    "name": "Rishiganga River Blockage (Chamoli 2021)",
-    "description": "Documented 2021 rock-ice avalanche and river blockage breach in Chamoli district used for empirical model validation.",
-    "state": "Uttarakhand",
-    "basin": "Alaknanda",
+  "sardar-sarovar-dam": {
+    "id": "sardar-sarovar-dam",
+    "name": "Sardar Sarovar Dam (Narmada River)",
+    "description": "Massive concrete gravity terminal dam on the Narmada River in Gujarat, controlling an 88,000 km² catchment down to Bharuch.",
+    "state": "Gujarat",
+    "basin": "Narmada",
     "bbox": {
-      "min_lon": 79.55,
-      "min_lat": 30.40,
-      "max_lon": 79.85,
-      "max_lat": 30.60
+      "min_lon": 72.80,
+      "min_lat": 21.50,
+      "max_lon": 73.85,
+      "max_lat": 22.10
     },
-    "coordinates": {
-      "lon": 79.7310,
-      "lat": 30.4850
+    "dam": {
+      "id": "dam-sardar-sarovar",
+      "name": "Sardar Sarovar Dam",
+      "type": "Concrete Gravity",
+      "height_m": 163.0,
+      "crest_length_m": 1210.0,
+      "gross_storage_mcm": 9500.0,
+      "effective_storage_mcm": 5800.0,
+      "full_reservoir_level_m": 138.68,
+      "max_water_level_m": 140.21,
+      "crest_elevation_m": 146.5,
+      "spillway_capacity_cumec": 84949.0,
+      "year_completed": 2017,
+      "coordinates": {
+        "lon": 73.7481,
+        "lat": 21.8319
+      }
     },
-    "reach_length_km": 25.0
+    "river": {
+      "id": "river-narmada",
+      "name": "Narmada River Corridor",
+      "reach_length_km": 115.0
+    }
+  },
+  "bhakra-dam": {
+    "id": "bhakra-dam",
+    "name": "Bhakra Dam (Satluj River)",
+    "description": "Iconic high-head concrete gravity dam in Himachal Pradesh forming the Govind Sagar reservoir, commanding the Satluj river reach to Nangal and Ropar.",
+    "state": "Himachal Pradesh",
+    "basin": "Indus / Satluj",
+    "bbox": {
+      "min_lon": 76.25,
+      "min_lat": 30.90,
+      "max_lon": 76.65,
+      "max_lat": 31.55
+    },
+    "dam": {
+      "id": "dam-bhakra",
+      "name": "Bhakra Dam",
+      "type": "Concrete Gravity",
+      "height_m": 226.0,
+      "crest_length_m": 518.16,
+      "gross_storage_mcm": 9621.0,
+      "effective_storage_mcm": 7192.0,
+      "full_reservoir_level_m": 513.59,
+      "max_water_level_m": 515.11,
+      "crest_elevation_m": 518.2,
+      "spillway_capacity_cumec": 8212.0,
+      "year_completed": 1963,
+      "coordinates": {
+        "lon": 76.4358,
+        "lat": 31.4103
+      }
+    },
+    "river": {
+      "id": "river-satluj",
+      "name": "Satluj River Corridor",
+      "reach_length_km": 90.0
+    }
+  },
+  "idukki-dam": {
+    "id": "idukki-dam",
+    "name": "Idukki Arch Dam (Periyar River)",
+    "description": "Double-curvature concrete arch dam situated in a steep Western Ghats gorge between Kuravan and Kurathi hills in Kerala.",
+    "state": "Kerala",
+    "basin": "Periyar",
+    "bbox": {
+      "min_lon": 76.30,
+      "min_lat": 9.70,
+      "max_lon": 77.10,
+      "max_lat": 10.25
+    },
+    "dam": {
+      "id": "dam-idukki",
+      "name": "Idukki Arch Dam",
+      "type": "Double Curvature Concrete Arch",
+      "height_m": 168.9,
+      "crest_length_m": 365.85,
+      "gross_storage_mcm": 1996.0,
+      "effective_storage_mcm": 1460.0,
+      "full_reservoir_level_m": 732.43,
+      "max_water_level_m": 733.0,
+      "crest_elevation_m": 736.09,
+      "spillway_capacity_cumec": 5663.0,
+      "year_completed": 1976,
+      "coordinates": {
+        "lon": 76.9744,
+        "lat": 9.8517
+      }
+    },
+    "river": {
+      "id": "river-periyar",
+      "name": "Periyar River Corridor",
+      "reach_length_km": 85.0
+    }
   }
 }

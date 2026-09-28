@@ -1,0 +1,74 @@
+{
+  "id": "river-satluj",
+  "case_id": "bhakra-dam",
+  "name": "Satluj River Downstream Canyon Corridor",
+  "sources": [
+    "OpenStreetMap (OSM) Waterways via Overpass API",
+    "HydroSHEDS 15s Global River Network"
+  ],
+  "reach_summary": {
+    "total_length_km": 90.0,
+    "origin": "Bhakra Dam Gorge Foot",
+    "terminus": "Rupnagar (Ropar) Headworks",
+    "average_bed_slope": 0.0016,
+    "manning_roughness": {
+      "canyon_gorge": 0.042,
+      "boulder_gravel": 0.035,
+      "plains_floodplain": 0.032
+    }
+  },
+  "key_monitoring_cross_sections": [
+    {
+      "id": "xs-01-dam-toe",
+      "distance_km": 0.5,
+      "name": "Bhakra Dam Toe",
+      "lon": 76.4358,
+      "lat": 31.4103,
+      "bed_elevation_m": 335.0
+    },
+    {
+      "id": "xs-02-nangal",
+      "distance_km": 12.0,
+      "name": "Nangal Dam / Barrage",
+      "lon": 76.3810,
+      "lat": 31.3700,
+      "bed_elevation_m": 312.0
+    },
+    {
+      "id": "xs-03-anandpur",
+      "distance_km": 34.0,
+      "name": "Anandpur Sahib Reach",
+      "lon": 76.5020,
+      "lat": 31.2350,
+      "bed_elevation_m": 290.0
+    },
+    {
+      "id": "xs-04-kiratpur",
+      "distance_km": 44.0,
+      "name": "Kiratpur Sahib Reach",
+      "lon": 76.5680,
+      "lat": 31.1810,
+      "bed_elevation_m": 280.0
+    },
+    {
+      "id": "xs-05-ropar",
+      "distance_km": 78.0,
+      "name": "Rupnagar (Ropar) Headworks",
+      "lon": 76.5270,
+      "lat": 30.9660,
+      "bed_elevation_m": 255.0
+    }
+  ],
+  "centerline": {
+    "type": "LineString",
+    "coordinates": [
+      [76.4358, 31.4103],
+      [76.3810, 31.3700],
+      [76.4200, 31.3000],
+      [76.5020, 31.2350],
+      [76.5680, 31.1810],
+      [76.5500, 31.0500],
+      [76.5270, 30.9660]
+    ]
+  }
+}

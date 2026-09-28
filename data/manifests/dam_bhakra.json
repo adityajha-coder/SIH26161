@@ -1,0 +1,54 @@
+{
+  "id": "dam-bhakra",
+  "case_id": "bhakra-dam",
+  "national_id": "HP01HH0001",
+  "name": "Bhakra Dam",
+  "official_source": {
+    "agency": "Central Water Commission (CWC) / Bhakra Beas Management Board (BBMB)",
+    "registry": "National Register of Large Dams (NRLD)",
+    "verification_status": "official"
+  },
+  "location": {
+    "state": "Himachal Pradesh",
+    "district": "Bilaspur",
+    "river": "Satluj",
+    "basin": "Indus / Satluj",
+    "coordinates": {
+      "type": "Point",
+      "coordinates": [76.4358, 31.4103]
+    }
+  },
+  "structural_parameters": {
+    "dam_type": "Concrete Gravity",
+    "structural_height_m": 226.0,
+    "hydraulic_height_m": 207.26,
+    "crest_length_m": 518.16,
+    "crest_width_m": 9.14,
+    "base_width_m": 190.5,
+    "top_elevation_m": 518.2,
+    "year_completed": 1963
+  },
+  "reservoir_parameters": {
+    "gross_storage_mcm": 9621.0,
+    "effective_storage_mcm": 7192.0,
+    "dead_storage_mcm": 2429.0,
+    "reservoir_area_sqkm": 168.35,
+    "full_reservoir_level_m": 513.59,
+    "max_water_level_m": 515.11,
+    "min_drawdown_level_m": 445.62
+  },
+  "spillway_parameters": {
+    "type": "Overflow Central Spillway with 4 Radial Gates (50ft x 37.5ft)",
+    "crest_elevation_m": 501.4,
+    "chute_capacity_cumec": 8212.0,
+    "total_discharge_capacity_cumec": 8212.0
+  },
+  "crest_geometry": {
+    "type": "LineString",
+    "coordinates": [
+      [76.4335, 31.4115],
+      [76.4358, 31.4103],
+      [76.4380, 31.4091]
+    ]
+  }
+}

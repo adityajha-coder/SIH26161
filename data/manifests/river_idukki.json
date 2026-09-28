@@ -1,0 +1,75 @@
+{
+  "id": "river-periyar",
+  "case_id": "idukki-dam",
+  "name": "Periyar River Western Ghats Corridor",
+  "sources": [
+    "OpenStreetMap (OSM) Waterways via Overpass API",
+    "HydroSHEDS 15s Global River Network"
+  ],
+  "reach_summary": {
+    "total_length_km": 85.0,
+    "origin": "Idukki / Cheruthoni Gorge",
+    "terminus": "Aluva (Periyar Delta / Arabian Sea)",
+    "average_bed_slope": 0.0078,
+    "manning_roughness": {
+      "gorge_rapids": 0.048,
+      "rocky_forest": 0.040,
+      "lowland_alluvial": 0.030
+    }
+  },
+  "key_monitoring_cross_sections": [
+    {
+      "id": "xs-01-dam-toe",
+      "distance_km": 0.5,
+      "name": "Cheruthoni Outfall / Idukki Toe",
+      "lon": 76.9744,
+      "lat": 9.8517,
+      "bed_elevation_m": 570.0
+    },
+    {
+      "id": "xs-02-cheruthoni",
+      "distance_km": 3.0,
+      "name": "Cheruthoni Town Bridge",
+      "lon": 76.9620,
+      "lat": 9.8700,
+      "bed_elevation_m": 540.0
+    },
+    {
+      "id": "xs-03-neriamangalam",
+      "distance_km": 42.0,
+      "name": "Neriamangalam Bridge (Ranis Bridge)",
+      "lon": 76.7820,
+      "lat": 10.0540,
+      "bed_elevation_m": 85.0
+    },
+    {
+      "id": "xs-04-kothamangalam",
+      "distance_km": 60.0,
+      "name": "Kothamangalam Plains",
+      "lon": 76.6210,
+      "lat": 10.0630,
+      "bed_elevation_m": 35.0
+    },
+    {
+      "id": "xs-05-aluva",
+      "distance_km": 85.0,
+      "name": "Aluva Manappuram (Kochi Outflow)",
+      "lon": 76.3540,
+      "lat": 10.1080,
+      "bed_elevation_m": 6.0
+    }
+  ],
+  "centerline": {
+    "type": "LineString",
+    "coordinates": [
+      [76.9744, 9.8517],
+      [76.9620, 9.8700],
+      [76.9050, 9.9120],
+      [76.8830, 9.9250],
+      [76.8400, 9.9800],
+      [76.7820, 10.0540],
+      [76.6210, 10.0630],
+      [76.3540, 10.1080]
+    ]
+  }
+}

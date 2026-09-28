@@ -1,0 +1,93 @@
+{
+  "id": "river-narmada",
+  "case_id": "sardar-sarovar-dam",
+  "name": "Narmada River Downstream Reach",
+  "sources": [
+    "OpenStreetMap (OSM) Waterways via Overpass API",
+    "HydroSHEDS 15s Global River Network",
+    "Survey of India River Centrelines"
+  ],
+  "reach_summary": {
+    "total_length_km": 115.0,
+    "origin": "Sardar Sarovar Dam Foot",
+    "terminus": "Gulf of Khambhat Estuary / Bharuch",
+    "average_bed_slope": 0.00045,
+    "manning_roughness": {
+      "gorge_bed": 0.038,
+      "alluvial_channel": 0.028,
+      "estuary_floodplain": 0.035
+    }
+  },
+  "key_monitoring_cross_sections": [
+    {
+      "id": "xs-01-dam-toe",
+      "distance_km": 0.5,
+      "name": "Sardar Sarovar Dam Toe / Still Basin",
+      "lon": 73.7481,
+      "lat": 21.8319,
+      "bed_elevation_m": 18.0
+    },
+    {
+      "id": "xs-02-kevadiya",
+      "distance_km": 5.0,
+      "name": "Kevadiya / Ekta Nagar / Statue of Unity",
+      "lon": 73.7150,
+      "lat": 21.8380,
+      "bed_elevation_m": 16.5
+    },
+    {
+      "id": "xs-03-garudeshwar",
+      "distance_km": 12.0,
+      "name": "Garudeshwar Weir",
+      "lon": 73.6620,
+      "lat": 21.8210,
+      "bed_elevation_m": 14.0
+    },
+    {
+      "id": "xs-04-rajpipla",
+      "distance_km": 26.0,
+      "name": "Rajpipla Bridge Crossing",
+      "lon": 73.5650,
+      "lat": 21.7890,
+      "bed_elevation_m": 11.2
+    },
+    {
+      "id": "xs-05-sinor",
+      "distance_km": 58.0,
+      "name": "Sinor Reach",
+      "lon": 73.3420,
+      "lat": 21.9120,
+      "bed_elevation_m": 7.5
+    },
+    {
+      "id": "xs-06-bharuch",
+      "distance_km": 95.0,
+      "name": "Golden Bridge, Bharuch City",
+      "lon": 72.9980,
+      "lat": 21.7050,
+      "bed_elevation_m": 2.5
+    },
+    {
+      "id": "xs-07-ankleshwar",
+      "distance_km": 104.0,
+      "name": "Ankleshwar Outfall",
+      "lon": 73.0020,
+      "lat": 21.6260,
+      "bed_elevation_m": 1.0
+    }
+  ],
+  "centerline": {
+    "type": "LineString",
+    "coordinates": [
+      [73.7481, 21.8319],
+      [73.7150, 21.8380],
+      [73.6620, 21.8210],
+      [73.5650, 21.7890],
+      [73.4800, 21.8300],
+      [73.3420, 21.9120],
+      [73.1800, 21.7600],
+      [72.9980, 21.7050],
+      [72.8500, 21.6500]
+    ]
+  }
+}

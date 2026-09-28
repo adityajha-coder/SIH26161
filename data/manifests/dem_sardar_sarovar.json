@@ -1,0 +1,36 @@
+{
+  "id": "manifest-dem-sardar-sarovar",
+  "case_id": "sardar-sarovar-dam",
+  "dataset_name": "Copernicus GLO-30 Digital Elevation Model (Narmada Valley)",
+  "primary_source": {
+    "provider": "Copernicus / ESA",
+    "dataset": "COP30_GLO",
+    "resolution_m": 30.0,
+    "spatial_resolution_arcsec": 1.0,
+    "horizontal_crs": "EPSG:4326",
+    "vertical_crs": "EGM2008",
+    "acquisition_date": "2021-01-01",
+    "format": "Cloud-Optimized GeoTIFF (COG)"
+  },
+  "storage": {
+    "local_raw_path": "data/raw/sardar_sarovar_cop30.tif",
+    "bucket": "sih26161",
+    "object_path": "dems/sardar_sarovar_cop30.tif",
+    "uri": "s3://sih26161/dems/sardar_sarovar_cop30.tif"
+  },
+  "spatial_coverage": {
+    "bbox": {
+      "min_lon": 72.80,
+      "min_lat": 21.50,
+      "max_lon": 73.85,
+      "max_lat": 22.10
+    },
+    "projected_crs": "EPSG:32643",
+    "utm_zone": "43N"
+  },
+  "elevation_bounds": {
+    "min_elevation_m": 2.0,
+    "max_elevation_m": 450.0,
+    "dam_crest_elevation_m": 146.5
+  }
+}
