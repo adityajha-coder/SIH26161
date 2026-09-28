@@ -155,7 +155,7 @@ func (h *ScenarioHandler) CreateScenario(w http.ResponseWriter, r *http.Request)
 	}
 
 	crestElev := 839.5
-	if req.CaseID == "rishiganga-blockage" || req.ReservoirLevelAtFailM > 835 {
+	if req.CaseID == "rishiganga-blockage" {
 		crestElev = req.ReservoirLevelAtFailM + 10.0
 	}
 
