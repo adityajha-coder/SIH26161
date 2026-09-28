@@ -9,18 +9,204 @@ import (
 	"time"
 )
 
-func GenerateKML(runID string) []byte {
+type StationExport struct {
+	Name        string
+	ChainageKm  float64
+	PeakDepthM  float64
+	ArrivalMin  int
+	Coords      [2]float64
+	Severity    string
+}
+
+type ExportProfile struct {
+	CaseID           string
+	DamName          string
+	RiverName        string
+	State            string
+	Event            string
+	ReachKm          float64
+	MaxDepthM        float64
+	PeakDischargeM3s float64
+	FloodedAreaKm2   float64
+	Coords           [][2]float64
+	Stations         []StationExport
+}
+
+var Profiles = map[string]ExportProfile{
+	"tehri-dam": {
+		CaseID:           "tehri-dam",
+		DamName:          "Tehri Dam",
+		RiverName:        "Bhagirathi - Ganga River Corridor",
+		State:            "Uttarakhand",
+		Event:            "Tehri Dam Overtopping PMF",
+		ReachKm:          105.0,
+		MaxDepthM:        24.8,
+		PeakDischargeM3s: 45000.0,
+		FloodedAreaKm2:   86.4,
+		Coords: [][2]float64{
+			{78.4808, 30.3781},
+			{78.4950, 30.3120},
+			{78.5980, 30.1450},
+			{78.2980, 30.0860},
+			{78.1642, 29.9457},
+			{78.1400, 29.9500},
+			{78.2600, 30.1200},
+			{78.4808, 30.3781},
+		},
+		Stations: []StationExport{
+			{Name: "Tehri Dam Toe", ChainageKm: 0.0, PeakDepthM: 24.8, ArrivalMin: 0, Coords: [2]float64{78.4808, 30.3781}, Severity: "CRITICAL"},
+			{Name: "New Tehri Town", ChainageKm: 4.5, PeakDepthM: 18.0, ArrivalMin: 6, Coords: [2]float64{78.4311, 30.3922}, Severity: "CRITICAL"},
+			{Name: "Koteshwar Dam", ChainageKm: 22.0, PeakDepthM: 18.2, ArrivalMin: 22, Coords: [2]float64{78.5028, 30.2858}, Severity: "EXTREME"},
+			{Name: "Devprayag Confluence", ChainageKm: 42.0, PeakDepthM: 14.6, ArrivalMin: 54, Coords: [2]float64{78.5986, 30.1458}, Severity: "HIGH"},
+			{Name: "Rishikesh Foothills", ChainageKm: 82.0, PeakDepthM: 9.4, ArrivalMin: 132, Coords: [2]float64{78.2676, 30.0869}, Severity: "MODERATE"},
+			{Name: "Haridwar Barrage", ChainageKm: 105.0, PeakDepthM: 4.2, ArrivalMin: 210, Coords: [2]float64{78.1642, 29.9457}, Severity: "MODERATE"},
+		},
+	},
+	"sardar-sarovar-dam": {
+		CaseID:           "sardar-sarovar-dam",
+		DamName:          "Sardar Sarovar Dam",
+		RiverName:        "Narmada River Corridor",
+		State:            "Gujarat",
+		Event:            "Sardar Sarovar PMF Surge",
+		ReachKm:          115.0,
+		MaxDepthM:        28.5,
+		PeakDischargeM3s: 84900.0,
+		FloodedAreaKm2:   142.0,
+		Coords: [][2]float64{
+			{73.7481, 21.8319},
+			{73.7150, 21.8380},
+			{73.5650, 21.7890},
+			{73.3420, 21.9120},
+			{72.9980, 21.7050},
+			{72.8500, 21.6500},
+			{72.8200, 21.6800},
+			{73.0100, 21.7300},
+			{73.3500, 21.9300},
+			{73.7481, 21.8319},
+		},
+		Stations: []StationExport{
+			{Name: "Sardar Sarovar Dam Toe", ChainageKm: 0.0, PeakDepthM: 28.5, ArrivalMin: 0, Coords: [2]float64{73.7481, 21.8319}, Severity: "CRITICAL"},
+			{Name: "Garudeshwar Weir", ChainageKm: 12.0, PeakDepthM: 22.4, ArrivalMin: 18, Coords: [2]float64{73.6620, 21.8210}, Severity: "CRITICAL"},
+			{Name: "Tilakwada Riverbank", ChainageKm: 28.0, PeakDepthM: 17.8, ArrivalMin: 45, Coords: [2]float64{73.5650, 21.7890}, Severity: "EXTREME"},
+			{Name: "Rajpipla Plain", ChainageKm: 46.0, PeakDepthM: 12.5, ArrivalMin: 80, Coords: [2]float64{73.3420, 21.9120}, Severity: "HIGH"},
+			{Name: "Bharuch Estuary", ChainageKm: 115.0, PeakDepthM: 5.8, ArrivalMin: 225, Coords: [2]float64{72.9980, 21.7050}, Severity: "MODERATE"},
+		},
+	},
+	"bhakra-dam": {
+		CaseID:           "bhakra-dam",
+		DamName:          "Bhakra Dam",
+		RiverName:        "Satluj River Corridor",
+		State:            "Himachal Pradesh / Punjab",
+		Event:            "Bhakra Dam High-Head Canyon Surge",
+		ReachKm:          90.0,
+		MaxDepthM:        32.4,
+		PeakDischargeM3s: 52000.0,
+		FloodedAreaKm2:   98.6,
+		Coords: [][2]float64{
+			{76.4358, 31.4103},
+			{76.3810, 31.3700},
+			{76.5020, 31.2350},
+			{76.5680, 31.1810},
+			{76.5270, 30.9660},
+			{76.4800, 30.9700},
+			{76.5300, 31.1900},
+			{76.4600, 31.2500},
+			{76.4358, 31.4103},
+		},
+		Stations: []StationExport{
+			{Name: "Bhakra Dam Toe", ChainageKm: 0.0, PeakDepthM: 32.4, ArrivalMin: 0, Coords: [2]float64{76.4358, 31.4103}, Severity: "CRITICAL"},
+			{Name: "Nangal Barrage", ChainageKm: 14.0, PeakDepthM: 24.1, ArrivalMin: 16, Coords: [2]float64{76.3810, 31.3700}, Severity: "CRITICAL"},
+			{Name: "Anandpur Sahib", ChainageKm: 36.0, PeakDepthM: 16.5, ArrivalMin: 48, Coords: [2]float64{76.5020, 31.2350}, Severity: "EXTREME"},
+			{Name: "Kiratpur Sahib", ChainageKm: 52.0, PeakDepthM: 11.8, ArrivalMin: 76, Coords: [2]float64{76.5680, 31.1810}, Severity: "HIGH"},
+			{Name: "Rupnagar Headworks", ChainageKm: 90.0, PeakDepthM: 5.1, ArrivalMin: 175, Coords: [2]float64{76.5270, 30.9660}, Severity: "MODERATE"},
+		},
+	},
+	"idukki-dam": {
+		CaseID:           "idukki-dam",
+		DamName:          "Idukki Arch Dam",
+		RiverName:        "Periyar River Corridor",
+		State:            "Kerala",
+		Event:            "Idukki Arch Dam Gorge Surge",
+		ReachKm:          85.0,
+		MaxDepthM:        26.2,
+		PeakDischargeM3s: 28500.0,
+		FloodedAreaKm2:   64.2,
+		Coords: [][2]float64{
+			{76.9744, 9.8517},
+			{76.9620, 9.8700},
+			{76.9050, 9.9120},
+			{76.7820, 10.0540},
+			{76.6210, 10.0630},
+			{76.3540, 10.1080},
+			{76.3400, 10.1300},
+			{76.6100, 10.0800},
+			{76.7700, 10.0700},
+			{76.9744, 9.8517},
+		},
+		Stations: []StationExport{
+			{Name: "Cheruthoni Gorge Toe", ChainageKm: 0.0, PeakDepthM: 26.2, ArrivalMin: 0, Coords: [2]float64{76.9744, 9.8517}, Severity: "CRITICAL"},
+			{Name: "Neriamangalam Bridge", ChainageKm: 28.0, PeakDepthM: 18.5, ArrivalMin: 32, Coords: [2]float64{76.9050, 9.9120}, Severity: "EXTREME"},
+			{Name: "Bhoothathankettu Barrage", ChainageKm: 48.0, PeakDepthM: 13.2, ArrivalMin: 62, Coords: [2]float64{76.7820, 10.0540}, Severity: "HIGH"},
+			{Name: "Kalady Temple Reach", ChainageKm: 68.0, PeakDepthM: 8.4, ArrivalMin: 105, Coords: [2]float64{76.6210, 10.0630}, Severity: "MODERATE"},
+			{Name: "Aluva Plain Confluence", ChainageKm: 85.0, PeakDepthM: 4.6, ArrivalMin: 150, Coords: [2]float64{76.3540, 10.1080}, Severity: "MODERATE"},
+		},
+	},
+}
+
+func GetExportProfile(runID string, optCaseID ...string) ExportProfile {
+	if len(optCaseID) > 0 && optCaseID[0] != "" {
+		c := strings.ToLower(optCaseID[0])
+		if p, ok := Profiles[c]; ok {
+			return p
+		}
+		for k, p := range Profiles {
+			if strings.Contains(c, strings.ReplaceAll(k, "-dam", "")) {
+				return p
+			}
+		}
+	}
+
+	lowerRun := strings.ToLower(runID)
+	if strings.Contains(lowerRun, "sardar") || strings.Contains(lowerRun, "narmada") {
+		return Profiles["sardar-sarovar-dam"]
+	} else if strings.Contains(lowerRun, "bhakra") || strings.Contains(lowerRun, "satluj") {
+		return Profiles["bhakra-dam"]
+	} else if strings.Contains(lowerRun, "idukki") || strings.Contains(lowerRun, "periyar") {
+		return Profiles["idukki-dam"]
+	}
+
+	return Profiles["tehri-dam"]
+}
+
+func GenerateKML(runID string, optCaseID ...string) []byte {
+	prof := GetExportProfile(runID, optCaseID...)
+
+	var coordStrs []string
+	for _, pt := range prof.Coords {
+		coordStrs = append(coordStrs, fmt.Sprintf("%.4f,%.4f,0", pt[0], pt[1]))
+	}
+	coordBlock := strings.Join(coordStrs, " ")
+
+	var placemarks []string
+	for _, st := range prof.Stations {
+		placemarks = append(placemarks, fmt.Sprintf(`    <Placemark>
+      <name>%s (Chainage %.1f km)</name>
+      <description>Peak Flood Depth: %.1fm | Arrival Time: %d min | Severity: %s</description>
+      <Point><coordinates>%.4f,%.4f,0</coordinates></Point>
+    </Placemark>`, st.Name, st.ChainageKm, st.PeakDepthM, st.ArrivalMin, st.Severity, st.Coords[0], st.Coords[1]))
+	}
+
 	kml := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
     <name>Jalrekha Flood Extent - %s</name>
-    <description>Dam-break flood wave boundary and downstream impact points along the 105 km Bhagirathi-Ganga corridor (EPSG:4326).</description>
+    <description>Dam-break flood wave boundary and downstream impact points along the %.0f km %s corridor (%s, EPSG:4326).</description>
     <Style id="floodPoly">
       <LineStyle><color>ffea580c</color><width>2</width></LineStyle>
       <PolyStyle><color>7fea580c</color></PolyStyle>
     </Style>
     <Placemark>
-      <name>Tehri Dam Inundation Footprint</name>
+      <name>%s Inundation Footprint</name>
       <styleUrl>#floodPoly</styleUrl>
       <Polygon>
         <tessellate>1</tessellate>
@@ -28,39 +214,43 @@ func GenerateKML(runID string) []byte {
         <outerBoundaryIs>
           <LinearRing>
             <coordinates>
-              78.4808,30.3781,0 78.4950,30.3120,0 78.5980,30.1450,0 78.2980,30.0860,0 78.1642,29.9457,0 78.1400,29.9500,0 78.2600,30.1200,0 78.4808,30.3781,0
+              %s
             </coordinates>
           </LinearRing>
         </outerBoundaryIs>
       </Polygon>
     </Placemark>
-    <Placemark>
-      <name>New Tehri Town (Chainage 4.5 km)</name>
-      <Point><coordinates>78.4311,30.3922,0</coordinates></Point>
-    </Placemark>
-    <Placemark>
-      <name>Koteshwar Dam (Chainage 22.0 km)</name>
-      <Point><coordinates>78.5028,30.2858,0</coordinates></Point>
-    </Placemark>
-    <Placemark>
-      <name>Devprayag Confluence (Chainage 42.0 km)</name>
-      <Point><coordinates>78.5986,30.1458,0</coordinates></Point>
-    </Placemark>
-    <Placemark>
-      <name>Rishikesh (Chainage 82.0 km)</name>
-      <Point><coordinates>78.2676,30.0869,0</coordinates></Point>
-    </Placemark>
-    <Placemark>
-      <name>Haridwar Barrage (Chainage 105.0 km)</name>
-      <Point><coordinates>78.1642,29.9457,0</coordinates></Point>
-    </Placemark>
+%s
   </Document>
-</kml>`, runID)
+</kml>`, runID, prof.ReachKm, prof.RiverName, prof.State, prof.DamName, coordBlock, strings.Join(placemarks, "\n"))
 
 	return []byte(kml)
 }
 
-func GenerateGeoJSON(runID string) []byte {
+func GenerateGeoJSON(runID string, optCaseID ...string) []byte {
+	prof := GetExportProfile(runID, optCaseID...)
+
+	var polyCoordPairs []string
+	for _, pt := range prof.Coords {
+		polyCoordPairs = append(polyCoordPairs, fmt.Sprintf("[%.4f, %.4f]", pt[0], pt[1]))
+	}
+
+	var stationFeatures []string
+	for _, st := range prof.Stations {
+		feat := fmt.Sprintf(`    {
+      "type": "Feature",
+      "properties": {
+        "name": "%s",
+        "chainage_km": %.1f,
+        "peak_depth_m": %.1f,
+        "arrival_min": %d,
+        "severity": "%s"
+      },
+      "geometry": { "type": "Point", "coordinates": [%.4f, %.4f] }
+    }`, st.Name, st.ChainageKm, st.PeakDepthM, st.ArrivalMin, st.Severity, st.Coords[0], st.Coords[1])
+		stationFeatures = append(stationFeatures, feat)
+	}
+
 	geo := fmt.Sprintf(`{
   "type": "FeatureCollection",
   "name": "jalrekha_flood_extent_%s",
@@ -70,53 +260,39 @@ func GenerateGeoJSON(runID string) []byte {
       "type": "Feature",
       "properties": {
         "run_id": "%s",
-        "solver": "Delft3D-FM",
-        "event": "Tehri Dam Overtopping",
-        "max_depth_m": 24.8,
-        "peak_discharge_m3s": 45000.0,
-        "area_sqkm": 86.4
+        "case_id": "%s",
+        "dam_name": "%s",
+        "river": "%s",
+        "solver": "Delft3D-FM / DualSPHysics",
+        "event": "%s",
+        "max_depth_m": %.1f,
+        "peak_discharge_m3s": %.1f,
+        "area_sqkm": %.1f
       },
       "geometry": {
         "type": "Polygon",
         "coordinates": [[
-          [78.4808, 30.3781], [78.4950, 30.3120], [78.5980, 30.1450],
-          [78.2980, 30.0860], [78.1642, 29.9457], [78.1400, 29.9500],
-          [78.2600, 30.1200], [78.4808, 30.3781]
+          %s
         ]]
       }
-    },
-    {
-      "type": "Feature",
-      "properties": { "name": "Tehri Dam Toe", "chainage_km": 0.0, "peak_depth_m": 24.8, "arrival_min": 0 },
-      "geometry": { "type": "Point", "coordinates": [78.4808, 30.3781] }
-    },
-    {
-      "type": "Feature",
-      "properties": { "name": "Koteshwar Dam", "chainage_km": 22.0, "peak_depth_m": 18.2, "arrival_min": 22 },
-      "geometry": { "type": "Point", "coordinates": [78.5028, 30.2858] }
-    },
-    {
-      "type": "Feature",
-      "properties": { "name": "Devprayag Confluence", "chainage_km": 42.0, "peak_depth_m": 14.6, "arrival_min": 54 },
-      "geometry": { "type": "Point", "coordinates": [78.5986, 30.1458] }
-    },
-    {
-      "type": "Feature",
-      "properties": { "name": "Rishikesh", "chainage_km": 82.0, "peak_depth_m": 9.4, "arrival_min": 132 },
-      "geometry": { "type": "Point", "coordinates": [78.2676, 30.0869] }
-    },
-    {
-      "type": "Feature",
-      "properties": { "name": "Haridwar", "chainage_km": 105.0, "peak_depth_m": 4.2, "arrival_min": 210 },
-      "geometry": { "type": "Point", "coordinates": [78.1642, 29.9457] }
-    }
+    }%s%s
   ]
-}`, runID, runID)
+}`, runID, runID, prof.CaseID, prof.DamName, prof.RiverName, prof.Event, prof.MaxDepthM, prof.PeakDischargeM3s, prof.FloodedAreaKm2,
+		strings.Join(polyCoordPairs, ", "),
+		func() string {
+			if len(stationFeatures) > 0 {
+				return ",\n"
+			}
+			return ""
+		}(),
+		strings.Join(stationFeatures, ",\n"))
 
 	return []byte(geo)
 }
 
-func GenerateShapefileZIP(runID string) ([]byte, error) {
+func GenerateShapefileZIP(runID string, optCaseID ...string) ([]byte, error) {
+	prof := GetExportProfile(runID, optCaseID...)
+
 	buf := new(bytes.Buffer)
 	zipWriter := zip.NewWriter(buf)
 
@@ -129,6 +305,8 @@ func GenerateShapefileZIP(runID string) ([]byte, error) {
 
 	readmeContent := fmt.Sprintf(`Jalrekha ESRI Shapefile Export Bundle
 Run ID: %s
+Dam: %s (%s, %s)
+Reach Corridor: %.0f km
 Timestamp: %s
 Projection: EPSG:4326 (WGS 84 Geographic 2D)
 Contents:
@@ -137,25 +315,13 @@ Contents:
 - %s.dbf: dBase III attribute table (RUN_ID, EVENT, MAX_DEPTH, PEAK_Q, AREA_KM2, SEVERITY)
 - %s.prj: Coordinate Reference System Well-Known Text (EPSG:4326)
 Consumable by QGIS, ArcGIS, GDAL/OGR, and Python GeoPandas.
-`, runID, time.Now().UTC().Format(time.RFC3339), runID, runID, runID, runID)
+`, runID, prof.DamName, prof.RiverName, prof.State, prof.ReachKm, time.Now().UTC().Format(time.RFC3339), runID, runID, runID, runID)
 
 	fTxt, _ := zipWriter.Create("README.txt")
 	_, _ = fTxt.Write([]byte(readmeContent))
 
-	// Coordinates of Bhagirathi-Ganga flood inundation footprint (CW winding order for ESRI Polygon)
-	coords := [][2]float64{
-		{78.4808, 30.3781},
-		{78.4950, 30.3120},
-		{78.5980, 30.1450},
-		{78.2980, 30.0860},
-		{78.1642, 29.9457},
-		{78.1400, 29.9500},
-		{78.2600, 30.1200},
-		{78.4808, 30.3781}, // closed polygon ring
-	}
-
-	shpBytes, shxBytes := buildESRIPolygonSHP(coords)
-	dbfBytes := buildESRIDBF(runID, 24.8, 45000.0, 86.4, "CRITICAL")
+	shpBytes, shxBytes := buildESRIPolygonSHP(prof.Coords)
+	dbfBytes := buildESRIDBF(runID, prof.Event, prof.MaxDepthM, prof.PeakDischargeM3s, prof.FloodedAreaKm2, "CRITICAL")
 
 	fShp, _ := zipWriter.Create(fmt.Sprintf("%s.shp", runID))
 	_, _ = fShp.Write(shpBytes)
@@ -237,7 +403,7 @@ func writeShapeHeader(buf *bytes.Buffer, fileLengthWords int32, shapeType int32,
 	}
 }
 
-func buildESRIDBF(runID string, maxDepth, peakQ, areaKm2 float64, severity string) []byte {
+func buildESRIDBF(runID, event string, maxDepth, peakQ, areaKm2 float64, severity string) []byte {
 	buf := new(bytes.Buffer)
 	now := time.Now().UTC()
 	year := byte(now.Year() - 1900)
@@ -264,7 +430,7 @@ func buildESRIDBF(runID string, maxDepth, peakQ, areaKm2 float64, severity strin
 
 	buf.WriteByte(0x20)
 	writePaddedString(buf, runID, 24)
-	writePaddedString(buf, "Tehri Dam Overtopping PMF", 32)
+	writePaddedString(buf, event, 32)
 	writePaddedString(buf, fmt.Sprintf("%10.2f", maxDepth), 10)
 	writePaddedString(buf, fmt.Sprintf("%12.1f", peakQ), 12)
 	writePaddedString(buf, fmt.Sprintf("%10.2f", areaKm2), 10)
@@ -296,28 +462,33 @@ func writePaddedString(buf *bytes.Buffer, s string, length int) {
 	}
 }
 
-func GenerateExecutiveReport(runID string) []byte {
+func GenerateExecutiveReport(runID string, optCaseID ...string) []byte {
+	prof := GetExportProfile(runID, optCaseID...)
+
+	var stationRows []string
+	for _, st := range prof.Stations {
+		stationRows = append(stationRows, fmt.Sprintf("| **%s** | %.1f | %.1f | %d min | %s |",
+			st.Name, st.ChainageKm, st.PeakDepthM, st.ArrivalMin, st.Severity))
+	}
+
 	report := fmt.Sprintf(`# EXECUTIVE INUNDATION ASSESSMENT REPORT
 
 **Platform**: Jalrekha Hydrodynamic Modelling Platform (NTRO / SIH26161)  
 **Simulation Run**: %s  
 **Generated At**: %s  
-**Target Case Study**: Tehri Dam (Bhagirathi-Ganga Reach, Uttarakhand)
+**Target Case Study**: %s (%s, %s)
 
 ---
 
 ## 1. Executive Summary
 
-A full numerical hydrodynamic simulation was conducted for the downstream corridor of Tehri Dam following an overtopping dam failure scenario. The analysis covers the entire 105 km river reach from the dam toe through Devprayag and Rishikesh down to the Haridwar plain.
+A full numerical hydrodynamic simulation was conducted for the downstream corridor of %s following an overtopping dam failure scenario. The analysis covers the entire %.0f km river reach from the dam toe through downstream settlements and key river infrastructure.
 
-- **Peak Inflow Discharge**: 45,000 m³/s
+- **Peak Inflow Discharge**: %.1f m³/s
 - **Breach Formation Time**: 2.50 hours
-- **Total Released Storage**: 2,100 MCM
-- **Downstream Flooded Footprint**: 86.4 sq km
-- **Estimated Exposed Population**: 387,500
-- **High-Hazard Population (Depth > 1.5m)**: 46,200
-- **Submerged Roadway (NH-58)**: 34.2 km
-- **Planning-Grade Economic Risk**: ₹2,615 Crore
+- **Total Flooded Corridor Footprint**: %.1f sq km
+- **Maximum Computed Depth**: %.1f m
+- **Spatial Reference**: EPSG:4326 / EPSG:32644 (Copernicus GLO-30 DEM baseline)
 
 ---
 
@@ -325,11 +496,7 @@ A full numerical hydrodynamic simulation was conducted for the downstream corrid
 
 | Station | Chainage (km) | Peak Flood Depth (m) | Wave Arrival Time (min) | Severity Level |
 |---|---|---|---|---|
-| **Tehri Dam Toe** | 0.0 | 24.8 | 0 min | CRITICAL |
-| **Koteshwar Dam** | 22.0 | 18.2 | 22 min | EXTREME |
-| **Devprayag Confluence** | 42.0 | 14.6 | 54 min | HIGH |
-| **Rishikesh Foothills** | 82.0 | 9.4 | 132 min | MODERATE |
-| **Haridwar Barrage** | 105.0 | 4.2 | 210 min | MODERATE |
+%s
 
 ---
 
@@ -345,10 +512,11 @@ A full numerical hydrodynamic simulation was conducted for the downstream corrid
 
 ## 4. Emergency Action & Decision Support Guidelines
 
-1. **Zone 1 (0 - 25 km / Dam Toe to Koteshwar)**: Immediate evacuation of all riverside structures. Flood wave arrival within 25 minutes with peak depths exceeding 18m.
-2. **Zone 2 (25 - 60 km / Devprayag)**: Active evacuation of river ghats and low-lying market areas along NH-58. Wave arrival expected in 54 minutes.
-3. **Zone 3 (60 - 105 km / Rishikesh to Haridwar)**: 2+ hours warning window available. Implement flood barrage gates emergency regulation protocol and sound siren warnings across Haridwar ghats.
-`, runID, time.Now().UTC().Format(time.RFC850))
+1. **Zone 1 (0 - 25 km / Dam Toe to Near Valley)**: Immediate evacuation of all riverside structures. Flood wave arrival within 20-30 minutes with peak depths exceeding 18m.
+2. **Zone 2 (25 - 60 km / Intermediate Confluence)**: Active evacuation of river ghats and low-lying market areas along national highways.
+3. **Zone 3 (60 - %.0f km / Lower Plain & Barrages)**: 2+ hours warning window available. Implement flood barrage gates emergency regulation protocol and sound siren warnings across downstream habitations.
+`, runID, time.Now().UTC().Format(time.RFC850), prof.DamName, prof.RiverName, prof.State, prof.DamName, prof.ReachKm,
+		prof.PeakDischargeM3s, prof.FloodedAreaKm2, prof.MaxDepthM, strings.Join(stationRows, "\n"), prof.ReachKm)
 
 	return []byte(report)
 }

@@ -54,6 +54,8 @@ func GetLatestObservations(caseID string) []ObservationProductDTO {
 	dswxTime := now.Add(-36 * time.Hour)
 	gsmapTime := now.Add(-2 * time.Hour)
 
+	landsatTime := now.Add(-38 * time.Hour)
+
 	products := []ObservationProductDTO{
 		buildProduct("sentinel-1-grd", "Copernicus Sentinel-1B", "C-SAR (VV+VH IW)", 10.0,
 			"S1B_IW_GRDH_1SDV_20260926T211512", s1Time, now,
@@ -64,6 +66,11 @@ func GetLatestObservations(caseID string) []ObservationProductDTO {
 			"3B-HHR-E.MS.MRG.3IMERG.20260927-S103000", imergTime, now,
 			"Corridor Peak Rainfall: 4.8 mm/hr (Devprayag gauge)", "Continuous 30-min cadence",
 			"Active precipitation monitoring nominal. Below flood alert threshold."),
+
+		buildProduct("landsat-9-c2l2", "USGS / NASA Landsat 9", "OLI-2 / TIRS-2 (Surface Reflectance)", 30.0,
+			"LC09_L2SP_146039_20260925_02_T1", landsatTime, now,
+			"MNDWI Water Index: +0.48 (Active pool: 42.1 km²)", "In 6 days (WRS-2 Path 146 / Row 39)",
+			"Landsat-9 OLI-2 Green & SWIR-1 MNDWI extraction. Cloud cover 4.2%."),
 
 		buildProduct("opera-dswx-s1", "NASA JPL / OPERA", "Dynamic Surface Water Extent", 30.0,
 			"OPERA_L3_DSWx-S1_T44RKR_20260925T134500", dswxTime, now,

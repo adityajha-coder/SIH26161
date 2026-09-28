@@ -50,3 +50,38 @@ func TestGenerateExecutiveReport(t *testing.T) {
 		t.Errorf("missing solver details in report")
 	}
 }
+
+func TestMultiDamExports(t *testing.T) {
+	dams := []struct {
+		caseID   string
+		damName  string
+		river    string
+	}{
+		{"tehri-dam", "Tehri Dam", "Bhagirathi"},
+		{"sardar-sarovar-dam", "Sardar Sarovar Dam", "Narmada"},
+		{"bhakra-dam", "Bhakra Dam", "Satluj"},
+		{"idukki-dam", "Idukki Arch Dam", "Periyar"},
+	}
+
+	for _, d := range dams {
+		kml := string(GenerateKML("run-test", d.caseID))
+		if !strings.Contains(kml, d.damName) {
+			t.Errorf("KML for %s missing dam name %s", d.caseID, d.damName)
+		}
+
+		geo := string(GenerateGeoJSON("run-test", d.caseID))
+		if !strings.Contains(geo, d.damName) || !strings.Contains(geo, d.caseID) {
+			t.Errorf("GeoJSON for %s missing dam metadata", d.caseID)
+		}
+
+		zipBytes, err := GenerateShapefileZIP("run-test", d.caseID)
+		if err != nil || len(zipBytes) < 100 {
+			t.Errorf("Shapefile ZIP for %s failed: err=%v len=%d", d.caseID, err, len(zipBytes))
+		}
+
+		rep := string(GenerateExecutiveReport("run-test", d.caseID))
+		if !strings.Contains(rep, d.damName) {
+			t.Errorf("Executive Report for %s missing dam name", d.caseID)
+		}
+	}
+}
