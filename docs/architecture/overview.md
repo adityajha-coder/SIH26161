@@ -1,4 +1,4 @@
-# Jalrekha Architecture Overview
+# STRATA Architecture Overview
 
 ```mermaid
 graph TD
@@ -35,7 +35,7 @@ graph TD
 
     subgraph DataStore ["Persistence & Object Storage"]
         Postgres[("Render PostgreSQL + PostGIS (15 Tables)")]
-        S3Storage[("Supabase S3 Bucket (SIH26161-vault)")]
+        S3Storage[("MinIO S3 Object Storage (strata-data)")]
     end
 
     UI -->|REST API /api/v1/*| Router
@@ -46,3 +46,4 @@ graph TD
     CaseH & ScenH & SimH & CompH & ImpactH --> Postgres
     TileH & SimWorker & ExportH --> S3Storage
 ```
+
