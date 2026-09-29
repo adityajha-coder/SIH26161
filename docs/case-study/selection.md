@@ -44,7 +44,7 @@ This document defines the case studies selected for **SIH26161 (Dam Break Inunda
 
 ## 2. Multi-Dam National Benchmark Case Studies
 
-In addition to Tehri Dam, JALREKHA incorporates 3 major national benchmark dams across India's primary river basins:
+In addition to Tehri Dam, STRATA incorporates 3 major national benchmark dams across India's primary river basins:
 
 1. **Sardar Sarovar Dam (Gujarat)**: Concrete gravity structure on the Narmada River (115 km reach from Kevadiya down to Bharuch and the Gulf of Khambhat; 9,500 MCM gross storage).
 2. **Bhakra Dam (Himachal Pradesh)**: High-head concrete gravity dam on the Satluj River (90 km corridor to Nangal Barrage, Anandpur Sahib, and Rupnagar; 9,621 MCM gross storage).

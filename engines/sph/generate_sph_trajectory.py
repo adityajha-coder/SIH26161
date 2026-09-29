@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Gomez-Gesteira et al. (2010) Dam-Break Flume SPH Particle Trajectory Generator
-Generates precomputed 3D SPH particle trajectory dataset for JALREKHA SIH26161.
+Generates precomputed 3D SPH particle trajectory dataset for STRATA SIH26161.
 Outputs to data/processed/sph/dambreak_particles.json with full scientific metadata.
 """
 

@@ -1,4 +1,4 @@
-# Jalrekha — Final Validation & Benchmarking Report
+# STRATA — Final Validation & Benchmarking Report
 
 **Project**: SIH26161 (NTRO Problem Statement) — Dam Break / River Blockage Inundation Modelling  
 **Date**: September 2026  
@@ -8,7 +8,7 @@
 
 ## 1. Executive Summary
 
-This report establishes the physical validity, computational reproducibility, and multi-solver benchmarking for **Jalrekha**, an institutional-grade dam-break and river blockage inundation modelling platform. The primary case study models an extreme overtopping breach scenario at **Tehri Dam** (260.5 m structural height, 3,540 MCM reservoir storage) propagating 105 km downstream along the Bhagirathi-Ganga river corridor through Devprayag, Rishikesh, and the Haridwar floodplain.
+This report establishes the physical validity, computational reproducibility, and multi-solver benchmarking for **STRATA**, an institutional-grade dam-break and river blockage inundation modelling platform. The primary case study models an extreme overtopping breach scenario at **Tehri Dam** (260.5 m structural height, 3,540 MCM reservoir storage) propagating 105 km downstream along the Bhagirathi-Ganga river corridor through Devprayag, Rishikesh, and the Haridwar floodplain.
 
 ---
 

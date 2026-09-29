@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 2D Shallow Water Equation (SWE) Finite-Volume Numerical Solver Kernel
-Part of JALREKHA Hydrodynamic Modelling Platform (SIH26161)
+Part of STRATA Hydrodynamic Modelling Platform (SIH26161)
 
 Solves the conservative 2D Shallow Water Equations (Saint-Venant system):
     ∂U/∂t + ∂F(U)/∂x + ∂G(U)/∂y = S(U)
@@ -258,7 +258,7 @@ def run_ritter_convergence_test(nx_list=(50, 100, 200), t_target=25.0, h0=10.0):
     Computes genuine numerical L1 and L_inf error norms to verify PDE convergence.
     """
     print("=" * 76)
-    print(" JALREKHA HYDRODYNAMIC ENGINE: RITTER (1892) DAM-BREAK CONVERGENCE CHECK")
+    print(" STRATA HYDRODYNAMIC ENGINE: RITTER (1892) DAM-BREAK CONVERGENCE CHECK")
     print(f" Physical Parameters: h0 = {h0:.1f} m, t_target = {t_target:.1f} s, Manning n = 0.0 (frictionless)")
     print(f" Analytical Surge Tip Celerity: c_front = 2 * sqrt(g * h0) = {2.0 * math.sqrt(GRAVITY * h0):.2f} m/s")
     print("=" * 76)

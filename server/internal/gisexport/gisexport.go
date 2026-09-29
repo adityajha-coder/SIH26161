@@ -201,7 +201,7 @@ func GenerateKML(runID string, optCaseID ...string) []byte {
 	kml := fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
-    <name>Jalrekha Flood Extent - %s</name>
+    <name>STRATA Flood Extent - %s</name>
     <description>Dam-break flood wave boundary and downstream impact points along the %.0f km %s corridor (%s, EPSG:4326).</description>
     <Style id="floodPoly">
       <LineStyle><color>ffea580c</color><width>2</width></LineStyle>
@@ -255,7 +255,7 @@ func GenerateGeoJSON(runID string, optCaseID ...string) []byte {
 
 	geo := fmt.Sprintf(`{
   "type": "FeatureCollection",
-  "name": "jalrekha_flood_extent_%s",
+  "name": "strata_flood_extent_%s",
   "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
   "features": [
     {
@@ -305,7 +305,7 @@ func GenerateShapefileZIP(runID string, optCaseID ...string) ([]byte, error) {
 	}
 	_, _ = fPrj.Write([]byte(prjContent))
 
-	readmeContent := fmt.Sprintf(`Jalrekha ESRI Shapefile Export Bundle
+	readmeContent := fmt.Sprintf(`STRATA ESRI Shapefile Export Bundle
 Run ID: %s
 Dam: %s (%s, %s)
 Reach Corridor: %.0f km

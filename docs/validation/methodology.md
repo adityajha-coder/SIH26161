@@ -2,7 +2,7 @@
 
 ## 1. Multi-Solver Cross-Validation (Eulerian vs Lagrangian)
 
-To quantify model credibility without relying on a single numerical solver, Jalrekha implements cell-by-cell common-grid cross-validation:
+To quantify model credibility without relying on a single numerical solver, STRATA implements cell-by-cell common-grid cross-validation:
 
 ### Mathematical Formulations
 
