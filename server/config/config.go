@@ -49,8 +49,8 @@ func Load() *Config {
 	}
 
 	return &Config{
-		Port:                   getEnv("API_PORT", "8080"),
-		CorsOrigin:             getEnv("API_CORS_ORIGIN", "*"),
+		Port:                   getFirstEnv("PORT", "API_PORT", "8080"),
+		CorsOrigin:             getFirstEnv("API_CORS_ORIGIN", "CORS_ORIGIN", "*"),
 		DatabaseURL:            getEnv("DATABASE_URL", "postgres://sih26161:password@localhost:5432/sih26161?sslmode=disable"),
 		RedisURL:               getEnv("REDIS_URL", "redis://localhost:6379"),
 		S3Endpoint:             endpoint,
