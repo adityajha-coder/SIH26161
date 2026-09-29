@@ -78,6 +78,18 @@ export function useSimulationPlayer(maxS: number, initialS = 0) {
     setTimeS(clamped)
   }, [])
 
+  const play = useCallback(() => {
+    if (maxRef.current > 0 && timeRef.current >= maxRef.current - 5) {
+      timeRef.current = 0
+      setTimeS(0)
+    }
+    setPlaying(true)
+  }, [])
+
+  const pause = useCallback(() => {
+    setPlaying(false)
+  }, [])
+
   const reset = useCallback(() => {
     setPlaying(false)
     timeRef.current = 0
@@ -89,6 +101,8 @@ export function useSimulationPlayer(maxS: number, initialS = 0) {
     setTimeS: seek,
     playing,
     toggle,
+    play,
+    pause,
     speed,
     setSpeed,
     reset,

@@ -31,28 +31,28 @@ export const DEFAULT_LAYERS: LayerVisibility = {
 }
 
 export const DEPTH_STOPS: [number, string][] = [
-  [0, '#2563eb'],
-  [3, '#06b6d4'],
-  [8, '#22c55e'],
-  [16, '#eab308'],
-  [30, '#f97316'],
-  [55, '#dc2626'],
+  [0, '#7dd3fc'],
+  [2, '#38bdf8'],
+  [6, '#0284c7'],
+  [14, '#0369a1'],
+  [28, '#1e40af'],
+  [55, '#0f172a'],
 ]
 
 export const VELOCITY_STOPS: [number, string][] = [
-  [0, '#27272a'],
-  [4, '#71717a'],
-  [8, '#a1a1aa'],
-  [12, '#f43f5e'],
-  [18, '#fde047'],
+  [0, '#0284c7'],
+  [3, '#0ea5e9'],
+  [7, '#06b6d4'],
+  [12, '#38bdf8'],
+  [18, '#f8fafc'],
 ]
 
 export const ARRIVAL_STOPS: [number, string][] = [
-  [0, '#dc2626'],
-  [1800, '#f97316'],
-  [3600, '#eab308'],
-  [5400, '#22c55e'],
-  [7200, '#10b981'],
+  [0, '#1e3a8a'],
+  [1800, '#2563eb'],
+  [3600, '#0284c7'],
+  [7200, '#38bdf8'],
+  [14400, '#bae6fd'],
 ]
 
 function hexToRgb(hex: string): [number, number, number] {

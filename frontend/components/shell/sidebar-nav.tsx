@@ -15,11 +15,10 @@ import { cn } from '@/lib/utils'
 
 export const NAV_ITEMS = [
   { href: '/map', label: 'Flood Map & 3D Simulation', icon: Map },
-  { href: '/', label: 'Mission Overview & Dossier', icon: LayoutDashboard },
+  { href: '/', label: 'Digital Twin Studio & Scenario Engine', icon: LayoutDashboard },
   { href: '/impact', label: 'Downstream Impact & Vulnerability', icon: ShieldAlert },
   { href: '/compare', label: 'Cross-Solver Validation', icon: GitCompare },
   { href: '/observations', label: 'Satellite Earth Observation', icon: Satellite },
-  { href: '/scenario', label: 'Breach Scenario Engine', icon: SlidersHorizontal },
   { href: '/exports', label: 'GIS Package Export', icon: Download },
 ]
 

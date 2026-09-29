@@ -8,7 +8,6 @@ import { useFloodResult, SPH_DOMAIN_KM } from '@/lib/use-flood'
 import { CASES } from '@/lib/case-study'
 import { SOLVERS, type SolverId } from '@/lib/types'
 import { formatNumber, formatDuration } from '@/lib/format'
-import { ProvenanceBadge } from '@/components/common/provenance-badge'
 import { SphParticleViewer } from '@/components/sph/sph-particle-viewer'
 import { cn } from '@/lib/utils'
 
@@ -248,9 +247,6 @@ export default function ComparePage() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
-          <ProvenanceBadge type="numerical_swe_2d" variant="compact" />
-          <ProvenanceBadge type="sph_trajectory_precomputed" variant="compact" />
-
           <div className="relative" ref={damMenuRef}>
             <button
               type="button"
@@ -815,7 +811,6 @@ export default function ComparePage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <ProvenanceBadge type="numerical_swe_2d" variant="compact" />
                   <span className="text-[10px] font-mono text-white/40">
                     {SOLVERS.delft3d.version}
                   </span>
@@ -854,7 +849,6 @@ export default function ComparePage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <ProvenanceBadge type="sph_trajectory_precomputed" variant="compact" />
                   <span className="text-[10px] font-mono text-white/40">
                     {SOLVERS.sph.version}
                   </span>

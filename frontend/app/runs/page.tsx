@@ -8,7 +8,6 @@ import { Progress } from '@/components/ui/progress'
 import { usePlatform } from '@/lib/platform-store'
 import { SOLVERS, RUN_PIPELINE, type SimulationRun, type RunStatus } from '@/lib/types'
 import { formatDateTime, formatDuration, relativeAge } from '@/lib/format'
-import { ProvenanceBadge } from '@/components/common/provenance-badge'
 import { cn } from '@/lib/utils'
 
 const STATUS_ICON: Record<string, React.ReactNode> = {
@@ -114,10 +113,6 @@ export default function RunsPage() {
                 <div className="mt-2 flex items-center justify-between text-xs text-[#949ba4] font-mono">
                   <span>{SOLVERS[run.solver].kind} · {SOLVERS[run.solver].version}</span>
                   <div className="flex items-center gap-1.5">
-                    <ProvenanceBadge
-                      type={run.solver === 'sph' ? 'sph_trajectory_precomputed' : 'numerical_swe_2d'}
-                      variant="compact"
-                    />
                     <span className="text-white font-medium">{run.progress}%</span>
                   </div>
                 </div>
@@ -171,13 +166,9 @@ export default function RunsPage() {
                       <dd className="font-mono text-white mt-1 font-semibold truncate">{activeRun.id}</dd>
                     </div>
                     <div className="glass-panel-subtle p-2.5 rounded-lg">
-                      <dt className="text-[#949ba4]">Solver & Provenance</dt>
+                      <dt className="text-[#949ba4]">Solver</dt>
                       <dd className="font-mono text-white mt-1 font-semibold flex items-center gap-1.5 flex-wrap">
                         <span className="truncate">{SOLVERS[activeRun.solver].name}</span>
-                        <ProvenanceBadge
-                          type={activeRun.solver === 'sph' ? 'sph_trajectory_precomputed' : 'numerical_swe_2d'}
-                          variant="compact"
-                        />
                       </dd>
                     </div>
                     <div className="glass-panel-subtle p-2.5 rounded-lg">

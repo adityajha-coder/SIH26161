@@ -7,6 +7,8 @@ import type { FloodBands } from '@/lib/flood-model'
 import { formatClock } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
+import { usePlatform } from '@/lib/platform-store'
+
 export function SimulationView({
   base,
   layers,
@@ -18,6 +20,13 @@ export function SimulationView({
   compact = false,
   title = 'Flood propagation after dam break',
   hideOverlays = false,
+  center,
+  zoom,
+  pitch,
+  bearing,
+  cameraTarget,
+  interactive = true,
+  showMaxExtent = false,
 }: {
   base: BaseMode
   layers: LayerVisibility
@@ -29,9 +38,23 @@ export function SimulationView({
   compact?: boolean
   title?: string
   hideOverlays?: boolean
+  center?: [number, number]
+  zoom?: number
+  pitch?: number
+  bearing?: number
+  cameraTarget?: { center: [number, number]; zoom?: number; pitch?: number; bearing?: number; nonce?: number } | null
+  interactive?: boolean
+  showMaxExtent?: boolean
 }) {
+  const { activeCase } = usePlatform()
   const is3d = layers.terrain3d || base === 'terrain'
   const legend = layers.arrivalTime ? 'arrival' : layers.floodVelocity ? 'velocity' : layers.floodDepth ? 'depth' : null
+
+  const mapCenter = center ?? (is3d ? (activeCase?.center ?? [78.505, 30.29]) : (activeCase?.center ?? [78.4, 30.17]))
+  const mapZoom = zoom ?? (is3d ? (activeCase?.zoom ?? 10.5) : Math.max(8.5, (activeCase?.zoom ?? 10.2) - 0.5))
+  const mapPitch = pitch ?? (is3d ? (activeCase?.pitch ?? 58) : 0)
+  const mapBearing = bearing ?? (is3d ? (activeCase?.bearing ?? 195) : 0)
+
   return (
     <div className={cn('relative overflow-hidden rounded-xl min-h-95 w-full', className)}>
       <MapView
@@ -41,11 +64,14 @@ export function SimulationView({
         flood={flood}
         timeS={timeS}
         floodOpacity={floodOpacity}
-        center={is3d ? [78.505, 30.29] : compact ? [78.47, 30.29] : [78.4, 30.17]}
-        zoom={is3d ? 11 : compact ? 10.4 : 9.7}
-        pitch={is3d ? 62 : 0}
-        bearing={is3d ? 190 : 0}
-        interactive={false}
+        center={mapCenter}
+        zoom={mapZoom}
+        pitch={mapPitch}
+        bearing={mapBearing}
+        cameraTarget={cameraTarget}
+        activeCase={activeCase}
+        interactive={interactive}
+        showMaxExtent={showMaxExtent}
         className="absolute inset-0"
         ariaLabel="Flood simulation map"
       />

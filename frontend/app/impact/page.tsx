@@ -21,7 +21,6 @@ import { usePlatform } from '@/lib/platform-store'
 import { useFloodResult, useImpact } from '@/lib/use-flood'
 import { formatNumber, formatDuration } from '@/lib/format'
 import { CASES } from '@/lib/case-study'
-import { ProvenanceBadge } from '@/components/common/provenance-badge'
 import type { ExposedAsset } from '@/lib/flood-model'
 import { cn } from '@/lib/utils'
 
@@ -756,7 +755,6 @@ export default function ImpactPage() {
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
-          <ProvenanceBadge type="calibrated_adapter" variant="compact" />
           <a
             href={`/api/v1/exports/${activeRun?.id || 'latest'}/report?caseId=${activeCase.id}`}
             target="_blank"

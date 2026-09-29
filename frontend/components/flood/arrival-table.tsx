@@ -6,24 +6,37 @@ import { chainageOf, type FloodResult } from '@/lib/flood-model'
 import { formatClock, formatNumber } from '@/lib/format'
 import { useGeoData } from '@/lib/geo'
 
-export function useTownArrivals(result: FloodResult | null) {
-  const { reach } = useGeoData()
+import { usePlatform } from '@/lib/platform-store'
+
+export function useTownArrivals(
+  result: FloodResult | null,
+  customTowns?: { name: string; lngLat: [number, number]; chainageKm: number }[]
+) {
+  const { activeCase } = usePlatform()
+  const towns = customTowns ?? activeCase?.downstreamTowns ?? TEHRI.downstreamTowns
+
   return useMemo(() => {
-    if (!reach || !result) return []
-    return TEHRI.downstreamTowns.map((town) => {
-      const { chainageKm } = chainageOf(reach, town.lngLat)
+    if (!result || !result.stations || result.stations.length === 0) return []
+    return towns.map((town) => {
+      const chainageKm = town.chainageKm
       const st = result.stations.reduce(
         (best, s) => (Math.abs(s.chainageKm - chainageKm) < Math.abs(best.chainageKm - chainageKm) ? s : best),
         result.stations[0],
       )
-      const inDomain = chainageKm <= result.reachKm + 0.5
+      const inDomain = chainageKm <= result.reachKm + 1.0
       return { town: town.name, chainageKm, station: inDomain ? st : null }
     })
-  }, [reach, result])
+  }, [result, towns])
 }
 
-export function ArrivalTable({ result }: { result: FloodResult | null }) {
-  const rows = useTownArrivals(result)
+export function ArrivalTable({
+  result,
+  towns,
+}: {
+  result: FloodResult | null
+  towns?: { name: string; lngLat: [number, number]; chainageKm: number }[]
+}) {
+  const rows = useTownArrivals(result, towns)
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs">

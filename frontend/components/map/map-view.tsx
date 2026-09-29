@@ -230,6 +230,8 @@ export function MapView({
   const lastFlownBaseRef = useRef<BaseMode | null>(null)
   const isFirstFlightRef = useRef(true)
   const loadedCaseIdRef = useRef<string | null>(null)
+  const spraySystemRef = useRef<any>(null)
+  const crestEntityRef = useRef<any>(null)
 
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -679,6 +681,14 @@ export function MapView({
 
     return () => {
       cancelled = true
+      if (spraySystemRef.current && viewerRef.current && !viewerRef.current.isDestroyed()) {
+        try {
+          viewerRef.current.scene.primitives.remove(spraySystemRef.current)
+        } catch {
+          // ignore
+        }
+        spraySystemRef.current = null
+      }
       if (interactive && persistentInstance) {
         // Keep instance warm in memory; detach DOM element without destroying WebGL context
         if (persistentInstance.container.parentElement) {
@@ -1059,7 +1069,7 @@ export function MapView({
     }
   }, [ready, exposure])
 
-  // 6. Flood Inundation Polygons (Geometry + Ramp Color Clamped to Ground)
+  // 6. Flood Inundation Polygons with Physical Water Multi-Depth Attenuation
   useEffect(() => {
     const viewer = viewerRef.current
     const Cesium = cesiumRef.current
@@ -1067,6 +1077,7 @@ export function MapView({
     if (!ready || !viewer || viewer.isDestroyed() || !Cesium || !ds.flood) return
 
     ds.flood.entities.removeAll()
+    crestEntityRef.current = null
     if (!flood?.features || flood.features.length === 0) return
 
     const isArrival = Boolean(layers.arrivalTime)
@@ -1081,16 +1092,31 @@ export function MapView({
         chainageKm?: number
         peakDepthM?: number
         dischargeM3s?: number
+        band?: number
       }
 
-      // Pick color according to active simulation metric
-      let hexColor = '#2563eb'
+      // Pick color and alpha according to physical hydrodynamic state
+      let hexColor = '#0284c7'
+      let bandAlpha = floodOpacity
       if (isArrival) {
         hexColor = interpolateRampColor(p.arrivalS ?? 0, ARRIVAL_STOPS)
+        bandAlpha = p.band === 0 ? floodOpacity * 0.48 : p.band === 1 ? floodOpacity * 0.72 : floodOpacity * 0.90
       } else if (isVelocity) {
         hexColor = interpolateRampColor(p.velocityMs ?? 0, VELOCITY_STOPS)
+        bandAlpha = p.band === 0 ? floodOpacity * 0.52 : p.band === 1 ? floodOpacity * 0.74 : floodOpacity * 0.92
       } else {
         hexColor = interpolateRampColor(p.depthM ?? 0, DEPTH_STOPS)
+        // Multi-depth extinction for realistic water:
+        // Band 0 (shallow margin): soft edge blending with terrain DEM
+        // Band 1 (mid channel): rich hydraulic azure
+        // Band 2 (core thalweg): deep dense navy in river canyon
+        if (p.band === 0) {
+          bandAlpha = floodOpacity * 0.42
+        } else if (p.band === 1) {
+          bandAlpha = floodOpacity * 0.68
+        } else {
+          bandAlpha = floodOpacity * 0.88
+        }
       }
 
       const rings = extractPolygonRings(f.geometry)
@@ -1102,7 +1128,7 @@ export function MapView({
             show: showMaxExtent || (timeS !== undefined ? (p.arrivalS ?? 0) <= timeS : true),
             polygon: {
               hierarchy: Cesium.Cartesian3.fromDegreesArray(flat),
-              material: Cesium.Color.fromCssColorString(hexColor).withAlpha(floodOpacity),
+              material: Cesium.Color.fromCssColorString(hexColor).withAlpha(bandAlpha),
               classificationType: Cesium.ClassificationType.TERRAIN,
             },
           })
@@ -1111,20 +1137,140 @@ export function MapView({
     }
   }, [ready, flood, layers.arrivalTime, layers.floodVelocity, layers.floodDepth, floodOpacity, showMaxExtent])
 
-  // 7. Fast Simulation Playback Slider Updates (Throttle-free entity.show update)
+  // 7. Dynamic Flood Playback & Wave Front Particle System Updates
   useEffect(() => {
+    const viewer = viewerRef.current
+    const Cesium = cesiumRef.current
     const ds = dataSourcesRef.current
-    if (!ready || !ds.flood) return
+    if (!ready || !viewer || viewer.isDestroyed() || !Cesium || !ds.flood) return
 
     const t = timeS ?? 0
     const entities = ds.flood.entities.values
 
+    // Update flood polygon entity visibility according to wave arrival
     for (let i = 0; i < entities.length; i++) {
       const e = entities[i]
-      const arrival = Number((e.properties?.arrivalS as { getValue?: () => unknown })?.getValue?.() ?? 0)
+      if (e.id === 'active-bore-crest') continue
+      const raw = (e.properties as any)?.arrivalS
+      const arrival = typeof raw?.getValue === 'function'
+        ? Number(raw.getValue() ?? (raw as any)?._value ?? 0)
+        : Number((raw as any)?._value ?? raw ?? 0)
       e.show = showMaxExtent || arrival <= t
     }
-  }, [ready, timeS, showMaxExtent])
+
+    // Initialize or update the turbulent wave front spray ParticleSystem
+    if (!spraySystemRef.current && viewer.scene) {
+      const sprayCanvas = document.createElement('canvas')
+      sprayCanvas.width = 32
+      sprayCanvas.height = 32
+      const ctx = sprayCanvas.getContext('2d')
+      if (ctx) {
+        const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16)
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0.95)')
+        grad.addColorStop(0.35, 'rgba(224, 242, 254, 0.80)')
+        grad.addColorStop(0.7, 'rgba(186, 230, 253, 0.25)')
+        grad.addColorStop(1, 'rgba(186, 230, 253, 0.0)')
+        ctx.fillStyle = grad
+        ctx.beginPath()
+        ctx.arc(16, 16, 16, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      const spray = new Cesium.ParticleSystem({
+        image: sprayCanvas,
+        startColor: new Cesium.Color(1.0, 1.0, 1.0, 0.85),
+        endColor: new Cesium.Color(0.70, 0.85, 1.0, 0.0),
+        startScale: 1.2,
+        endScale: 4.8,
+        minimumParticleLife: 0.6,
+        maximumParticleLife: 1.5,
+        minimumSpeed: 4.0,
+        maximumSpeed: 14.0,
+        imageSize: new Cesium.Cartesian2(24, 24),
+        emissionRate: 50,
+        emitter: new Cesium.CircleEmitter(30.0),
+        modelMatrix: Cesium.Matrix4.IDENTITY,
+        show: false,
+      })
+      viewer.scene.primitives.add(spray)
+      spraySystemRef.current = spray
+    }
+
+    const spray = spraySystemRef.current
+    const isFloodLayerVisible = Boolean(layers.floodDepth || layers.floodVelocity || layers.arrivalTime)
+
+    // Position the spray system at the active moving wave front tip
+    if (t <= 0 || !flood?.features || flood.features.length === 0 || showMaxExtent || !isFloodLayerVisible) {
+      if (spray) spray.show = false
+      if (crestEntityRef.current) crestEntityRef.current.show = false
+      return
+    }
+
+    // Find the latest station or feature reached by current time
+    let activeFeature: any = null
+    let maxArrival = -1
+
+    let totalMaxArrival = 0
+    for (let i = 0; i < flood.features.length; i++) {
+      const f = flood.features[i]
+      const arr = Number(f.properties?.arrivalS ?? 0)
+      if (arr > totalMaxArrival) totalMaxArrival = arr
+      if (arr <= t && arr > maxArrival) {
+        maxArrival = arr
+        activeFeature = f
+      }
+    }
+
+    // When the flood wave has completed reaching the final terminus, dissipate the surge spray
+    if (totalMaxArrival > 0 && t >= totalMaxArrival + 15) {
+      if (spray) spray.show = false
+      if (crestEntityRef.current) crestEntityRef.current.show = false
+      return
+    }
+
+    if (!activeFeature || maxArrival < 0) {
+      if (spray) spray.show = false
+      if (crestEntityRef.current) crestEntityRef.current.show = false
+      return
+    }
+
+    // Extract tip coordinates
+    const geom = activeFeature.geometry
+    let tipLngLat: [number, number] | null = null
+    if (geom.type === 'Polygon' && geom.coordinates[0]?.[0]) {
+      tipLngLat = geom.coordinates[0][0] as [number, number]
+    } else if (geom.type === 'MultiPolygon' && geom.coordinates[0]?.[0]?.[0]) {
+      tipLngLat = geom.coordinates[0][0][0] as [number, number]
+    }
+
+    if (tipLngLat) {
+      if (spray) {
+        spray.show = true
+        const cart = Cesium.Cartesian3.fromDegrees(tipLngLat[0], tipLngLat[1], 15)
+        spray.modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(cart)
+      }
+
+      // Dynamic wave front bore crest entity
+      if (!crestEntityRef.current) {
+        crestEntityRef.current = ds.flood.entities.add({
+          id: 'active-bore-crest',
+          position: Cesium.Cartesian3.fromDegrees(tipLngLat[0], tipLngLat[1]),
+          ellipse: {
+            semiMajorAxis: 75,
+            semiMinorAxis: 45,
+            material: Cesium.Color.fromCssColorString('#f8fafc').withAlpha(0.65),
+            classificationType: Cesium.ClassificationType.TERRAIN,
+          },
+        })
+      } else {
+        crestEntityRef.current.position = Cesium.Cartesian3.fromDegrees(tipLngLat[0], tipLngLat[1]) as any
+        crestEntityRef.current.show = true
+      }
+    } else {
+      if (spray) spray.show = false
+      if (crestEntityRef.current) crestEntityRef.current.show = false
+    }
+  }, [ready, timeS, showMaxExtent, flood, layers.floodDepth, layers.floodVelocity, layers.arrivalTime])
 
   // 8. Layer Visibility Toggles
   useEffect(() => {
@@ -1137,7 +1283,11 @@ export function MapView({
     if (ds.roads) ds.roads.show = Boolean(layers.roads)
     if (ds.settlements) ds.settlements.show = Boolean(layers.settlements)
     if (ds.exposure) ds.exposure.show = Boolean(layers.exposure)
-    if (ds.flood) ds.flood.show = Boolean(layers.floodDepth || layers.floodVelocity || layers.arrivalTime)
+    const floodVisible = Boolean(layers.floodDepth || layers.floodVelocity || layers.arrivalTime)
+    if (ds.flood) ds.flood.show = floodVisible
+    if (spraySystemRef.current && !floodVisible) {
+      spraySystemRef.current.show = false
+    }
   }, [
     ready,
     layers.river,
