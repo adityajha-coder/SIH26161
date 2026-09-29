@@ -4,10 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"strings"
 )
 
 type BreachParams struct {
 	CaseID               string  `json:"case_id"`
+	DamType              string  `json:"dam_type,omitempty"` // "rockfill", "concrete_gravity", "concrete_arch"
 	TriggerType          string  `json:"trigger_type"`
 	ReservoirLevelM      float64 `json:"reservoir_level_m"`
 	ReleasedVolumeMCM    float64 `json:"released_volume_mcm"`
@@ -27,16 +29,18 @@ type HydrographPoint struct {
 }
 
 type HydrographResult struct {
-	PeakDischargeCumec float64           `json:"peak_discharge_cumec"`
-	FormationTimeHr    float64           `json:"formation_time_hr"`
-	BreachWidthM       float64           `json:"breach_width_m"`
-	ReleasedVolumeMCM  float64           `json:"released_volume_mcm"`
-	TotalIntegratedMCM float64           `json:"total_integrated_mcm"`
-	MassBalanceRatio   float64           `json:"mass_balance_ratio"`
-	MassBalancePassed  bool              `json:"mass_balance_passed"`
-	BaseCurve          []HydrographPoint `json:"base_curve"`
-	LowCurve           []HydrographPoint `json:"low_curve"`
-	HighCurve          []HydrographPoint `json:"high_curve"`
+	DamType              string            `json:"dam_type"`
+	FailureMechanic      string            `json:"failure_mechanic"`
+	PeakDischargeCumec   float64           `json:"peak_discharge_cumec"`
+	FormationTimeHr      float64           `json:"formation_time_hr"`
+	BreachWidthM         float64           `json:"breach_width_m"`
+	ReleasedVolumeMCM    float64           `json:"released_volume_mcm"`
+	TotalIntegratedMCM   float64           `json:"total_integrated_mcm"`
+	MassBalanceRatio     float64           `json:"mass_balance_ratio"`
+	MassBalancePassed    bool              `json:"mass_balance_passed"`
+	BaseCurve            []HydrographPoint `json:"base_curve"`
+	LowCurve             []HydrographPoint `json:"low_curve"`
+	HighCurve            []HydrographPoint `json:"high_curve"`
 }
 
 func ValidatePreSolver(p *BreachParams) error {
@@ -76,36 +80,92 @@ func ValidatePreSolver(p *BreachParams) error {
 	return nil
 }
 
-func CalculateFroehlichBreach(p BreachParams) HydrographResult {
+func CalculateBreachHydrograph(p BreachParams) HydrographResult {
+	damType := strings.ToLower(p.DamType)
+	if damType == "" {
+		lowerCase := strings.ToLower(p.CaseID)
+		if strings.Contains(lowerCase, "idukki") {
+			damType = "concrete_arch"
+		} else if strings.Contains(lowerCase, "sarovar") || strings.Contains(lowerCase, "bhakra") {
+			damType = "concrete_gravity"
+		} else {
+			damType = "rockfill"
+		}
+	}
+
 	Vw := p.ReleasedVolumeMCM * 1e6
 	hw := p.BreachDepthM
 	if hw <= 0 {
 		hw = p.DamHeightM * 0.85
 	}
 
-	ko := 1.0
-	if p.TriggerType == "overtopping" {
-		ko = 1.4
-	}
+	var Bavg float64
+	var tfHr float64
+	var Qp float64
+	var mechanic string
 
-	Bavg := p.BreachWidthM
-	if Bavg <= 0 {
-		Bavg = 0.27 * ko * math.Pow(Vw, 0.32) * math.Pow(hw, 0.04)
-		if Bavg > p.DamCrestLengthM {
-			Bavg = p.DamCrestLengthM
+	g := 9.80665
+
+	switch damType {
+	case "concrete_arch":
+		// USBR (1988) / FERC (1993) Concrete Arch Instantaneous Cantilever Fracture
+		mechanic = "USBR/FERC Instantaneous Arch Cantilever Buckling"
+		Bavg = p.BreachWidthM
+		if Bavg <= 0 {
+			Bavg = math.Min(p.DamCrestLengthM*0.65, 240.0)
 		}
-	}
+		tfHr = p.FormationTimeHr
+		if tfHr <= 0 {
+			tfHr = 0.08 // ~5 minutes instantaneous structural shearing
+		}
+		// Rectangular weir bore outflow: Q = 1.8 * B * hw^1.5
+		Qp = 1.8 * Bavg * math.Pow(hw, 1.5)
+		if Qp > 250000.0 {
+			Qp = 250000.0
+		}
 
-	tfSec := p.FormationTimeHr * 3600.0
-	if tfSec <= 0 {
-		g := 9.80665
-		tfSec = 63.2 * math.Sqrt(Vw/(g*hw*hw))
-	}
-	tfHr := tfSec / 3600.0
+	case "concrete_gravity":
+		// USBR (1988) / FERC (1993) Concrete Gravity Monolith Sliding/Overturning Failure
+		mechanic = "USBR/FERC Monolith Sliding & Overturning Failure (1-3 Monolith Blocks)"
+		Bavg = p.BreachWidthM
+		if Bavg <= 0 {
+			// Typical high-dam monolith block width is 15-22m; 2-3 monoliths fail
+			Bavg = math.Min(p.DamCrestLengthM*0.15, 60.0)
+		}
+		tfHr = p.FormationTimeHr
+		if tfHr <= 0 {
+			tfHr = 0.20 // ~12 minutes rapid monolith displacement
+		}
+		// Broad-crested rectangular breach: Q = 1.7 * B * hw^1.5
+		Qp = 1.7 * Bavg * math.Pow(hw, 1.5)
+		if Qp > 250000.0 {
+			Qp = 250000.0
+		}
 
-	Qp := 0.607 * math.Pow(Vw, 0.295) * math.Pow(hw, 1.24)
-	if Qp > 250000.0 {
-		Qp = 250000.0
+	default: // "rockfill" or "earth"
+		// Froehlich (2008 / 1995) Progressive Erosion
+		mechanic = "Froehlich (2008/1995) Progressive Embankment Erosion"
+		damType = "rockfill"
+		ko := 1.0
+		if p.TriggerType == "overtopping" {
+			ko = 1.4
+		}
+		Bavg = p.BreachWidthM
+		if Bavg <= 0 {
+			Bavg = 0.27 * ko * math.Pow(Vw, 0.32) * math.Pow(hw, 0.04)
+			if Bavg > p.DamCrestLengthM {
+				Bavg = p.DamCrestLengthM
+			}
+		}
+		tfSec := p.FormationTimeHr * 3600.0
+		if tfSec <= 0 {
+			tfSec = 63.2 * math.Sqrt(Vw/(g*hw*hw))
+		}
+		tfHr = tfSec / 3600.0
+		Qp = 0.607 * math.Pow(Vw, 0.295) * math.Pow(hw, 1.24)
+		if Qp > 250000.0 {
+			Qp = 250000.0
+		}
 	}
 
 	horizonHr := p.SimulationHorizonHr
@@ -117,12 +177,14 @@ func CalculateFroehlichBreach(p BreachParams) HydrographResult {
 	lowCurve := generateHydrograph(Qp*0.8, tfHr*1.15, horizonHr, Vw*0.85)
 	highCurve := generateHydrograph(Qp*1.2, tfHr*0.85, horizonHr, Vw*1.15)
 
-	integratedVolumeM3 := integrateCurve(baseCurve)
+	integratedVolumeM3 := IntegrateCurve(baseCurve)
 	integratedMCM := integratedVolumeM3 / 1e6
 	ratio := integratedMCM / p.ReleasedVolumeMCM
 	passed := math.Abs(ratio-1.0) <= 0.08
 
 	return HydrographResult{
+		DamType:            damType,
+		FailureMechanic:    mechanic,
 		PeakDischargeCumec: math.Round(Qp*10) / 10,
 		FormationTimeHr:    math.Round(tfHr*100) / 100,
 		BreachWidthM:       math.Round(Bavg*10) / 10,
@@ -134,6 +196,10 @@ func CalculateFroehlichBreach(p BreachParams) HydrographResult {
 		LowCurve:           lowCurve,
 		HighCurve:          highCurve,
 	}
+}
+
+func CalculateFroehlichBreach(p BreachParams) HydrographResult {
+	return CalculateBreachHydrograph(p)
 }
 
 func generateHydrograph(Qp float64, tfHr float64, horizonHr float64, targetVolM3 float64) []HydrographPoint {

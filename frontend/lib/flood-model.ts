@@ -66,7 +66,8 @@ export function computePreviewFlood(
     const Q = safePeakQ * (0.35 + 0.65 * Math.exp(-mid / 45))
     const h = Math.pow((Q * n) / (B * Math.sqrt(S)), 0.6)
     const v = Q / (B * h)
-    const c = Math.min((5 / 3) * v, 25)
+    // Dynamic dam-break wave bore celerity: c = v + sqrt(g * h)
+    const c = Math.max(3.5, Math.min(v + Math.sqrt(9.80665 * Math.max(0.1, h)), 25.0))
     const topWidth = B + 2 * z * h
     arrival += ((x2 - x) * 1000) / c
 

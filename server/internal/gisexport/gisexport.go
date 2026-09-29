@@ -55,11 +55,11 @@ var Profiles = map[string]ExportProfile{
 		},
 		Stations: []StationExport{
 			{Name: "Tehri Dam Toe", ChainageKm: 0.0, PeakDepthM: 24.8, ArrivalMin: 0, Coords: [2]float64{78.4808, 30.3781}, Severity: "CRITICAL"},
-			{Name: "New Tehri Town", ChainageKm: 4.5, PeakDepthM: 18.0, ArrivalMin: 6, Coords: [2]float64{78.4311, 30.3922}, Severity: "CRITICAL"},
-			{Name: "Koteshwar Dam", ChainageKm: 22.0, PeakDepthM: 18.2, ArrivalMin: 22, Coords: [2]float64{78.5028, 30.2858}, Severity: "EXTREME"},
-			{Name: "Devprayag Confluence", ChainageKm: 42.0, PeakDepthM: 14.6, ArrivalMin: 54, Coords: [2]float64{78.5986, 30.1458}, Severity: "HIGH"},
-			{Name: "Rishikesh Foothills", ChainageKm: 82.0, PeakDepthM: 9.4, ArrivalMin: 132, Coords: [2]float64{78.2676, 30.0869}, Severity: "MODERATE"},
-			{Name: "Haridwar Barrage", ChainageKm: 105.0, PeakDepthM: 4.2, ArrivalMin: 210, Coords: [2]float64{78.1642, 29.9457}, Severity: "MODERATE"},
+			{Name: "New Tehri Gorge", ChainageKm: 5.0, PeakDepthM: 18.0, ArrivalMin: 5, Coords: [2]float64{78.4311, 30.3922}, Severity: "CRITICAL"},
+			{Name: "Koteshwar Dam", ChainageKm: 15.0, PeakDepthM: 18.2, ArrivalMin: 16, Coords: [2]float64{78.5028, 30.2858}, Severity: "EXTREME"},
+			{Name: "Devprayag Confluence", ChainageKm: 42.0, PeakDepthM: 14.6, ArrivalMin: 52, Coords: [2]float64{78.5986, 30.1458}, Severity: "HIGH"},
+			{Name: "Rishikesh Foothills", ChainageKm: 84.0, PeakDepthM: 9.4, ArrivalMin: 130, Coords: [2]float64{78.2676, 30.0869}, Severity: "MODERATE"},
+			{Name: "Haridwar Barrage", ChainageKm: 105.0, PeakDepthM: 4.2, ArrivalMin: 188, Coords: [2]float64{78.1642, 29.9457}, Severity: "MODERATE"},
 		},
 	},
 	"sardar-sarovar-dam": {

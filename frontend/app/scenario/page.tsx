@@ -16,6 +16,7 @@ import {
   buildHydrograph,
   froehlichParameters,
   type BreachInput,
+  type DamType,
   type FailureMode,
 } from '@/lib/breach'
 import { formatDischarge, formatDuration, formatNumber, formatVolumeMcm } from '@/lib/format'
@@ -139,9 +140,16 @@ export default function ScenarioPage() {
     setHorizonH(preset.horizonH)
   }
 
+  const damType: DamType = useMemo(() => {
+    const cid = (selectedCaseId || '').toLowerCase()
+    if (cid.includes('idukki')) return 'concrete_arch'
+    if (cid.includes('sarovar') || cid.includes('bhakra')) return 'concrete_gravity'
+    return 'rockfill'
+  }, [selectedCaseId])
+
   const input: BreachInput = useMemo(
-    () => ({ reservoirVolumeM3, breachHeightM, waterDepthM, failureMode }),
-    [reservoirVolumeM3, breachHeightM, waterDepthM, failureMode],
+    () => ({ reservoirVolumeM3, breachHeightM, waterDepthM, failureMode, damType }),
+    [reservoirVolumeM3, breachHeightM, waterDepthM, failureMode, damType],
   )
 
   const params = useMemo(() => froehlichParameters(input), [input])

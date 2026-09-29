@@ -101,3 +101,68 @@ func TestIntegrateCurveSimpsonsRule(t *testing.T) {
 			relativeError, volM3, expectedM3)
 	}
 }
+
+func TestDamTypeBreachBranching(t *testing.T) {
+	// 1. Rockfill Dam (Tehri)
+	pRock := BreachParams{
+		CaseID:            "tehri-dam",
+		DamType:           "rockfill",
+		TriggerType:       "overtopping",
+		ReservoirLevelM:   830.0,
+		ReleasedVolumeMCM: 2100.0,
+		DamHeightM:        260.5,
+		DamCrestLengthM:   575.0,
+	}
+	resRock := CalculateBreachHydrograph(pRock)
+	if resRock.DamType != "rockfill" {
+		t.Errorf("expected rockfill dam type, got %s", resRock.DamType)
+	}
+	if resRock.FormationTimeHr < 1.0 {
+		t.Errorf("rockfill dam should have progressive formation time (>1.0 hr), got %f", resRock.FormationTimeHr)
+	}
+	if !resRock.MassBalancePassed {
+		t.Errorf("mass balance failed for rockfill dam")
+	}
+
+	// 2. Concrete Gravity Dam (Sardar Sarovar)
+	pGravity := BreachParams{
+		CaseID:            "sardar-sarovar-dam",
+		DamType:           "concrete_gravity",
+		TriggerType:       "overtopping",
+		ReservoirLevelM:   138.68,
+		ReleasedVolumeMCM: 1500.0,
+		DamHeightM:        163.0,
+		DamCrestLengthM:   1210.0,
+	}
+	resGravity := CalculateBreachHydrograph(pGravity)
+	if resGravity.DamType != "concrete_gravity" {
+		t.Errorf("expected concrete_gravity dam type, got %s", resGravity.DamType)
+	}
+	if resGravity.FormationTimeHr > 0.5 {
+		t.Errorf("concrete gravity monolith failure should be rapid (<=0.5 hr), got %f", resGravity.FormationTimeHr)
+	}
+	if !resGravity.MassBalancePassed {
+		t.Errorf("mass balance failed for concrete gravity dam")
+	}
+
+	// 3. Concrete Arch Dam (Idukki)
+	pArch := BreachParams{
+		CaseID:            "idukki-dam",
+		DamType:           "concrete_arch",
+		TriggerType:       "overtopping",
+		ReservoirLevelM:   732.43,
+		ReleasedVolumeMCM: 800.0,
+		DamHeightM:        168.9,
+		DamCrestLengthM:   365.9,
+	}
+	resArch := CalculateBreachHydrograph(pArch)
+	if resArch.DamType != "concrete_arch" {
+		t.Errorf("expected concrete_arch dam type, got %s", resArch.DamType)
+	}
+	if resArch.FormationTimeHr > 0.15 {
+		t.Errorf("concrete arch cantilever fracture should be near instantaneous (<=0.15 hr), got %f", resArch.FormationTimeHr)
+	}
+	if !resArch.MassBalancePassed {
+		t.Errorf("mass balance failed for concrete arch dam")
+	}
+}

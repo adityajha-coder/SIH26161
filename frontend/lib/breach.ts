@@ -1,3 +1,4 @@
+export type DamType = 'rockfill' | 'concrete_gravity' | 'concrete_arch'
 export type FailureMode = 'overtopping' | 'piping' | 'natural_blockage' | 'spillway_release'
 export type SensitivityCase = 'low' | 'base' | 'high'
 
@@ -6,6 +7,7 @@ export interface BreachInput {
   breachHeightM: number
   waterDepthM: number
   failureMode: FailureMode
+  damType?: DamType
   breachWidthOverrideM?: number
   formationTimeOverrideS?: number
 }
@@ -46,7 +48,7 @@ export const BREACH_BOUNDS = {
 }
 
 export function froehlichParameters(input: BreachInput): BreachParameters {
-  const { reservoirVolumeM3: V, breachHeightM: hb, waterDepthM: hw, failureMode } = input
+  const { reservoirVolumeM3: V, breachHeightM: hb, waterDepthM: hw, failureMode, damType } = input
 
   if (failureMode === 'natural_blockage') {
     // Landslide damming & GLOF breach empirical formulation (Costa & Schuster 1988, Walder & O'Connor 1997)
@@ -78,6 +80,34 @@ export function froehlichParameters(input: BreachInput): BreachParameters {
     }
   }
 
+  // Branch by dam structural type (USBR 1988 / FERC 1993 / CWC Guidelines)
+  if (damType === 'concrete_arch') {
+    const avgWidth = input.breachWidthOverrideM ?? Math.min(240, hw * 2.2)
+    const tf = input.formationTimeOverrideS ?? 300 // ~5 min instantaneous structural cantilever failure
+    const qp = Math.min(250000, 1.8 * avgWidth * Math.pow(hw, 1.5))
+    return {
+      equation: 'USBR / FERC Concrete Arch Instantaneous Cantilever Fracture',
+      avgWidthM: avgWidth,
+      formationTimeS: tf,
+      peakDischargeM3s: qp,
+      sideSlope: 0.0,
+    }
+  }
+
+  if (damType === 'concrete_gravity') {
+    const avgWidth = input.breachWidthOverrideM ?? 50.0 // 2-3 monolith blocks
+    const tf = input.formationTimeOverrideS ?? 720 // ~12 min rapid monolith sliding/overturning
+    const qp = Math.min(250000, 1.7 * avgWidth * Math.pow(hw, 1.5))
+    return {
+      equation: 'USBR / FERC Monolith Sliding & Overturning Failure (1-3 Blocks)',
+      avgWidthM: avgWidth,
+      formationTimeS: tf,
+      peakDischargeM3s: qp,
+      sideSlope: 0.0,
+    }
+  }
+
+  // Earthen & Rockfill Embankment (Froehlich 2008 / 1995 progressive erosion)
   const k0 = failureMode === 'overtopping' ? 1.3 : 1.0
   const avgWidth = input.breachWidthOverrideM ?? 0.27 * k0 * Math.pow(V, 0.32) * Math.pow(hb, 0.04)
   const tf = input.formationTimeOverrideS ?? 63.2 * Math.sqrt(V / (G * hb * hb))
