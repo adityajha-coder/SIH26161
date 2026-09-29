@@ -97,16 +97,18 @@ function shape(t: number, tp: number, m: number) {
   return Math.pow(r, m) * Math.exp(m * (1 - r))
 }
 
+// Integrates dimensionless breach shape function using Composite Simpson's 1/3 Rule
+// with even sub-intervals (N = 4000) for high-order quadratic quadrature.
 function integrateShape(tp: number, m: number, horizon: number, steps = 4000) {
-  const dt = horizon / steps
-  let sum = 0
-  let prev = 0
-  for (let i = 1; i <= steps; i++) {
-    const cur = shape(i * dt, tp, m)
-    sum += ((prev + cur) / 2) * dt
-    prev = cur
+  const n = steps % 2 === 0 ? steps : steps + 1
+  const dt = horizon / n
+
+  let sum = shape(0, tp, m) + shape(horizon, tp, m)
+  for (let i = 1; i < n; i++) {
+    const val = shape(i * dt, tp, m)
+    sum += i % 2 === 1 ? 4 * val : 2 * val
   }
-  return sum
+  return (dt / 3) * sum
 }
 
 export function buildHydrograph(

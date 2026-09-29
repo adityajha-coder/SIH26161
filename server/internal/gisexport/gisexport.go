@@ -336,7 +336,43 @@ Consumable by QGIS, ArcGIS, GDAL/OGR, and Python GeoPandas.
 	return buf.Bytes(), nil
 }
 
-func buildESRIPolygonSHP(coords [][2]float64) ([]byte, []byte) {
+// EnsureClockwise enforces that polygon outer rings follow a clockwise winding order
+// with a closed vertex loop, as strictly mandated by the ESRI Shapefile Technical
+// Description (July 1998, p. 8).
+func EnsureClockwise(coords [][2]float64) [][2]float64 {
+	if len(coords) < 3 {
+		return coords
+	}
+	pts := make([][2]float64, len(coords))
+	copy(pts, coords)
+
+	// Ensure closed ring (first vertex == last vertex)
+	n := len(pts)
+	if pts[0][0] != pts[n-1][0] || pts[0][1] != pts[n-1][1] {
+		pts = append(pts, pts[0])
+		n = len(pts)
+	}
+
+	// Calculate signed area using the Shoelace formula:
+	// In standard geographic coordinates (X = lon, Y = lat):
+	// signedArea > 0 is Counter-Clockwise (CCW).
+	// signedArea < 0 is Clockwise (CW).
+	var signedArea float64
+	for i := 0; i < n-1; i++ {
+		signedArea += (pts[i][0] * pts[i+1][1]) - (pts[i+1][0] * pts[i][1])
+	}
+
+	// If CCW, reverse the vertices to make the outer ring Clockwise
+	if signedArea > 0 {
+		for i, j := 0, n-1; i < j; i, j = i+1, j-1 {
+			pts[i], pts[j] = pts[j], pts[i]
+		}
+	}
+	return pts
+}
+
+func buildESRIPolygonSHP(rawCoords [][2]float64) ([]byte, []byte) {
+	coords := EnsureClockwise(rawCoords)
 	minX, maxX := coords[0][0], coords[0][0]
 	minY, maxY := coords[0][1], coords[0][1]
 	for _, pt := range coords {

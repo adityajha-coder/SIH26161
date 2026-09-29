@@ -139,11 +139,9 @@ func CalculateFroehlichBreach(p BreachParams) HydrographResult {
 func generateHydrograph(Qp float64, tfHr float64, horizonHr float64, targetVolM3 float64) []HydrographPoint {
 	steps := 120
 	dtHr := horizonHr / float64(steps)
-	dtSec := dtHr * 3600.0
 	points := make([]HydrographPoint, steps+1)
 
 	decayRate := 3.2 / math.Max(horizonHr-tfHr, 2.0)
-	rawVolume := 0.0
 
 	for i := 0; i <= steps; i++ {
 		t := float64(i) * dtHr
@@ -159,11 +157,9 @@ func generateHydrograph(Qp float64, tfHr float64, horizonHr float64, targetVolM3
 			TimeHr:         math.Round(t*100) / 100,
 			DischargeCumec: q,
 		}
-		if i > 0 {
-			rawVolume += (points[i-1].DischargeCumec + points[i].DischargeCumec) * 0.5 * dtSec
-		}
 	}
 
+	rawVolume := IntegrateCurve(points)
 	if rawVolume > 0 && targetVolM3 > 0 {
 		scale := targetVolM3 / rawVolume
 		for i := range points {
@@ -174,12 +170,50 @@ func generateHydrograph(Qp float64, tfHr float64, horizonHr float64, targetVolM3
 	return points
 }
 
-func integrateCurve(curve []HydrographPoint) float64 {
-	total := 0.0
-	for i := 1; i < len(curve); i++ {
-		dtSec := (curve[i].TimeHr - curve[i-1].TimeHr) * 3600.0
-		avgQ := (curve[i].DischargeCumec + curve[i-1].DischargeCumec) * 0.5
-		total += avgQ * dtSec
+// IntegrateCurve calculates the total released volume (m³) under a hydrograph
+// using Composite Simpson's 1/3 Rule for high-order quadratic numerical quadrature.
+// If the number of sub-intervals is odd, Simpson's 1/3 rule is used on the first N-1
+// intervals and the trapezoidal rule is applied to the final interval.
+func IntegrateCurve(curve []HydrographPoint) float64 {
+	n := len(curve)
+	if n < 2 {
+		return 0.0
 	}
+	if n == 2 {
+		dtSec := (curve[1].TimeHr - curve[0].TimeHr) * 3600.0
+		return 0.5 * (curve[0].DischargeCumec + curve[1].DischargeCumec) * dtSec
+	}
+
+	intervals := n - 1
+	simpsonIntervals := intervals
+	hasOddRemainder := false
+	if simpsonIntervals%2 != 0 {
+		simpsonIntervals--
+		hasOddRemainder = true
+	}
+
+	total := 0.0
+	if simpsonIntervals >= 2 {
+		dtSec := (curve[simpsonIntervals].TimeHr - curve[0].TimeHr) * 3600.0 / float64(simpsonIntervals)
+		sum := curve[0].DischargeCumec + curve[simpsonIntervals].DischargeCumec
+		for i := 1; i < simpsonIntervals; i++ {
+			if i%2 == 1 {
+				sum += 4.0 * curve[i].DischargeCumec
+			} else {
+				sum += 2.0 * curve[i].DischargeCumec
+			}
+		}
+		total += (dtSec / 3.0) * sum
+	}
+
+	if hasOddRemainder {
+		lastDtSec := (curve[n-1].TimeHr - curve[n-2].TimeHr) * 3600.0
+		total += 0.5 * (curve[n-2].DischargeCumec + curve[n-1].DischargeCumec) * lastDtSec
+	}
+
 	return total
+}
+
+func integrateCurve(curve []HydrographPoint) float64 {
+	return IntegrateCurve(curve)
 }

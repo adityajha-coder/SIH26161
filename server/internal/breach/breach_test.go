@@ -76,3 +76,28 @@ func TestCalculateFroehlichBreachAndMassBalance(t *testing.T) {
 		t.Errorf("expected sensitivity curves to be populated")
 	}
 }
+
+func TestIntegrateCurveSimpsonsRule(t *testing.T) {
+	// Verify exact integration of quadratic polynomial:
+	// Q(t) = 3000 * t^2  [m3/s], t in [0, 1] hours (0 to 3600 seconds)
+	// Analytical integral over time (sec):
+	// ∫_{0}^{3600} 3000 * (t/3600)^2 dt = 3000 * 3600 / 3 = 3,600,000 m3
+	n := 120 // Even sub-intervals
+	curve := make([]HydrographPoint, n+1)
+	for i := 0; i <= n; i++ {
+		tHr := float64(i) / float64(n)
+		curve[i] = HydrographPoint{
+			TimeHr:         tHr,
+			DischargeCumec: 3000.0 * tHr * tHr,
+		}
+	}
+
+	volM3 := IntegrateCurve(curve)
+	expectedM3 := 3000.0 * 3600.0 / 3.0 // 3.6e6 m3
+
+	relativeError := math.Abs(volM3-expectedM3) / expectedM3
+	if relativeError > 1e-6 {
+		t.Errorf("Simpson's 1/3 rule should integrate quadratics exactly (<1e-6 error), got error: %e (vol: %f, exp: %f)",
+			relativeError, volM3, expectedM3)
+	}
+}
