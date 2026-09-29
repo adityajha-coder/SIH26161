@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Activity, Play, Square, Clock, CheckCircle2, XCircle, Loader2, Terminal } from 'lucide-react'
+import { Activity, Play, Square, Clock, CheckCircle2, XCircle, Loader2, Terminal, FileText, Download, ShieldAlert, ChevronDown, ChevronUp, Building2 } from 'lucide-react'
 import { Panel, PageHeader, EmptyState } from '@/components/common/panel'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -47,8 +47,9 @@ const STATUS_COLOR: Record<RunStatus, string> = {
 }
 
 export default function RunsPage() {
-  const { runs, activeRun, setActiveRunId, activeScenario, submitRuns, cancelRun } = usePlatform()
+  const { runs, activeRun, setActiveRunId, activeScenario, activeCase, submitRuns, cancelRun } = usePlatform()
   const [dispatching, setDispatching] = useState(false)
+  const [showEapDetails, setShowEapDetails] = useState(false)
 
   const handleDispatch = async () => {
     if (!activeScenario) return
@@ -207,6 +208,106 @@ export default function RunsPage() {
                     )}
                   </div>
                 </Panel>
+
+                {activeRun.status === 'done' && (
+                  <Panel
+                    title="Emergency Action Plan (EAP) Tactical Briefing"
+                    actions={
+                      <a
+                        href={`/api/v1/exports/${activeRun.id}/report?caseId=${activeCase?.id || 'tehri-dam'}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/16 cursor-pointer"
+                      >
+                        <Download className="size-3.5" />
+                        <span>Download EAP Briefing (.md)</span>
+                      </a>
+                    }
+                  >
+                    <div className="space-y-3 pt-1">
+                      <div className="p-3 rounded-xl bg-white/3 border border-white/8 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="size-2 rounded-full bg-emerald-400" />
+                            <span className="text-xs font-semibold text-white">
+                              Level 3 Failure Condition Briefing
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-mono text-zinc-300">
+                            Dam Safety Act 2021 · Sec 31
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-white/60 leading-relaxed">
+                          Tactical evacuation timetable and multi-source structural vulnerability assessment for emergency commanders, NDSA, and state disaster authorities.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                        <div className="glass-panel-subtle p-2.5 rounded-lg">
+                          <dt className="text-[10px] text-[#949ba4] uppercase font-mono">Zone 1 Lead Time</dt>
+                          <dd className="font-mono text-emerald-400 mt-1 font-bold text-sm">&lt; 16 min</dd>
+                          <dd className="text-[10px] text-white/40">Dam Toe reach</dd>
+                        </div>
+                        <div className="glass-panel-subtle p-2.5 rounded-lg">
+                          <dt className="text-[10px] text-[#949ba4] uppercase font-mono">Peak Inundation</dt>
+                          <dd className="font-mono text-rose-400 mt-1 font-bold text-sm">24.8 m</dd>
+                          <dd className="text-[10px] text-white/40">Max crest depth</dd>
+                        </div>
+                        <div className="glass-panel-subtle p-2.5 rounded-lg">
+                          <dt className="text-[10px] text-[#949ba4] uppercase font-mono">Exposed Structures</dt>
+                          <dd className="font-mono text-white mt-1 font-bold text-sm">6,252</dd>
+                          <dd className="text-[10px] text-zinc-300">OSM + Google V3</dd>
+                        </div>
+                        <div className="glass-panel-subtle p-2.5 rounded-lg">
+                          <dt className="text-[10px] text-[#949ba4] uppercase font-mono">High Hazard Pop</dt>
+                          <dd className="font-mono text-amber-400 mt-1 font-bold text-sm">46,200</dd>
+                          <dd className="text-[10px] text-white/40">Depth &gt; 2.0m</dd>
+                        </div>
+                      </div>
+
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setShowEapDetails(!showEapDetails)}
+                          className="w-full flex items-center justify-between p-2 rounded-lg bg-white/4 hover:bg-white/8 text-xs text-white/80 transition-colors cursor-pointer"
+                        >
+                          <span className="font-medium text-[11px] flex items-center gap-1.5">
+                            <ShieldAlert className="size-3.5 text-amber-400" />
+                            Reach-by-Reach Evacuation Timeline &amp; Directives
+                          </span>
+                          {showEapDetails ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+                        </button>
+
+                        {showEapDetails && (
+                          <div className="mt-2 space-y-2 text-xs border border-white/6 rounded-lg p-3 bg-black/40">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                              <div className="p-2 rounded bg-white/2 border border-white/4">
+                                <span className="text-rose-400 font-semibold block">Zone 1 · 0–15 km (Dam Toe – Koteshwar)</span>
+                                <span className="text-white/50 text-[10px] block mt-0.5">Arrival: 0–16 min · Depth: 18.2m–24.8m</span>
+                                <p className="text-white/70 text-[10px] mt-1">Immediate vertical evacuation to ridge elevations &gt;60m above riverbed.</p>
+                              </div>
+                              <div className="p-2 rounded bg-white/2 border border-white/4">
+                                <span className="text-amber-400 font-semibold block">Zone 2 · 15–45 km (Koteshwar – Devprayag)</span>
+                                <span className="text-white/50 text-[10px] block mt-0.5">Arrival: 16–52 min · Depth: 14.6m–18.2m</span>
+                                <p className="text-white/70 text-[10px] mt-1">Full closure of NH-58; clear river ghats and lower town market terraces.</p>
+                              </div>
+                              <div className="p-2 rounded bg-white/2 border border-white/4">
+                                <span className="text-orange-400 font-semibold block">Zone 3 · 45–85 km (Devprayag – Rishikesh)</span>
+                                <span className="text-white/50 text-[10px] block mt-0.5">Arrival: 52–130 min · Depth: 9.4m</span>
+                                <p className="text-white/70 text-[10px] mt-1">Close pedestrian suspension bridges; clear pilgrim corridors and lowlands.</p>
+                              </div>
+                              <div className="p-2 rounded bg-white/2 border border-white/4">
+                                <span className="text-emerald-400 font-semibold block">Zone 4 · 85–105+ km (Rishikesh – Haridwar)</span>
+                                <span className="text-white/50 text-[10px] block mt-0.5">Arrival: 130–188 min (3.1h) · Depth: 4.2m</span>
+                                <p className="text-white/70 text-[10px] mt-1">Emergency opening of Bhimgoda Barrage gates; siren broadcast across plains.</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Panel>
+                )}
 
                 {activeRun.status !== 'done' && activeRun.status !== 'failed' && activeRun.status !== 'cancelled' && (
                   <Button

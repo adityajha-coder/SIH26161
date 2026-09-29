@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/sih26161/backend/internal/gisexport"
+	"github.com/sih26161/backend/internal/reportgen"
 )
 
 type ExportHandler struct{}
@@ -76,10 +78,16 @@ func (h *ExportHandler) ExportReport(w http.ResponseWriter, r *http.Request) {
 	}
 	caseID := getCaseID(r)
 
-	data := gisexport.GenerateExecutiveReport(runID, caseID)
+	if r.URL.Query().Get("format") == "json" {
+		data := reportgen.GetEAPBriefingData(runID, caseID)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(data)
+		return
+	}
+
+	data := reportgen.GenerateEAPBriefing(runID, caseID)
 	w.Header().Set("Content-Type", "text/markdown; charset=utf-8")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"inundation_assessment_report_%s.md\"", runID))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"eap_briefing_%s.md\"", runID))
 	w.WriteHeader(http.StatusOK)
 	_, _ = w.Write(data)
 }
-

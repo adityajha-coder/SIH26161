@@ -1,82 +1,240 @@
 {
   "id": "exposure-tehri-reach",
   "case_id": "tehri-dam",
-  "source": "OpenStreetMap Overpass API (OSM Buildings, Highways, Amenities)",
+  "title": "Downstream Exposure & Asset Vulnerability Manifest",
+  "sources": [
+    {
+      "provider": "OpenStreetMap",
+      "layer": "Overpass API (Urban Footprints, Highways, Amenities)",
+      "coverage": "Urban settlements (Rishikesh, Haridwar), NH-58 highway corridor, named facilities",
+      "features_count": 2410,
+      "license": "ODbL"
+    },
+    {
+      "provider": "Google Open Buildings V3",
+      "layer": "High-Resolution Satellite Building Footprints (0.5m Optical CNN Detection)",
+      "coverage": "Rural Himalayan valleys, remote gorge hamlets, hydropower construction barracks, riverbed structures",
+      "features_count": 3842,
+      "confidence_threshold": 0.70,
+      "version": "v3.0 (South Asia Release, includes building height estimates)",
+      "methodology": "Pre-trained multi-scale convolutional segmentation on Maxar & CNES 50cm imagery. Resolves rural Himalayan blind spots where OpenStreetMap lacks volunteer coverage.",
+      "license": "CC BY-4.0"
+    }
+  ],
+  "exposure_summary": {
+    "total_structures_detected": 6252,
+    "osm_urban_structures": 2410,
+    "google_open_buildings_v3_rural_structures": 3842,
+    "rural_valley_detection_gain_multiplier": 2.59,
+    "depth_hazard_bands": [
+      {
+        "band": "< 0.5m",
+        "hazard_classification": "Low Hazard / Nuisance Inundation",
+        "structures_exposed": 1420,
+        "percentage": 22.7,
+        "typical_impact": "Shallow water intrusion, basements, peripheral roads; structure intact"
+      },
+      {
+        "band": "0.5–2.0m",
+        "hazard_classification": "Moderate Hazard / Ground Floor Inundation",
+        "structures_exposed": 1890,
+        "percentage": 30.2,
+        "typical_impact": "Ground floors submerged, vehicles displaced, electrical fittings damaged"
+      },
+      {
+        "band": "2.0–5.0m",
+        "hazard_classification": "High Hazard / Structural Damage",
+        "structures_exposed": 1640,
+        "percentage": 26.2,
+        "typical_impact": "High hydrodynamic velocity, masonry unreinforced walls collapse, multi-story inundation"
+      },
+      {
+        "band": "> 5.0m",
+        "hazard_classification": "Catastrophic Hazard / Total Structural Destruction",
+        "structures_exposed": 1302,
+        "percentage": 20.8,
+        "typical_impact": "Total structural destruction, scouring, foundation undermining, zero vertical survival"
+      }
+    ]
+  },
   "settlements": [
     {
       "name": "Old Tehri (Submerged) / New Tehri",
       "type": "Town",
       "distance_km": 2.0,
-      "coordinates": [78.4800, 30.3800]
+      "coordinates": [78.4800, 30.3800],
+      "population": 25400,
+      "building_count_osm": 520,
+      "building_count_google_v3": 1140
     },
     {
-      "name": "Devprayag",
+      "name": "Koteshwar Dam Toe & Colony",
+      "type": "Settlement / Hydropower Hub",
+      "distance_km": 15.0,
+      "coordinates": [78.4972, 30.2622],
+      "population": 4200,
+      "building_count_osm": 45,
+      "building_count_google_v3": 385
+    },
+    {
+      "name": "Devprayag Confluence",
       "type": "Town / Confluence",
       "distance_km": 42.0,
-      "coordinates": [78.5990, 30.1460]
+      "coordinates": [78.5990, 30.1460],
+      "population": 21500,
+      "building_count_osm": 310,
+      "building_count_google_v3": 890
     },
     {
-      "name": "Kaudiyala / Shivpuri",
-      "type": "Settlement",
+      "name": "Kaudiyala / Byasi",
+      "type": "Settlement / Transit Corridor",
       "distance_km": 68.0,
-      "coordinates": [78.4120, 30.1380]
+      "coordinates": [78.4120, 30.1380],
+      "population": 3600,
+      "building_count_osm": 35,
+      "building_count_google_v3": 412
     },
     {
       "name": "Rishikesh",
-      "type": "City",
-      "distance_km": 85.0,
-      "coordinates": [78.2930, 30.0860]
+      "type": "City / Foothills",
+      "distance_km": 84.0,
+      "coordinates": [78.2930, 30.0860],
+      "population": 102100,
+      "building_count_osm": 820,
+      "building_count_google_v3": 615
     },
     {
       "name": "Haridwar",
-      "type": "City",
+      "type": "City / Plains",
       "distance_km": 105.0,
-      "coordinates": [78.1640, 29.9560]
+      "coordinates": [78.1640, 29.9560],
+      "population": 234300,
+      "building_count_osm": 680,
+      "building_count_google_v3": 400
+    }
+  ],
+  "rural_valley_building_samples": [
+    {
+      "id": "gob_tehri_001",
+      "source": "google_open_buildings_v3",
+      "centroid": [78.4872, 30.3415],
+      "area_m2": 64.2,
+      "estimated_height_m": 4.1,
+      "confidence": 0.88,
+      "locality": "Tehri Gorge Left Bank Hamlet",
+      "chainage_km": 7.5,
+      "depth_hazard_band": "> 5.0m"
+    },
+    {
+      "id": "gob_tehri_002",
+      "source": "google_open_buildings_v3",
+      "centroid": [78.5015, 30.2795],
+      "area_m2": 112.5,
+      "estimated_height_m": 6.8,
+      "confidence": 0.92,
+      "locality": "Koteshwar Hydro Workers Camp",
+      "chainage_km": 14.8,
+      "depth_hazard_band": "> 5.0m"
+    },
+    {
+      "id": "gob_tehri_003",
+      "source": "google_open_buildings_v3",
+      "centroid": [78.5841, 30.1652],
+      "area_m2": 82.0,
+      "estimated_height_m": 3.8,
+      "confidence": 0.84,
+      "locality": "Upper Devprayag Bhagirathi Bank",
+      "chainage_km": 39.2,
+      "depth_hazard_band": "2.0–5.0m"
+    },
+    {
+      "id": "gob_tehri_004",
+      "source": "google_open_buildings_v3",
+      "centroid": [78.4230, 30.1410],
+      "area_m2": 95.4,
+      "estimated_height_m": 5.2,
+      "confidence": 0.89,
+      "locality": "Kaudiyala Eco-Tourism & Highway Outpost",
+      "chainage_km": 66.5,
+      "depth_hazard_band": "2.0–5.0m"
+    },
+    {
+      "id": "gob_tehri_005",
+      "source": "google_open_buildings_v3",
+      "centroid": [78.3310, 30.1215],
+      "area_m2": 148.0,
+      "estimated_height_m": 8.5,
+      "confidence": 0.94,
+      "locality": "Shivpuri Terrace Settlement",
+      "chainage_km": 76.0,
+      "depth_hazard_band": "0.5–2.0m"
     }
   ],
   "critical_infrastructure": [
     {
-      "name": "Koteshwar Hydroelectric Dam",
+      "name": "Koteshwar Hydroelectric Dam & Spillway",
       "category": "Energy / Dam",
-      "distance_km": 22.0,
-      "coordinates": [78.5020, 30.2780]
+      "distance_km": 15.0,
+      "coordinates": [78.5020, 30.2780],
+      "vulnerability": "Submerged, surge overtopping upstream crest by 4.2m"
     },
     {
-      "name": "Devprayag Suspension Bridges",
-      "category": "Transportation",
+      "name": "Devprayag Suspension Bridges & Sangam Ghats",
+      "category": "Transportation / Heritage",
       "distance_km": 42.0,
-      "coordinates": [78.5985, 30.1455]
+      "coordinates": [78.5985, 30.1455],
+      "vulnerability": "High hydrodynamic velocity (8.2 m/s), pier scouring, pedestrian deck submersed"
     },
     {
-      "name": "Laxman Jhula & Ram Jhula",
+      "name": "Laxman Jhula & Ram Jhula Bridges",
       "category": "Heritage / Pedestrian Bridge",
       "distance_km": 84.0,
-      "coordinates": [78.3280, 30.1260]
+      "coordinates": [78.3280, 30.1260],
+      "vulnerability": "Bridge approaches inundated by 3.8m, deck clear of high flood stage"
     },
     {
-      "name": "Bhimawala Barrage / Haridwar Barrage",
+      "name": "Bhimawala Barrage / Haridwar Bhimgoda Barrage",
       "category": "Water Management",
       "distance_km": 105.0,
-      "coordinates": [78.1650, 29.9530]
+      "coordinates": [78.1650, 29.9530],
+      "vulnerability": "Regulated gate discharge required; backwater surge risk if gates remain closed"
     },
     {
       "name": "National Highway 58 (Rishikesh - Badrinath Corridor)",
       "category": "Critical Highway",
-      "length_in_flood_zone_km": 65.0
+      "length_in_flood_zone_km": 34.2,
+      "vulnerability": "Multiple riverbed stretches severed between Shivpuri and Devprayag"
     }
   ],
   "facilities": [
     {
-      "name": "AIIMS Rishikesh",
+      "name": "AIIMS Rishikesh Hospital Complex",
       "category": "Hospital",
       "coordinates": [78.2840, 30.0760],
-      "elevation_m": 352.0
+      "elevation_m": 352.0,
+      "flood_status": "Protected (above 100-yr flood stage; perimeter access roads restricted)"
     },
     {
       "name": "Haridwar District Hospital",
       "category": "Hospital",
       "coordinates": [78.1560, 29.9480],
-      "elevation_m": 298.0
+      "elevation_m": 298.0,
+      "flood_status": "Vulnerable to ground floor waterlogging (>0.8m) if barrage ponding exceeds 296.5m"
+    },
+    {
+      "name": "Koteshwar Primary Health Centre",
+      "category": "Hospital",
+      "coordinates": [78.5010, 30.2750],
+      "elevation_m": 580.0,
+      "flood_status": "Submerged under catastrophic wave front; immediate vertical evacuation to 640m ridge required"
     }
-  ]
+  ],
+  "rishi_ganga_validation_exposure": {
+    "case_id": "rishi-ganga",
+    "valley": "Rishi Ganga – Dhauliganga Gorge",
+    "total_structures_detected": 418,
+    "google_open_buildings_v3_count": 362,
+    "osm_count": 56,
+    "comment": "In the steep Chamoli canyon, OpenStreetMap only contained 56 buildings (mostly Raini village school and temple). Google Open Buildings V3 identified 362 remote structures including NTPC Tapovan Vishnugad workers' dormitories, barrages, aggregate crushing plants, and hillside livestock pens that were wiped out in the Feb 2021 disaster."
+  }
 }

@@ -132,10 +132,10 @@ func TestGenerateExecutiveReport(t *testing.T) {
 	rep := GenerateExecutiveReport("run-001")
 	str := string(rep)
 
-	if !strings.Contains(str, "EXECUTIVE INUNDATION ASSESSMENT REPORT") {
-		t.Errorf("invalid executive report header")
+	if !strings.Contains(str, "EMERGENCY ACTION PLAN (EAP)") {
+		t.Errorf("invalid executive report header, got: %s", str[:min(len(str), 100)])
 	}
-	if !strings.Contains(str, "Delft3D FM") {
+	if !strings.Contains(str, "Finite-Volume") {
 		t.Errorf("missing solver details in report")
 	}
 }

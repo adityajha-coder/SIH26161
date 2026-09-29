@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/sih26161/backend/internal/reportgen"
 )
 
 type StationExport struct {
@@ -498,61 +500,7 @@ func writePaddedString(buf *bytes.Buffer, s string, length int) {
 	}
 }
 
+// GenerateExecutiveReport delegates to the dedicated reportgen package for tactical EAP briefings.
 func GenerateExecutiveReport(runID string, optCaseID ...string) []byte {
-	prof := GetExportProfile(runID, optCaseID...)
-
-	var stationRows []string
-	for _, st := range prof.Stations {
-		stationRows = append(stationRows, fmt.Sprintf("| **%s** | %.1f | %.1f | %d min | %s |",
-			st.Name, st.ChainageKm, st.PeakDepthM, st.ArrivalMin, st.Severity))
-	}
-
-	report := fmt.Sprintf(`# EXECUTIVE INUNDATION ASSESSMENT REPORT
-
-**Platform**: Jalrekha Hydrodynamic Modelling Platform (NTRO / SIH26161)  
-**Simulation Run**: %s  
-**Generated At**: %s  
-**Target Case Study**: %s (%s, %s)
-
----
-
-## 1. Executive Summary
-
-A full numerical hydrodynamic simulation was conducted for the downstream corridor of %s following an overtopping dam failure scenario. The analysis covers the entire %.0f km river reach from the dam toe through downstream settlements and key river infrastructure.
-
-- **Peak Inflow Discharge**: %.1f m³/s
-- **Breach Formation Time**: 2.50 hours
-- **Total Flooded Corridor Footprint**: %.1f sq km
-- **Maximum Computed Depth**: %.1f m
-- **Spatial Reference**: EPSG:4326 / EPSG:32644 (Copernicus GLO-30 DEM baseline)
-
----
-
-## 2. Downstream Flood Wave Propagation Telemetry
-
-| Station | Chainage (km) | Peak Flood Depth (m) | Wave Arrival Time (min) | Severity Level |
-|---|---|---|---|---|
-%s
-
----
-
-## 3. Solver Cross-Validation
-
-- **Eulerian SWE Solver**: Delft3D FM (D-Flow FM 2023.03)
-- **Lagrangian SPH Solver**: DualSPHysics v5.2
-- **Flood Extent Agreement (IoU / CSI)**: 88.6%%
-- **Nash-Sutcliffe Efficiency (NSE)**: 0.942
-- **Depth Root Mean Square Error (RMSE)**: 0.84 m
-
----
-
-## 4. Emergency Action & Decision Support Guidelines
-
-1. **Zone 1 (0 - 25 km / Dam Toe to Near Valley)**: Immediate evacuation of all riverside structures. Flood wave arrival within 20-30 minutes with peak depths exceeding 18m.
-2. **Zone 2 (25 - 60 km / Intermediate Confluence)**: Active evacuation of river ghats and low-lying market areas along national highways.
-3. **Zone 3 (60 - %.0f km / Lower Plain & Barrages)**: 2+ hours warning window available. Implement flood barrage gates emergency regulation protocol and sound siren warnings across downstream habitations.
-`, runID, time.Now().UTC().Format(time.RFC850), prof.DamName, prof.RiverName, prof.State, prof.DamName, prof.ReachKm,
-		prof.PeakDischargeM3s, prof.FloodedAreaKm2, prof.MaxDepthM, strings.Join(stationRows, "\n"), prof.ReachKm)
-
-	return []byte(report)
+	return reportgen.GenerateExecutiveReport(runID, optCaseID...)
 }

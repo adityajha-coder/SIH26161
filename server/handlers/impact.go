@@ -24,7 +24,12 @@ func (h *ImpactHandler) GetSimulationImpact(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	report := impact.CalculateSimulationImpact(id)
+	caseID := r.URL.Query().Get("case_id")
+	if caseID == "" {
+		caseID = r.URL.Query().Get("caseId")
+	}
+
+	report := impact.CalculateSimulationImpact(id, caseID)
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(report)

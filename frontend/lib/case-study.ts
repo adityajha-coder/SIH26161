@@ -254,9 +254,58 @@ export const IDUKKI: CaseStudy = {
   ],
 }
 
-export const CASES: CaseStudy[] = [TEHRI, SARDAR_SAROVAR, BHAKRA, IDUKKI]
+export const RISHI_GANGA: CaseStudy = {
+  id: 'rishi-ganga',
+  name: 'Rishi Ganga Flash Flood (Feb 2021)',
+  river: 'Rishi Ganga – Dhauliganga',
+  state: 'Uttarakhand',
+  role: 'regression',
+  type: 'natural_blockage',
+  bbox: [79.55, 30.40, 79.80, 30.60],
+  center: [79.68, 30.49],
+  zoom: 11.2,
+  pitch: 62,
+  bearing: 340,
+  dam: {
+    name: 'Rishi Ganga & Tapovan Hydropower Complex',
+    lngLat: [79.7342, 30.4828],
+    type: 'Concrete Barrage & Intake Headworks',
+    heightM: 25.0,
+    crestLengthM: 180.0,
+    crestElevationM: 1850.0,
+    frlM: 1845.0,
+    mddlM: 1830.0,
+    grossStorageMcm: 12.5,
+    liveStorageMcm: 8.2,
+    catchmentKm2: 680,
+    commissioned: 2020,
+    source: 'NTPC / UJVNL / CWC Disaster Investigation Report (Feb 2021)',
+  },
+  reachKm: 35,
+  downstreamTowns: [
+    { name: 'Rishi Ganga Dam Toe', lngLat: [79.7342, 30.4828], chainageKm: 0 },
+    { name: 'Raini Village & Confluence', lngLat: [79.6925, 30.4867], chainageKm: 5 },
+    { name: 'Tapovan Vishnugad Headworks', lngLat: [79.6231, 30.4936], chainageKm: 16 },
+    { name: 'Joshimath Foothills', lngLat: [79.5658, 30.5567], chainageKm: 35 },
+  ],
+  riverReachCoordinates: [
+    [79.7342, 30.4828],
+    [79.6925, 30.4867],
+    [79.6231, 30.4936],
+    [79.5658, 30.5567],
+  ],
+  datasets: [
+    { id: 'dem', name: 'Copernicus GLO-30 DEM', source: 'ESA / Copernicus', resolution: '30 m', crs: 'EPSG:32644', status: 'ready', manifest: 'data/manifests/dem.json' },
+    { id: 'satellite-s1', name: 'Sentinel-1 C-SAR Inundation Telemetry', source: 'ESA Copernicus (GEE)', resolution: '10 m', crs: 'EPSG:4326', status: 'ready', manifest: 'data/manifests/historical_event.json' },
+    { id: 'satellite-s2', name: 'Sentinel-2 L2A Multispectral Optical & NDSI', source: 'ESA Copernicus (GEE)', resolution: '10 m', crs: 'EPSG:4326', status: 'ready', manifest: 'data/manifests/historical_event.json' },
+    { id: 'exposure', name: 'Hydropower structures & riverbank infrastructure', source: 'OpenStreetMap / NDMA', resolution: 'Vector', crs: 'EPSG:4326', status: 'ready', manifest: 'data/manifests/exposure.json' },
+  ],
+}
+
+export const CASES: CaseStudy[] = [TEHRI, SARDAR_SAROVAR, BHAKRA, IDUKKI, RISHI_GANGA]
 
 export function getCaseById(id: string): CaseStudy {
   return CASES.find((c) => c.id === id) ?? TEHRI
 }
+
 

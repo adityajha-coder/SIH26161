@@ -73,4 +73,7 @@ export const api = {
   refreshObservations: () => apiFetch<{ queued: boolean }>('/api/v1/observations/refresh', { method: 'POST' }),
   exportUrl: (runId: string, format: 'kml' | 'shp' | 'geojson' | 'report', caseId?: string) =>
     `${API_BASE_URL}/api/v1/exports/${runId}/${format}${caseId ? `?case_id=${encodeURIComponent(caseId)}` : ''}`,
+  getEAPReportJson: (runId: string, caseId?: string) =>
+    apiFetch<any>(`/api/v1/exports/${runId}/report?format=json${caseId ? `&case_id=${encodeURIComponent(caseId)}` : ''}`),
 }
+

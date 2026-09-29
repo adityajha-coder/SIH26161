@@ -208,10 +208,9 @@ export function affectedRoadKm(
 
 export function depthBand(d: number) {
   if (d < 0.5) return '< 0.5 m'
-  if (d < 2) return '0.5–2 m'
-  if (d < 5) return '2–5 m'
-  if (d < 10) return '5–10 m'
-  return '> 10 m'
+  if (d <= 2) return '0.5–2 m'
+  if (d <= 5) return '2–5 m'
+  return '> 5 m'
 }
 
-export const DEPTH_BANDS = ['< 0.5 m', '0.5–2 m', '2–5 m', '5–10 m', '> 10 m']
+export const DEPTH_BANDS = ['< 0.5 m', '0.5–2 m', '2–5 m', '> 5 m']
