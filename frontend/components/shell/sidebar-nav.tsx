@@ -3,19 +3,20 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
+  Home,
   Map,
   LayoutDashboard,
   ShieldAlert,
   GitCompare,
   Satellite,
-  SlidersHorizontal,
   Download,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export const NAV_ITEMS = [
+  { href: '/', label: 'STRATA Home', icon: Home },
+  { href: '/dashboard', label: 'Digital Twin Studio & Scenario Engine', icon: LayoutDashboard },
   { href: '/map', label: 'Flood Map & 3D Simulation', icon: Map },
-  { href: '/', label: 'Digital Twin Studio & Scenario Engine', icon: LayoutDashboard },
   { href: '/impact', label: 'Downstream Impact & Vulnerability', icon: ShieldAlert },
   { href: '/compare', label: 'Cross-Solver Validation', icon: GitCompare },
   { href: '/observations', label: 'Satellite Earth Observation', icon: Satellite },

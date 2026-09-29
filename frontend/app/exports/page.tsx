@@ -147,18 +147,6 @@ export default function ExportsPage() {
             <dt className="text-[#949ba4]">Spatial Reference</dt>
             <dd className="mt-1 font-mono text-white font-semibold">EPSG:4326 / EPSG:32644</dd>
           </div>
-          <div
-            onClick={() => setIsDamMenuOpen((prev) => !prev)}
-            className="glass-panel-subtle p-3 rounded-lg cursor-pointer hover:border-white/20 transition-colors group"
-          >
-            <dt className="text-[#949ba4] flex items-center justify-between">
-              <span>Target Dam</span>
-              <span className="text-[10px] text-white/40 group-hover:text-white/70 transition-colors">Select ▼</span>
-            </dt>
-            <dd className="mt-1 font-mono text-white font-semibold truncate">
-              {activeCase.name}
-            </dd>
-          </div>
         </dl>
       </div>
 
