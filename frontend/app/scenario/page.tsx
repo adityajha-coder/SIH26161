@@ -2,14 +2,15 @@
 
 import { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, CheckCircle2, Play } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Play, Sliders, Sparkles, Compass } from 'lucide-react'
 import { Panel, PageHeader, StatTile, PreviewNotice } from '@/components/common/panel'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { HydrographChart } from '@/components/flood/hydrograph-chart'
+import { ProvenanceBadge } from '@/components/common/provenance-badge'
 import { usePlatform } from '@/lib/platform-store'
-import { TEHRI, SARDAR_SAROVAR, BHAKRA, IDUKKI, getCaseById } from '@/lib/case-study'
+import { TEHRI, SARDAR_SAROVAR, BHAKRA, IDUKKI, RISHI_GANGA, getCaseById } from '@/lib/case-study'
 import {
   BREACH_BOUNDS,
   MASS_BALANCE_TOLERANCE_PCT,
@@ -77,6 +78,19 @@ const PRESETS = [
     horizonH: 6,
   },
   {
+    id: 'rishi-ganga-blockage',
+    label: 'Rishi Ganga',
+    tag: 'Natural Landslide / Ice Dam',
+    caseId: RISHI_GANGA.id,
+    type: 'natural_blockage' as ScenarioType,
+    failureMode: 'natural_blockage' as FailureMode,
+    volumeMcm: 12.5,
+    breachHeightM: 25,
+    waterDepthM: 25,
+    manningN: 0.055,
+    horizonH: 3,
+  },
+  {
     id: 'tehri-water-release',
     label: 'Spillway Release',
     tag: 'Controlled Surge',
@@ -128,6 +142,15 @@ export default function ScenarioPage() {
   const [selectedSolvers, setSelectedSolvers] = useState<SolverId[]>(['delft3d', 'sph'])
   const [submitting, setSubmitting] = useState(false)
 
+  // Custom Dam Wizard State
+  const [wizardMode, setWizardMode] = useState<'presets' | 'custom_wizard'>('presets')
+  const [customDamName, setCustomDamName] = useState('Subansiri Lower Hydroelectric Project')
+  const [customRiver, setCustomRiver] = useState('Subansiri River Basin')
+  const [customState, setCustomState] = useState('Arunachal Pradesh / Assam')
+  const [customDamType, setCustomDamType] = useState<DamType>('concrete_gravity')
+  const [customSlope, setCustomSlope] = useState(0.008)
+  const [customReachKm, setCustomReachKm] = useState(75)
+
   const applyPreset = (preset: typeof PRESETS[0]) => {
     setActivePreset(preset.id)
     setSelectedCaseId(preset.caseId)
@@ -141,11 +164,28 @@ export default function ScenarioPage() {
   }
 
   const damType: DamType = useMemo(() => {
+    if (wizardMode === 'custom_wizard') return customDamType
     const cid = (selectedCaseId || '').toLowerCase()
     if (cid.includes('idukki')) return 'concrete_arch'
     if (cid.includes('sarovar') || cid.includes('bhakra')) return 'concrete_gravity'
     return 'rockfill'
-  }, [selectedCaseId])
+  }, [selectedCaseId, wizardMode, customDamType])
+
+  const waveCelerityMs = useMemo(() => {
+    const g = 9.81
+    const meanH = Math.max(2.0, breachHeightM * 0.35)
+    return Math.sqrt(g * meanH) * (1 + 1.2 * Math.sqrt(customSlope))
+  }, [breachHeightM, customSlope])
+
+  const customStations = useMemo(() => {
+    const r = customReachKm
+    return [
+      { name: 'Dam Toe', km: 0, timeMin: 0 },
+      { name: 'Upper Gorge', km: Math.round(r * 0.2), timeMin: Math.max(1, Math.round((r * 0.2 * 1000) / (waveCelerityMs * 60))) },
+      { name: 'Middle Confluence', km: Math.round(r * 0.5), timeMin: Math.max(2, Math.round((r * 0.5 * 1000) / (waveCelerityMs * 60))) },
+      { name: 'Valley Terminal', km: r, timeMin: Math.max(5, Math.round((r * 1000) / (waveCelerityMs * 60))) },
+    ]
+  }, [customReachKm, waveCelerityMs])
 
   const input: BreachInput = useMemo(
     () => ({ reservoirVolumeM3, breachHeightM, waterDepthM, failureMode, damType }),
@@ -180,9 +220,14 @@ export default function ScenarioPage() {
           ? 'Natural Lake Blockage Breach'
           : 'Emergency Spillway Surge'
 
+      const displayName =
+        wizardMode === 'custom_wizard'
+          ? `${customDamName} (${modeLabel}) · Hb=${breachHeightM}m`
+          : `${modeLabel} · Hb=${breachHeightM}m`
+
       const created = await createScenario({
         caseId: selectedCaseId,
-        name: `${modeLabel} · Hb=${breachHeightM}m`,
+        name: displayName,
         type: scenarioType,
         demVersion: 'GLO-30 · UTM44N · v1',
         initialWaterLevelM: getCaseById(selectedCaseId).dam.frlM > 0 ? getCaseById(selectedCaseId).dam.frlM : 1800,
@@ -217,26 +262,210 @@ export default function ScenarioPage() {
     <div className="space-y-4 p-4 lg:p-6 max-w-7xl mx-auto">
       <PageHeader title="Scenario Engine" />
 
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-        {PRESETS.map((p) => {
-          const active = activePreset === p.id
-          return (
-            <button
-              key={p.id}
-              onClick={() => applyPreset(p)}
-              className={cn(
-                'shrink-0 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer',
-                active
-                  ? 'border-white bg-white/10 text-white'
-                  : 'border-white/8 text-[#949ba4] hover:border-white/18 hover:text-white',
-              )}
-            >
-              <span className="text-white">{p.label}</span>
-              <span className="ml-1.5 text-[10px] font-mono text-white/50">{p.tag}</span>
-            </button>
-          )
-        })}
+      {/* Wizard Mode Switcher Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/8 pb-3">
+        <div className="flex items-center rounded-xl bg-white/4 p-1 border border-white/8 text-xs">
+          <button
+            type="button"
+            onClick={() => setWizardMode('presets')}
+            className={cn(
+              'px-3.5 py-1.5 rounded-lg font-medium transition-all cursor-pointer',
+              wizardMode === 'presets' ? 'bg-white/12 text-white shadow-sm' : 'text-white/50 hover:text-white'
+            )}
+          >
+            Pre-calibrated Dam Presets ({PRESETS.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setWizardMode('custom_wizard')}
+            className={cn(
+              'px-3.5 py-1.5 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5',
+              wizardMode === 'custom_wizard' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30 shadow-sm' : 'text-white/50 hover:text-white'
+            )}
+          >
+            <Sparkles className="size-3 text-purple-400" />
+            <span>Custom Dam Wizard</span>
+            <span className="px-1.5 py-0.2 rounded text-[9px] bg-purple-500/30 text-purple-300 font-mono">Interactive</span>
+          </button>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-2">
+          <ProvenanceBadge type="numerical_swe_2d" variant="compact" />
+          <ProvenanceBadge type="calibrated_adapter" variant="compact" />
+        </div>
       </div>
+
+      {/* Preset Buttons Mode */}
+      {wizardMode === 'presets' ? (
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+          {PRESETS.map((p) => {
+            const active = activePreset === p.id
+            return (
+              <button
+                key={p.id}
+                onClick={() => applyPreset(p)}
+                className={cn(
+                  'shrink-0 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer',
+                  active
+                    ? 'border-white bg-white/10 text-white'
+                    : 'border-white/8 text-[#949ba4] hover:border-white/18 hover:text-white',
+                )}
+              >
+                <span className="text-white">{p.label}</span>
+                <span className="ml-1.5 text-[10px] font-mono text-white/50">{p.tag}</span>
+              </button>
+            )
+          })}
+        </div>
+      ) : (
+        /* Custom Dam Wizard Controls */
+        <div className="glass-panel rounded-xl p-4 border border-purple-500/20 bg-purple-500/5 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/8 pb-2">
+            <div>
+              <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                <Sliders className="size-3.5 text-purple-400" />
+                Custom Dam &amp; Hydraulic Basin Specification
+              </span>
+              <p className="text-[11px] text-white/50 mt-0.5">
+                Define arbitrary dam geometries, material structural failure modes, and valley slopes
+              </p>
+            </div>
+            <span className="text-[10px] font-mono text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2.5 py-1 rounded-full">
+              Dynamic Bore: c = {waveCelerityMs.toFixed(1)} m/s ({Math.round(waveCelerityMs * 3.6)} km/h)
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div>
+              <label className="text-[10px] text-white/40 block mb-1">Dam Name</label>
+              <Input
+                value={customDamName}
+                onChange={(e) => setCustomDamName(e.target.value)}
+                className="font-mono text-xs bg-black/40 border-white/10"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] text-white/40 block mb-1">River Corridor</label>
+              <Input
+                value={customRiver}
+                onChange={(e) => setCustomRiver(e.target.value)}
+                className="font-mono text-xs bg-black/40 border-white/10"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] text-white/40 block mb-1">State / Jurisdiction</label>
+              <Input
+                value={customState}
+                onChange={(e) => setCustomState(e.target.value)}
+                className="font-mono text-xs bg-black/40 border-white/10"
+              />
+            </div>
+          </div>
+
+          {/* Dam Structural Type Selector */}
+          <div>
+            <label className="text-[10px] text-white/40 uppercase font-mono block mb-1.5">
+              Dam Structural Type &amp; Breach Mechanism
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setCustomDamType('rockfill')}
+                className={cn(
+                  'p-2.5 rounded-lg border text-left text-xs transition-colors cursor-pointer',
+                  customDamType === 'rockfill'
+                    ? 'border-emerald-500 bg-emerald-500/10 text-white'
+                    : 'border-white/8 bg-white/2 text-white/50 hover:bg-white/4'
+                )}
+              >
+                <div className="font-semibold text-white">Earth &amp; Rockfill</div>
+                <div className="text-[10px] text-white/50 mt-0.5">Froehlich progressive erosion (tf ≈ 1.5–3.0h)</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCustomDamType('concrete_gravity')}
+                className={cn(
+                  'p-2.5 rounded-lg border text-left text-xs transition-colors cursor-pointer',
+                  customDamType === 'concrete_gravity'
+                    ? 'border-cyan-500 bg-cyan-500/10 text-white'
+                    : 'border-white/8 bg-white/2 text-white/50 hover:bg-white/4'
+                )}
+              >
+                <div className="font-semibold text-white">Concrete Gravity</div>
+                <div className="text-[10px] text-white/50 mt-0.5">USBR / FERC Monolith collapse (tf ≈ 0.2h)</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCustomDamType('concrete_arch')}
+                className={cn(
+                  'p-2.5 rounded-lg border text-left text-xs transition-colors cursor-pointer',
+                  customDamType === 'concrete_arch'
+                    ? 'border-purple-500 bg-purple-500/10 text-white'
+                    : 'border-white/8 bg-white/2 text-white/50 hover:bg-white/4'
+                )}
+              >
+                <div className="font-semibold text-white">Concrete Arch</div>
+                <div className="text-[10px] text-white/50 mt-0.5">USBR Sudden Cantilever Buckling (tf ≤ 0.1h)</div>
+              </button>
+            </div>
+          </div>
+
+          {/* Valley Slope & Reach Corridor Sliders */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div className="p-3 rounded-lg bg-black/30 border border-white/6 space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-white/60">Valley Bed Slope (S₀):</span>
+                <span className="font-mono text-purple-300 font-semibold">{customSlope.toFixed(4)} ({customSlope >= 0.01 ? 'Steep Bedrock Gorge' : customSlope >= 0.005 ? 'Foothill Valley' : 'Alluvial Plain'})</span>
+              </div>
+              <input
+                type="range"
+                min="0.001"
+                max="0.025"
+                step="0.0005"
+                value={customSlope}
+                onChange={(e) => setCustomSlope(parseFloat(e.target.value))}
+                className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-purple-400"
+              />
+            </div>
+
+            <div className="p-3 rounded-lg bg-black/30 border border-white/6 space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-white/60">Downstream Corridor Reach:</span>
+                <span className="font-mono text-sky-300 font-semibold">{customReachKm} km</span>
+              </div>
+              <input
+                type="range"
+                min="10"
+                max="150"
+                step="5"
+                value={customReachKm}
+                onChange={(e) => setCustomReachKm(parseInt(e.target.value))}
+                className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-sky-400"
+              />
+            </div>
+          </div>
+
+          {/* Real-time Dynamic Wave Arrival Timetable */}
+          <div className="p-2.5 rounded-lg bg-white/2 border border-white/6 text-xs">
+            <span className="text-[10px] font-mono text-white/40 uppercase block mb-1">
+              Estimated Wave Front Arrival Times (Dynamic Bore Velocity: {waveCelerityMs.toFixed(1)} m/s)
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+              {customStations.map((st) => (
+                <div key={st.name} className="p-1.5 rounded bg-black/40 border border-white/4">
+                  <span className="text-[10px] text-white/50 block truncate">{st.name}</span>
+                  <span className="text-xs font-mono font-bold text-white block mt-0.5">
+                    {st.timeMin} min
+                  </span>
+                  <span className="text-[9px] font-mono text-white/40">{st.km} km</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile label="Peak Outflow" value={formatNumber(Math.round(hydrograph.peakDischargeM3s))} unit="m³/s" tone="danger" />

@@ -8,6 +8,8 @@ import { useFloodResult, SPH_DOMAIN_KM } from '@/lib/use-flood'
 import { CASES } from '@/lib/case-study'
 import { SOLVERS, type SolverId } from '@/lib/types'
 import { formatNumber, formatDuration } from '@/lib/format'
+import { ProvenanceBadge } from '@/components/common/provenance-badge'
+import { SphParticleViewer } from '@/components/sph/sph-particle-viewer'
 import { cn } from '@/lib/utils'
 
 export default function ComparePage() {
@@ -245,7 +247,10 @@ export default function ComparePage() {
           </h1>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <ProvenanceBadge type="numerical_swe_2d" variant="compact" />
+          <ProvenanceBadge type="sph_trajectory_precomputed" variant="compact" />
+
           <div className="relative" ref={damMenuRef}>
             <button
               type="button"
@@ -680,6 +685,9 @@ export default function ComparePage() {
             </div>
           )}
 
+          {/* DualSPHysics 3D Particle Flume Benchmark Visualizer */}
+          <SphParticleViewer />
+
           {/* Unified Station Hydrodynamics Table */}
           <div className="glass-panel rounded-xl border border-white/8 overflow-hidden">
             <div className="px-4 sm:px-5 py-3 border-b border-white/6 flex items-center justify-between">
@@ -806,9 +814,12 @@ export default function ComparePage() {
                     {SOLVERS.delft3d.name}
                   </span>
                 </div>
-                <span className="text-[10px] font-mono text-white/40">
-                  {SOLVERS.delft3d.version}
-                </span>
+                <div className="flex items-center gap-2">
+                  <ProvenanceBadge type="numerical_swe_2d" variant="compact" />
+                  <span className="text-[10px] font-mono text-white/40">
+                    {SOLVERS.delft3d.version}
+                  </span>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-2 pt-2 text-xs border-t border-white/6">
                 <div>
@@ -842,9 +853,12 @@ export default function ComparePage() {
                     {SOLVERS.sph.name}
                   </span>
                 </div>
-                <span className="text-[10px] font-mono text-white/40">
-                  {SOLVERS.sph.version}
-                </span>
+                <div className="flex items-center gap-2">
+                  <ProvenanceBadge type="sph_trajectory_precomputed" variant="compact" />
+                  <span className="text-[10px] font-mono text-white/40">
+                    {SOLVERS.sph.version}
+                  </span>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-2 pt-2 text-xs border-t border-white/6">
                 <div>

@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { usePlatform } from '@/lib/platform-store'
 import { CASES, CaseStudy } from '@/lib/case-study'
+import { ProvenanceBadge } from '@/components/common/provenance-badge'
 import { cn } from '@/lib/utils'
 
 interface LiveTelemetry {
@@ -537,6 +538,8 @@ export default function ObservationsPage() {
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
+          <ProvenanceBadge type="satellite_empirical" variant="compact" />
+
           {/* Dam Selector Pill */}
           <div className="relative" ref={damMenuRef}>
             <button

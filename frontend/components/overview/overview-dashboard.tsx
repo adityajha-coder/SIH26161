@@ -17,6 +17,7 @@ import { usePlatform } from '@/lib/platform-store'
 import { useFloodResult, useImpact } from '@/lib/use-flood'
 import { useScenarioHydrographs } from '@/lib/use-hydrograph'
 import { formatDischarge, formatNumber, formatVolumeMcm } from '@/lib/format'
+import { ProvenanceBadge } from '@/components/common/provenance-badge'
 
 const TERRAIN_MODES: { mode: BaseMode; label: string }[] = [
   { mode: 'terrain', label: '3D Terrain' },
@@ -86,7 +87,12 @@ export function OverviewDashboard() {
           className="h-150 lg:col-span-8 xl:col-span-9"
           bodyClassName="p-3 flex flex-col gap-3 h-[calc(100%-49px)]"
           actions={
-            <div className="flex items-center gap-1 rounded-lg border border-white/8 bg-black/30 p-1">
+            <div className="flex items-center gap-2">
+              <ProvenanceBadge
+                type={activeRun?.solver === 'sph' ? 'sph_trajectory_precomputed' : 'numerical_swe_2d'}
+                variant="compact"
+              />
+              <div className="flex items-center gap-1 rounded-lg border border-white/8 bg-black/30 p-1">
               {TERRAIN_MODES.map((tm) => (
                 <button
                   key={tm.mode}
@@ -101,6 +107,7 @@ export function OverviewDashboard() {
                   {tm.label}
                 </button>
               ))}
+              </div>
             </div>
           }
         >

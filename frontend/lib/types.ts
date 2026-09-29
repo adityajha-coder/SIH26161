@@ -58,6 +58,14 @@ export interface RunLogEntry {
   message: string
 }
 
+export interface OutputProvenance {
+  type: 'numerical_swe_2d' | 'sph_trajectory_precomputed' | 'calibrated_adapter' | 'satellite_empirical'
+  solverName: string
+  benchmarkCitation: string
+  methodology: string
+  gridOrParticle: string
+}
+
 export interface SimulationRun {
   id: string
   scenarioId: string
@@ -71,6 +79,7 @@ export interface SimulationRun {
   logs: RunLogEntry[]
   error?: string
   preview: boolean
+  provenance?: OutputProvenance
 }
 
 export interface ImpactSummary {
