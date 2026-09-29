@@ -1,6 +1,6 @@
 module github.com/sih26161/backend
 
-go 1.23
+go 1.25.0
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.47.1
