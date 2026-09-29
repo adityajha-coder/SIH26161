@@ -1,14 +1,31 @@
 {
   "events": [
     {
-      "id": "event-tehri-2010",
-      "name": "Tehri Reservoir Extreme Inflow Event",
-      "date": "2010-09-19",
-      "trigger": "Monsoon high-intensity cloudburst in upper Bhagirathi catchment",
-      "peak_inflow_cumec": 7800.0,
-      "max_reservoir_level_m": 832.0,
-      "controlled_outflow_cumec": 3200.0,
-      "validation_use": "Boundary inflow hydrograph calibration for normal and extreme spillway release scenarios"
+      "event_id": "rishi-ganga-2021",
+      "event_name": "Rishi Ganga & Dhauliganga Flash Flood Disaster",
+      "event_date": "2021-02-07",
+      "satellite_sensor": "Copernicus Sentinel-1A C-SAR (IW GRD)",
+      "scene_id_pre": "COPERNICUS/S1_GRD/S1A_IW_GRDH_1SDV_20210129T123914_20210129T123939_036353_044409_9902",
+      "scene_id_post": "COPERNICUS/S1_GRD/S1A_IW_GRDH_1SDV_20210210T123914_20210210T123939_036528_044A1E_E044",
+      "pre_acquisition_utc": "2021-01-29T12:39:14Z",
+      "post_acquisition_utc": "2021-02-10T12:39:14Z",
+      "orbital_pass": "ASCENDING",
+      "relative_orbit": 56,
+      "aoi_bbox": [
+        79.56,
+        30.45,
+        79.8,
+        30.58
+      ],
+      "true_positive_km2": 0.356,
+      "false_positive_km2": 1.986,
+      "false_negative_km2": 0.751,
+      "precision": 0.152,
+      "recall": 0.322,
+      "critical_success_index": 0.115,
+      "f1_score": 0.207,
+      "elevation_model": "Copernicus GLO-30 DEM",
+      "validation_methodology": "Empirical Sentinel-1 SAR pre/post backscatter differencing (\u0394\u03c3\u00b0) with terrain slope filtering, evaluated against simulated hydrodynamic flood wave extent."
     }
   ]
 }
